@@ -24,7 +24,7 @@ const FEATURES = [
 /* -------------------------------------------------------------------------- */
 
 export default function HeroSection() {
-  /* Evenly-spaced orbiting nodes (degrees only; radius & size via CSS) */
+  /* Evenly-spaced orbiting nodes */
   const nodes = useMemo(() => Array.from({ length: 12 }, (_, i) => i * (360 / 12)), [])
 
   return (
@@ -70,8 +70,10 @@ export default function HeroSection() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
                 className='inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-md'
-                dangerouslySetInnerHTML={{ __html: `<svg class="h-5 w-5 text-amber-300">${Icon({})}</svg> ${label}` }}
-              />
+              >
+                <Icon className='h-5 w-5 text-amber-300' />
+                <span dangerouslySetInnerHTML={{ __html: label }} />
+              </motion.li>
             ))}
           </ul>
 
