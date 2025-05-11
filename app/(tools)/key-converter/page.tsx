@@ -381,19 +381,19 @@ export default function KeyConverterPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <CopyInput
-            label="H160 Address"
-            value={h160Addr}
-            onChange={handleH160Change}
-            placeholder="0x…20-byte H160"
-            copyLabel="Copy H160"
-            error={addrError}
-          />
-          <CopyInput
             label="SS58 Address"
             value={ss58Addr}
             onChange={handleSs58Change}
             placeholder="SS58 address"
             copyLabel="Copy SS58"
+            error={addrError}
+          />
+          <CopyInput
+            label="H160 Address"
+            value={h160Addr}
+            onChange={handleH160Change}
+            placeholder="0x…20-byte H160"
+            copyLabel="Copy H160"
             error={addrError}
           />
           {addrError && (
