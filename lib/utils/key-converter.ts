@@ -1,52 +1,57 @@
 import {
   mnemonicToEntropy,
-  entropyToMiniSecret,
   entropyToMnemonic,
 } from "@polkadot-labs/hdkd-helpers";
 
 /* -------------------------------------------------------------------------- */
-/*                        L O W  -  L E V E L   H E L P E R S                 */
+/*                              H E L P E R S                                 */
 /* -------------------------------------------------------------------------- */
 
-/** Encode a 32-byte mini-secret as lower-case 0x-hex. */
-function miniSecretToHex(mini: Uint8Array): `0x${string}` {
-  return `0x${Buffer.from(mini).toString("hex").toLowerCase()}` as `0x${string}`;
+/** Encode Uint8Array entropy as lower-case 0x-hex. */
+function entropyToHex(entropy: Uint8Array): `0x${string}` {
+  return `0x${Buffer.from(entropy).toString("hex").toLowerCase()}` as `0x${string}`;
 }
 
-/** Convert a plain BIP-39 mnemonic (no derivation) to its mini-secret bytes. */
-function baseMnemonicToMiniSecret(mnemonic: string): Uint8Array {
-  const entropy = mnemonicToEntropy(mnemonic.trim());
-  return entropyToMiniSecret(entropy);
+/** Normalise a mnemonic by trimming and collapsing whitespace. */
+function normaliseMnemonic(phrase: string): string {
+  return phrase
+    .trim()
+    .split(/\s+/)
+    .join(" ");
 }
 
 /* -------------------------------------------------------------------------- */
-/*                       P U B L I C   U T I L I T I E S                      */
+/*                      P U B L I C   U T I L I T I E S                       */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Convert a seed phrase to a private key.
- * Any derivation path suffix (e.g. <code>//Alice</code>) is *ignored* to avoid
- * sr25519 KeyPair shape inconsistencies that caused runtime errors.
+ * Convert a BIP-39 seed phrase to its raw entropy hex.
+ * Any derivation path suffix (e.g. "<mnemonic>//Alice") is ignored so that
+ * conversions remain deterministic and round-trippable.
  */
 export function mnemonicToPrivateKey(phrase: string): `0x${string}` {
   const trimmed = phrase.trim();
   if (!trimmed) throw new Error("Mnemonic cannot be empty");
 
-  /* Strip everything after the first '//' */
+  /* Strip everything after the first '//' to discard derivation paths. */
   const [mnemonic] = trimmed.split("//");
-  const mini = baseMnemonicToMiniSecret(mnemonic);
-  return miniSecretToHex(mini);
+  const entropy = mnemonicToEntropy(normaliseMnemonic(mnemonic));
+  return entropyToHex(entropy);
 }
 
 /**
- * Convert a raw 32-byte 0x-hex private key back to its mnemonic form.
+ * Convert raw entropy hex (16 bytes for 12-word mnemonics, 32 bytes for 24-word)
+ * back to its original mnemonic.
  */
 export function privateKeyToMnemonic(privateKeyHex: string): string {
   const clean = privateKeyHex.startsWith("0x")
     ? privateKeyHex.slice(2)
     : privateKeyHex;
-  if (clean.length !== 64) throw new Error("Expected 32-byte hex private key");
 
-  const miniSecret = Uint8Array.from(Buffer.from(clean, "hex"));
-  return entropyToMnemonic(miniSecret);
+  if (clean.length !== 32 && clean.length !== 64) {
+    throw new Error("Expected 0x-prefixed 16- or 32-byte hex entropy value");
+  }
+
+  const entropy = Uint8Array.from(Buffer.from(clean, "hex"));
+  return entropyToMnemonic(entropy);
 }

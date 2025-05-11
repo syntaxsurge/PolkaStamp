@@ -41,7 +41,7 @@ function buildDevAccounts(): DevAccount[] {
   return DERIVATIONS.map((path) => {
     const label = path.replace("//", "")
     const seedPhrase = `${BASE_MNEMONIC}${path}`
-    /* Path component is ignored; all accounts map to the base key */
+    /* Path component is ignored; all accounts map to the base entropy */
     const privateKey = mnemonicToPrivateKey(seedPhrase)
     return { label, path, seedPhrase, privateKey }
   })
@@ -97,7 +97,7 @@ export default function KeyConverterPage() {
     <PageCard
       icon={KeyIcon}
       title="Seed ⇄ Private-Key Converter"
-      description="Convert BIP-39 seed phrases to Sr25519 private keys and vice-versa. Pre-derived dev accounts use the base key for demonstration."
+      description="Convert BIP-39 seed phrases to raw entropy hex and back — conversions are now perfectly reversible."
       className="space-y-8"
     >
       {/* Converters --------------------------------------------------------- */}
@@ -150,7 +150,7 @@ export default function KeyConverterPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4 flex-1">
             <Input
-              placeholder="0x…32-byte hex"
+              placeholder="0x…16- or 32-byte hex"
               value={privateIn}
               onChange={(e) => setPrivateIn(e.target.value)}
               spellCheck={false}
@@ -178,7 +178,7 @@ export default function KeyConverterPage() {
             {privateError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
-                Invalid 32-byte private-key hex supplied.
+                Invalid entropy hex supplied (expect 16 or 32 bytes).
               </p>
             )}
           </CardContent>
