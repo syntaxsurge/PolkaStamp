@@ -14,7 +14,7 @@ import { TableRowActions, type TableRowAction } from '@/components/ui/tables/row
 import { useBulkActions } from '@/lib/hooks/use-bulk-actions'
 import { useTableNavigation } from '@/lib/hooks/use-table-navigation'
 import type { IssuerDirectoryRow, TableProps } from '@/lib/types/tables'
-import { copyToClipboard } from '@/lib/utils'
+import { copyToClipboard, buildExplorerLink } from '@/lib/utils'
 
 /* -------------------------------------------------------------------------- */
 /*                        Per-row actions + dialog UI                         */
@@ -155,6 +155,26 @@ export default function IssuersTable({
         header: sortableHeader('Status', 'status'),
         sortable: false,
         render: (v) => <StatusBadge status={String(v)} />,
+      },
+      {
+        key: 'grantTxHash',
+        header: 'Tx',
+        sortable: false,
+        render: (_v, row) => {
+          const hash = (row as any).grantTxHash as string | null | undefined
+          return hash ? (
+            <a
+              href={buildExplorerLink(hash)}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='font-mono text-xs text-primary hover:underline'
+            >
+              {hash.slice(0, 6)}…{hash.slice(-4)}
+            </a>
+          ) : (
+            '—'
+          )
+        },
       },
       {
         key: 'createdAt',

@@ -86,24 +86,27 @@ export default async function IssuerDirectoryPage({
   const hasNext = rowsRaw.length > pageSize
   if (hasNext) rowsRaw.pop()
 
-  const rows: IssuerDirectoryRow[] = rowsRaw.map((i) => ({
-    id: i.id,
-    name: i.name,
-    domain: i.domain,
-    category: i.category,
-    industry: i.industry,
-    status: i.status,
-    logoUrl: i.logoUrl,
-    did: i.did ?? null,
-    createdAt: i.createdAt?.toISOString() ?? '',
-  }))
+  const rows: IssuerDirectoryRow[] = rowsRaw.map((i) =>
+    ({
+      id: i.id,
+      name: i.name,
+      domain: i.domain,
+      category: i.category,
+      industry: i.industry,
+      status: i.status,
+      logoUrl: i.logoUrl,
+      did: i.did ?? null,
+      createdAt: i.createdAt?.toISOString() ?? '',
+      grantTxHash: i.grantTxHash ?? null,
+    } as unknown as IssuerDirectoryRow),
+  )
 
   /* ------------------------------ View ---------------------------------- */
   return (
     <PageCard
       icon={ShieldCheck}
       title='Verified Issuers'
-      description='Browse all verified organisations. Use the search box, category and industry filters, sortable headers, and pagination controls to quickly locate issuers.'
+      description='Browse all verified organisations. Each entry includes the on-chain receipt granting issuer privileges.'
     >
       <div className='space-y-4 overflow-x-auto'>
         <IssuerFilters

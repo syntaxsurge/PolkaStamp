@@ -2,13 +2,16 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { validatedActionWithUser } from '@/lib/auth/middleware'
 import { db } from '@/lib/db/drizzle'
 import { candidateCredentials, CredentialStatus } from '@/lib/db/schema/candidate'
 import { issuers, IssuerStatus } from '@/lib/db/schema/issuer'
+import { users } from '@/lib/db/schema/core'
+import { grantIssuerRole } from '@/lib/credential-nft'
+import { getPlatformSigner } from '@/lib/platform-signer'
 
 /* -------------------------------------------------------------------------- */
 /*                               U P D A T E                                  */
@@ -36,27 +39,68 @@ const _updateIssuerStatus = validatedActionWithUser(
     if (user.role !== 'admin') return { error: 'Unauthorized.' }
 
     /* ------------------------------------------------------------------ */
-    /* Fetch issuer                                                       */
+    /* Fetch issuer + owner wallet                                        */
     /* ------------------------------------------------------------------ */
     const [issuer] = await db.select().from(issuers).where(eq(issuers.id, issuerId)).limit(1)
     if (!issuer) return { error: 'Issuer not found.' }
 
-    /* Require issuer-side DID before activation ------------------------- */
+    const [owner] = await db
+      .select({ walletAddress: users.walletAddress })
+      .from(users)
+      .where(eq(users.id, issuer.ownerUserId))
+      .limit(1)
+
+    if (!owner?.walletAddress) {
+      return { error: 'Issuer owner wallet address missing.' }
+    }
+
+    /* Require issuer DID before activation ----------------------------- */
     if (status === IssuerStatus.ACTIVE && !issuer.did) {
       return {
         error:
-          'Issuer has not linked a DID. Ask the organisation to create and attach their Polkadot DID before activation.',
+          'Issuer has not linked a DID. Ask the organisation to attach their Polkadot DID before activation.',
       }
     }
 
-    /* Persist change ---------------------------------------------------- */
+    let txHash: string | undefined = issuer.grantTxHash ?? undefined
+
+    /* ------------------------------------------------------------------ */
+    /* First-time activation → grant on-chain issuer role                 */
+    /* ------------------------------------------------------------------ */
+    if (status === IssuerStatus.ACTIVE && issuer.status !== IssuerStatus.ACTIVE) {
+      try {
+        const signer = await getPlatformSigner()
+        const res = await grantIssuerRole({ account: signer, issuer: owner.walletAddress })
+        txHash = res.txHash ?? undefined
+      } catch (err) {
+        return { error: `Blockchain transaction failed: ${(err as Error).message}` }
+      }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Persist change                                                     */
+    /* ------------------------------------------------------------------ */
     await db
       .update(issuers)
       .set({
         status,
-        rejectionReason: status === IssuerStatus.REJECTED ? (rejectionReason ?? null) : null,
+        rejectionReason: status === IssuerStatus.REJECTED ? rejectionReason ?? null : null,
+        grantTxHash: txHash ?? null,
       })
       .where(eq(issuers.id, issuerId))
+
+    /* When status downgrades, also unlink from candidate credentials ---- */
+    if (issuer.status === IssuerStatus.ACTIVE && status !== IssuerStatus.ACTIVE) {
+      await db
+        .update(candidateCredentials)
+        .set({
+          issuerId: null,
+          status: CredentialStatus.UNVERIFIED,
+          verified: false,
+          verifiedAt: null,
+        })
+        .where(and(eq(candidateCredentials.issuerId, issuerId)))
+    }
 
     revalidatePath('/admin/issuers')
     return { success: `Issuer status updated to ${status}.` }
