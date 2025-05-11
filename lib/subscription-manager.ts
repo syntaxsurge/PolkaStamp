@@ -31,18 +31,19 @@ const { msg, reviveCall, sendTx } = makeInkHelpers(
  * into a single `bigint` value.
  */
 function u256ToBigInt(raw: unknown): bigint {
-  /* Simple case – already bigint */
+  /* Already bigint ------------------------------------------------------- */
   if (typeof raw === "bigint") return raw;
 
-  /* Array of limbs (little-endian 64-bit words) */
+  /* Array of little-endian 64-bit limbs ---------------------------------- */
   if (Array.isArray(raw)) {
     return raw.reduce<bigint>(
-      (acc, limb, idx) => acc + (BigInt(limb) << (64n * BigInt(idx))),
+      (acc, limb, idx) =>
+        acc + (BigInt(Number(limb)) << (64n * BigInt(idx))),
       0n,
     );
   }
 
-  /* Object with `.words` (as used by primitive_types::U256) */
+  /* Object with `.words` carrying the limbs ------------------------------ */
   if (
     raw &&
     typeof raw === "object" &&
@@ -50,12 +51,13 @@ function u256ToBigInt(raw: unknown): bigint {
   ) {
     const words = (raw as any).words as unknown[];
     return words.reduce<bigint>(
-      (acc, limb, idx) => acc + (BigInt(limb) << (64n * BigInt(idx))),
+      (acc, limb, idx) =>
+        acc + (BigInt(Number(limb)) << (64n * BigInt(idx))),
       0n,
     );
   }
 
-  /* Fallback – try numeric string */
+  /* Fallback to numeric string ------------------------------------------ */
   if (raw && typeof (raw as any).toString === "function") {
     const str = (raw as any).toString();
     if (/^\d+$/.test(str)) return BigInt(str);
@@ -140,7 +142,7 @@ export const paySubscription = async ({
   );
 
 /**
- * Get the timestamp (u64 seconds) until which the team has paid.
+ * Get the timestamp (u64 ms) until which the team has paid.
  * Returns `bigint` or `null`.
  */
 export const paidUntil = async ({
