@@ -84,6 +84,7 @@ export const candidateCredentials = pgTable('candidate_credentials', {
    * Fine-grained type identifier (e.g. 'bachelor', 'certificate').
    */
   type: varchar('type', { length: 50 }).notNull(),
+  /** HTTP or IPFS link (e.g. ipfs://<cid>/filename.pdf) */
   fileUrl: text('file_url'),
   /** -------------------------------------------------------------------- */
   status: varchar('status', { length: 20 }).notNull().default(CredentialStatus.UNVERIFIED),

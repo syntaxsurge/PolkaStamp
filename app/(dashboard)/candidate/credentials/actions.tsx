@@ -21,12 +21,16 @@ import { issuers, IssuerStatus } from '@/lib/db/schema/issuer'
 /** Enum wrapper keeps schema strongly typed. */
 const CategoryEnum = z.nativeEnum(CredentialCategory)
 
-/** Core payload schema – no proof fields required. */
+/**
+ * Payload schema — fileUrl arrives from the client after a successful
+ * Apillon upload. It may be an HTTP or IPFS URI; accept an empty string
+ * during parsing so we can perform a custom presence check later.
+ */
 const AddCredentialSchema = z.object({
   title: z.string().min(2).max(200),
   category: CategoryEnum,
   type: z.string().min(1).max(50),
-  fileUrl: z.string().url('Invalid URL'),
+  fileUrl: z.string().url().or(z.literal('')).optional(),
   issuerId: z.coerce.number().optional(),
 })
 
@@ -36,7 +40,13 @@ const AddCredentialSchema = z.object({
 
 export const addCredential = validatedActionWithUser(
   AddCredentialSchema,
-  async ({ title, category, type, fileUrl, issuerId }, _formData, user) => {
+  async ({ title, category, type, fileUrl, issuerId }, formData, user) => {
+    /* ---------------------- fileUrl presence check ---------------------- */
+    const rawFileUrl = (formData.get('fileUrl') as string | null) ?? fileUrl ?? ''
+    if (!rawFileUrl) {
+      return { error: 'File missing or upload failed.' }
+    }
+
     /* --------------------------- issuer lookup -------------------------- */
     let linkedIssuerId: number | undefined
     let status: CredentialStatus = CredentialStatus.UNVERIFIED
@@ -85,7 +95,7 @@ export const addCredential = validatedActionWithUser(
       title,
       category,
       type,
-      fileUrl,
+      fileUrl: rawFileUrl,
       issuerId: linkedIssuerId,
       status,
     })
