@@ -11,37 +11,65 @@ import {
 import { makeInkHelpers } from "./ink-helpers";
 import { SUBSCRIPTION_MANAGER_ADDRESS } from "./config";
 
-/* ---------- contract instance & helpers ---------- */
+/* -------------------------------------------------------------------------- */
+/*                        C O N T R A C T   B I N D I N G                     */
+/* -------------------------------------------------------------------------- */
+
 const subscriptionManager = getInkClient(contracts.subscription_manager);
 const { msg, reviveCall, sendTx } = makeInkHelpers(
   SUBSCRIPTION_MANAGER_ADDRESS,
   subscriptionManager,
 );
 
-/* ---------- reads ---------- */
+/* -------------------------------------------------------------------------- */
+/*                               H E L P E R S                                */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Get the timestamp (u64 seconds) until which the team has paid.
- * Returns bigint | null.
+ * Convert the various U256 representations returned by polkadot-api decoding
+ * (bigint, limbs array `[lo, midLo, midHi, hi]`, or objects with `.words`)
+ * into a single `bigint` value.
  */
-export const paidUntil = async ({
-  account,
-  team,
-}: {
-  account: InjectedPolkadotAccount;
-  team: string;
-}) => {
-  const data = msg("paid_until").encode({ team: h160Binary(team) });
-  const resp = await reviveCall(account.address, data);
-  if (!resp.result.success || isEmpty(resp.result.value)) return null;
-  return safeDecode(msg("paid_until").decode, resp.result.value, {
-    success: false,
-    value: null,
-  }).value as bigint | null;
-};
+function u256ToBigInt(raw: unknown): bigint {
+  /* Simple case – already bigint */
+  if (typeof raw === "bigint") return raw;
+
+  /* Array of limbs (little-endian 64-bit words) */
+  if (Array.isArray(raw)) {
+    return raw.reduce<bigint>(
+      (acc, limb, idx) => acc + (BigInt(limb) << (64n * BigInt(idx))),
+      0n,
+    );
+  }
+
+  /* Object with `.words` (as used by primitive_types::U256) */
+  if (
+    raw &&
+    typeof raw === "object" &&
+    Array.isArray((raw as any).words)
+  ) {
+    const words = (raw as any).words as unknown[];
+    return words.reduce<bigint>(
+      (acc, limb, idx) => acc + (BigInt(limb) << (64n * BigInt(idx))),
+      0n,
+    );
+  }
+
+  /* Fallback – try numeric string */
+  if (raw && typeof (raw as any).toString === "function") {
+    const str = (raw as any).toString();
+    if (/^\d+$/.test(str)) return BigInt(str);
+  }
+
+  throw new Error("Unsupported U256 format");
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   READS                                    */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Return price (U256 encoded as bigint) of a plan.
+ * Return on-chain price (as bigint) of a plan or `null` when not set.
  */
 export const priceOf = async ({
   account,
@@ -53,13 +81,20 @@ export const priceOf = async ({
   const data = msg("price_of").encode({ plan_key: planKey });
   const resp = await reviveCall(account.address, data);
   if (!resp.result.success || isEmpty(resp.result.value)) return null;
-  return safeDecode(msg("price_of").decode, resp.result.value, {
+
+  const decoded: any = safeDecode(msg("price_of").decode, resp.result.value, {
     success: false,
     value: null,
-  }).value as bigint | null;
+  }).value;
+
+  if (decoded === null || decoded === undefined) return null;
+
+  return u256ToBigInt(decoded);
 };
 
-/* ---------- transactions ---------- */
+/* -------------------------------------------------------------------------- */
+/*                               T R A N S A C T I O N S                      */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Admin-only: set price for a plan.
@@ -82,7 +117,7 @@ export const setPlanPrice = async ({
   );
 
 /**
- * Pay subscription for a team; payable - value must equal price.
+ * Pay subscription for a team; payable – `value` must equal price.
  */
 export const paySubscription = async ({
   account,
@@ -103,3 +138,23 @@ export const paySubscription = async ({
     }),
     value,
   );
+
+/**
+ * Get the timestamp (u64 seconds) until which the team has paid.
+ * Returns `bigint` or `null`.
+ */
+export const paidUntil = async ({
+  account,
+  team,
+}: {
+  account: InjectedPolkadotAccount;
+  team: string;
+}) => {
+  const data = msg("paid_until").encode({ team: h160Binary(team) });
+  const resp = await reviveCall(account.address, data);
+  if (!resp.result.success || isEmpty(resp.result.value)) return null;
+  return safeDecode(msg("paid_until").decode, resp.result.value, {
+    success: false,
+    value: null,
+  }).value as bigint | null;
+};
