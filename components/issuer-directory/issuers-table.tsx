@@ -31,7 +31,9 @@ function ActionsCell({ row }: { row: IssuerDirectoryRow }) {
       list.push({
         label: 'View Transaction',
         icon: ExternalLink,
-        onClick: () => window.open(buildExplorerLink(row.grantTxHash!), '_blank'),
+        onClick: () => {
+          window.open(buildExplorerLink(row.grantTxHash!), '_blank')
+        },
         disabled: () => !row.grantTxHash,
       })
     }

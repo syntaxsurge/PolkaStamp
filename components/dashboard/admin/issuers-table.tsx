@@ -40,7 +40,6 @@ export default function AdminIssuersTable({
 
   /* -------------------------- Bulk-selection actions ---------------------- */
   const bulkActions = useBulkActions<Row>([
-    /* (unchanged bulk actions) */
     {
       label: 'Verify',
       icon: VerifyIcon,
@@ -60,13 +59,11 @@ export default function AdminIssuersTable({
             continue
           }
           try {
-            /* ---------- sign & submit extrinsic ---------- */
             const txRes = await grantIssuerRole({
               account: selectedAccount!,
-              issuer: row.ownerWalletAddress!, // non-null asserted after guard
+              issuer: row.ownerWalletAddress!,
             })
 
-            /* ---------- persist to DB ---------- */
             const fd = new FormData()
             fd.append('issuerId', row.id.toString())
             fd.append('status', IssuerStatus.ACTIVE)
@@ -151,22 +148,23 @@ export default function AdminIssuersTable({
     (row: Row): TableRowAction<Row>[] => {
       const actions: TableRowAction<Row>[] = []
 
-      /* ---- View Transaction (always first if available) ----------------- */
+      /* View Transaction -------------------------------------------------- */
       if (row.grantTxHash) {
         actions.push({
           label: 'View Transaction',
           icon: ExternalLink,
-          onClick: () => window.open(buildExplorerLink(row.grantTxHash!), '_blank'),
+          onClick: () => {
+            window.open(buildExplorerLink(row.grantTxHash!), '_blank')
+          },
         })
       }
 
-      /* ---- Existing Verify / Unverify / Reject / Delete logic ----------- */
+      /* Verify ------------------------------------------------------------ */
       if (row.status !== 'ACTIVE') {
         actions.push({
           label: 'Verify',
           icon: VerifyIcon,
           onClick: async () => {
-            /* Validate wallet & owner address */
             try {
               ensureSigner(selectedAccount)
             } catch (e: any) {
@@ -183,7 +181,7 @@ export default function AdminIssuersTable({
             try {
               const tx = await grantIssuerRole({
                 account: selectedAccount!,
-                issuer: row.ownerWalletAddress!, // non-null asserted after guard
+                issuer: row.ownerWalletAddress!,
               })
 
               if (tx.txHash) {
@@ -191,7 +189,9 @@ export default function AdminIssuersTable({
                   id: toastId,
                   action: {
                     label: 'View',
-                    onClick: () => window.open(buildExplorerLink(tx.txHash!), '_blank'),
+                    onClick: () => {
+                      window.open(buildExplorerLink(tx.txHash!), '_blank')
+                    },
                   },
                 })
               }
@@ -213,6 +213,7 @@ export default function AdminIssuersTable({
         })
       }
 
+      /* Unverify ---------------------------------------------------------- */
       if (row.status === 'ACTIVE') {
         actions.push({
           label: 'Unverify',
@@ -231,6 +232,7 @@ export default function AdminIssuersTable({
         })
       }
 
+      /* Reject ------------------------------------------------------------ */
       if (row.status !== 'REJECTED') {
         actions.push({
           label: 'Reject',
@@ -251,6 +253,7 @@ export default function AdminIssuersTable({
         })
       }
 
+      /* Delete ------------------------------------------------------------ */
       actions.push({
         label: 'Delete',
         icon: Trash2,
