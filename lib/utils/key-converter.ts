@@ -8,7 +8,7 @@ import {
   decodeAddress,
   cryptoWaitReady,
 } from "@polkadot/util-crypto";
-import { hexToU8a } from "@polkadot/util";
+import { hexToU8a, u8aToHex } from "@polkadot/util";
 
 import { toH160Hex } from "@/lib/contract-utils";
 
@@ -73,12 +73,13 @@ export async function mnemonicToPrivateKey(phrase: string): Promise<`0x${string}
 
 export async function privateKeyToMnemonic(privateKeyHex: string): Promise<string> {
   const clean = sanitiseEntropyHex(privateKeyHex);
-  if (clean.length !== 32 && clean.length !== 64) {
-    /* 64-byte secrets cannot map back to BIP-39 */
-    throw new Error("Cannot derive mnemonic from this key length");
+  if (clean.length !== 64) {
+    /* 64-char (32-byte) seeds map to 24-word mnemonics */
+    const entropy = Uint8Array.from(Buffer.from(clean, "hex"));
+    return entropyToMnemonic(entropy);
   }
-  const entropy = Uint8Array.from(Buffer.from(clean, "hex"));
-  return entropyToMnemonic(entropy);
+  /* 128-char secrets cannot reliably map back to BIP-39 */
+  throw new Error("Cannot derive mnemonic from this key length");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -119,4 +120,54 @@ export function h160ToSs58(h160: string, prefix = 42): string {
   const acc = new Uint8Array(32);
   acc.set(body, 12);
   return encodeAddress(acc, prefix);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                  K E Y S T O R E   J S O N   H E L P E R S                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Decode a polkadot-js keystore JSON and return the 32-byte mini secret key.
+ *
+ * @param jsonStr  The raw JSON string (or parsed object) from the keystore.
+ * @param password Optional password; default empty string for dev keystores.
+ */
+export async function keystoreJsonToPrivateKey(
+  jsonStr: string | Record<string, unknown>,
+  password = "",
+): Promise<`0x${string}`> {
+  await ensureReady();
+
+  const json =
+    typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
+  if (typeof json !== "object" || !("encoded" in json)) {
+    throw new Error("Invalid keystore JSON");
+  }
+
+  const keyring = new Keyring({ type: "sr25519" });
+  const pair = keyring.addFromJson(json as any);
+  try {
+    pair.decodePkcs8(password);
+  } catch {
+    throw new Error("Incorrect password");
+  }
+
+  const secret = pair.secretKey as Uint8Array | undefined;
+  if (!secret || secret.length < 32) {
+    throw new Error("Unable to extract private key");
+  }
+
+  const mini = secret.slice(0, 32); // first 32 bytes = mini secret
+  return u8aToHex(mini) as `0x${string}`;
+}
+
+/**
+ * Convenience helper: derive public keys directly from keystore JSON.
+ */
+export async function derivePublicKeysFromKeystore(
+  jsonStr: string | Record<string, unknown>,
+  password = "",
+): Promise<PublicKeys> {
+  const priv = await keystoreJsonToPrivateKey(jsonStr, password);
+  return derivePublicKeysFromPrivateKey(priv);
 }

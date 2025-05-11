@@ -22,8 +22,9 @@ import {
   derivePublicKeysFromPrivateKey,
   h160ToSs58,
   ss58ToH160,
+  keystoreJsonToPrivateKey,
+  derivePublicKeysFromKeystore,
 } from "@/lib/utils/key-converter";
-import { trimAddress } from "@/lib/utils/address";
 
 /* ----------------------------- Helper component -------------------------- */
 
@@ -119,12 +120,10 @@ export default function KeyConverterPage() {
         setPrivatePub(await derivePublicKeysFromPrivateKey(privateIn));
       } catch {
         setPrivatePub({ h160: "", ss58: "" });
-        /* Count as real error only if both conversions failed */
         if (hadMnemonicError) setPrivateError(true);
         else setPrivateError(false);
         return;
       }
-      /* At least address derivation succeeded → no field error */
       setPrivateError(false);
     })();
   }, [privateIn]);
@@ -166,13 +165,59 @@ export default function KeyConverterPage() {
     }
   }
 
+  /* Keystore JSON → */
+  const [jsonText, setJsonText] = useState("");
+  const [jsonPwd, setJsonPwd] = useState("");
+  const [jsonPrivate, setJsonPrivate] = useState("");
+  const [jsonMnemonic, setJsonMnemonic] = useState("");
+  const [jsonPub, setJsonPub] = useState({ h160: "", ss58: "" });
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [jsonSuccess, setJsonSuccess] = useState(false);
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    file
+      .text()
+      .then((txt) => setJsonText(txt))
+      .catch(() => toast.error("Failed to read file"));
+  }
+
+  async function decodeKeystore() {
+    if (!jsonText.trim()) {
+      setJsonError("Paste or upload a keystore JSON first.");
+      return;
+    }
+    try {
+      const priv = await keystoreJsonToPrivateKey(jsonText, jsonPwd);
+      setJsonPrivate(priv);
+
+      try {
+        setJsonMnemonic(await privateKeyToMnemonic(priv));
+      } catch {
+        setJsonMnemonic("");
+      }
+
+      setJsonPub(await derivePublicKeysFromPrivateKey(priv));
+      setJsonError(null);
+      setJsonSuccess(true);
+      toast.success("Keystore decoded.");
+    } catch (err: any) {
+      setJsonPrivate("");
+      setJsonMnemonic("");
+      setJsonPub({ h160: "", ss58: "" });
+      setJsonSuccess(false);
+      setJsonError(err?.message ?? "Failed to decode keystore.");
+    }
+  }
+
   /* ----------------------------- Render UI ------------------------------ */
 
   return (
     <PageCard
       icon={KeyIcon}
       title="Key & Address Converter"
-      description="Convert between mnemonics, raw private keys, H160 and SS58 addresses."
+      description="Convert between mnemonics, private keys, keystore JSON, H160 and SS58 addresses."
       className="space-y-8"
     >
       <div className="grid gap-6 lg:grid-cols-2">
@@ -249,6 +294,75 @@ export default function KeyConverterPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Keystore JSON decoder */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Keystore JSON → Private / Public</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <textarea
+            value={jsonText}
+            onChange={(e) => setJsonText(e.target.value)}
+            rows={6}
+            placeholder='Paste keystore JSON here…'
+            className="border-border w-full rounded-md p-2 font-mono text-xs"
+            spellCheck={false}
+          />
+          <div className="flex items-center gap-2">
+            <Input
+              type="password"
+              value={jsonPwd}
+              onChange={(e) => setJsonPwd(e.target.value)}
+              placeholder="Password (leave blank if none)"
+              className="flex-1"
+            />
+            <input
+              type="file"
+              accept=".json,application/json"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="jsonFileInput"
+            />
+            <label htmlFor="jsonFileInput">
+              <Button variant="outline">Upload</Button>
+            </label>
+            <Button onClick={decodeKeystore}>Decode</Button>
+          </div>
+
+          {jsonError && (
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="size-4" /> {jsonError}
+            </p>
+          )}
+          {jsonSuccess && (
+            <p className="flex items-center gap-1 text-xs text-primary">
+              <CheckCircle2 className="size-4" /> Keystore decoded successfully.
+            </p>
+          )}
+
+          <CopyInput
+            value={jsonPrivate}
+            placeholder="0x…private key"
+            copyLabel="Copy key"
+          />
+          <CopyInput
+            value={jsonMnemonic}
+            placeholder="Mnemonic (if derivable)…"
+            copyLabel="Copy mnemonic"
+          />
+          <CopyInput
+            value={jsonPub.h160}
+            placeholder="H160 address…"
+            copyLabel="Copy H160"
+          />
+          <CopyInput
+            value={jsonPub.ss58}
+            placeholder="SS58 address…"
+            copyLabel="Copy SS58"
+          />
+        </CardContent>
+      </Card>
 
       {/* Address converter */}
       <Card>
