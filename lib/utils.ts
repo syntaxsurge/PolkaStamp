@@ -4,7 +4,10 @@ import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 import { WS_URL } from './config'
-import { buildAccountMappingInstructions, renderAccountMappingToast } from './utils/account-mapping'
+import {
+  buildAccountMappingInstructions,
+  renderAccountMappingToast,
+} from './utils/account-mapping'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -19,7 +22,10 @@ export function weiToDecimal(wei: bigint | string): string {
   const whole = value / TEN_POW_DECIMALS
   const fraction = value % TEN_POW_DECIMALS
   if (fraction === 0n) return whole.toString()
-  const fractionStr = fraction.toString().padStart(Number(DECIMALS), '0').replace(/0+$/, '')
+  const fractionStr = fraction
+    .toString()
+    .padStart(Number(DECIMALS), '0')
+    .replace(/0+$/, '')
   return `${whole}.${fractionStr}`
 }
 
@@ -41,7 +47,9 @@ export function decimalToWei(input: string): bigint {
  * Ensure the user has selected an account before proceeding.
  * Throws an error when the account is null/undefined.
  */
-export function ensureSigner(account: { address: string } | null | undefined): asserts account {
+export function ensureSigner(
+  account: { address: string } | null | undefined,
+): asserts account {
   if (!account) throw new Error('Connect a wallet account first.')
 }
 
@@ -51,11 +59,15 @@ export function ensureSigner(account: { address: string } | null | undefined): a
 
 /** Build a Polkadot-JS Apps explorer link for a given transaction hash. */
 export function buildExplorerLink(hash: string): string {
-  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(WS_URL)}#/explorer/query/${hash}`
+  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(
+    WS_URL,
+  )}#/explorer/query/${hash}`
 }
 
 export function stringifyWithBigInt(obj: unknown) {
-  return JSON.stringify(obj, (key, value) => (typeof value === 'bigint' ? value.toString() : value))
+  return JSON.stringify(obj, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value,
+  )
 }
 
 /** Format update date/time */
@@ -115,10 +127,15 @@ export function prettify(text?: string | null): string {
 }
 
 /**
- * Decode a Polkadot dispatch error into human-readable form or a rich JSX
- * element when unmapped-account guidance is required.
+ * Decode a Polkadot dispatch error into human-readable form.
+ *
+ * **Important**: Always returns a _string_. When `AccountUnmapped`
+ * is detected in the browser it fires a rich `toast.custom`
+ * containing the JSX guide, while callers still receive a concise
+ * message – preventing "[object Object]” artefacts in default
+ * `toast.error()` usages throughout the app.
  */
-export function decodeDispatchError(error: unknown): React.ReactNode {
+export function decodeDispatchError(error: unknown): string {
   /* ---------------- base decoding logic ------------------ */
   let msg = 'Unknown error'
 
@@ -172,10 +189,12 @@ export function decodeDispatchError(error: unknown): React.ReactNode {
 
   /* ------------------ unmapped account ------------------- */
   if (/AccountUnmapped/i.test(msg)) {
-    // Return rich JSX toast for UI contexts; fall back to text if not used in a React renderer.
-    return typeof window === 'undefined'
-      ? buildAccountMappingInstructions()
-      : renderAccountMappingToast()
+    /* Fire rich guide toast once per error on the client only */
+    if (typeof window !== 'undefined') {
+      toast.custom(() => renderAccountMappingToast())
+    }
+    /* Always return plain text so default toasts work */
+    return buildAccountMappingInstructions().split('\n')[0]
   }
 
   return msg
