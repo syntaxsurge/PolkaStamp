@@ -1,8 +1,9 @@
 'use server'
 
 import { NextResponse } from 'next/server'
-import { z } from 'zod'
+
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth/guards'
 import { db } from '@/lib/db/drizzle'
@@ -19,9 +20,7 @@ const BodySchema = z.object({
     .string()
     .regex(/^0x[0-9a-fA-F]{1,64}$/)
     .max(66),
-  txHash: z
-    .string()
-    .regex(/^0x[0-9a-fA-F]{64}$/),
+  txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   vcJson: z.string().optional(),
 })
 
@@ -43,10 +42,7 @@ export async function POST(req: Request) {
     .limit(1)
 
   if (!candidateRow) {
-    const [created] = await db
-      .insert(candidates)
-      .values({ userId: user.id, bio: '' })
-      .returning()
+    const [created] = await db.insert(candidates).values({ userId: user.id, bio: '' }).returning()
     candidateRow = created
   }
 

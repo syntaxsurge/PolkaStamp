@@ -2,8 +2,8 @@ import type { ReactNode, ElementType } from 'react'
 
 import type { LucideIcon } from 'lucide-react'
 
-import type { CredentialStatus } from '@/lib/db/schema/candidate'
 import type { User } from '@/lib/db/schema'
+import type { CredentialStatus } from '@/lib/db/schema/candidate'
 
 import { Pagination } from '.'
 import type {

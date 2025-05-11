@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 
 import WalletOnboardModal from '@/components/auth/wallet-onboard-modal'
-import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 import { useUser } from '@/lib/auth'
+import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
 /**
  * Mount-point component rendered once inside the global <UserProvider/>.

@@ -44,8 +44,7 @@ export const verifyCredentialServerAction = validatedActionWithUser(
       )
       .limit(1)
     if (!cred) return { error: 'Credential not found for this issuer.' }
-    if (cred.status === CredentialStatus.VERIFIED)
-      return { error: 'Credential already verified.' }
+    if (cred.status === CredentialStatus.VERIFIED) return { error: 'Credential already verified.' }
 
     /* Update DB */
     await db
@@ -62,7 +61,6 @@ export const verifyCredentialServerAction = validatedActionWithUser(
     return { success: 'Credential verified.' }
   },
 )
-
 
 /* -------------------------------------------------------------------------- */
 /*                              R E J E C T                                   */

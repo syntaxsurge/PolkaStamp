@@ -10,7 +10,6 @@ import {
   Building2,
   ShieldCheck,
 } from 'lucide-react'
-import { redirect } from 'next/navigation'
 
 import AdminCharts from '@/components/dashboard/admin/charts'
 import CandidateCharts from '@/components/dashboard/candidate/charts'

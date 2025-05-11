@@ -1,14 +1,15 @@
 'use client'
 
 import * as React from 'react'
+
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { toH160Hex } from '@/lib/contract-utils'
 import { createDid } from '@/lib/did-registry'
 import { buildExplorerLink, ensureSigner } from '@/lib/utils'
 import { parseInkError } from '@/lib/utils/ink-errors'
-import { toH160Hex } from '@/lib/contract-utils'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
 import { createDidAction } from './actions'
@@ -65,8 +66,7 @@ export function CreateDidButton() {
           action: txResult.txHash
             ? {
                 label: 'View',
-                onClick: () =>
-                  window.open(buildExplorerLink(txResult.txHash!), '_blank'),
+                onClick: () => window.open(buildExplorerLink(txResult.txHash!), '_blank'),
               }
             : undefined,
         })

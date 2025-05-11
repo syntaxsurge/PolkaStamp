@@ -1,6 +1,6 @@
-import { cryptoWaitReady, blake2AsU8a } from '@polkadot/util-crypto';
-import { Keyring } from '@polkadot/keyring';
-import { hexToU8a, u8aToHex } from '@polkadot/util';
+import { Keyring } from '@polkadot/keyring'
+import { hexToU8a, u8aToHex } from '@polkadot/util'
+import { cryptoWaitReady, blake2AsU8a } from '@polkadot/util-crypto'
 
 /**
  * Produce an sr25519 signature authorising a SkillPass credential mint.
@@ -17,19 +17,17 @@ export async function signCredentialMint(
   vcHash: `0x${string}`,
   seedHex?: `0x${string}`,
 ): Promise<`0x${string}`> {
-  await cryptoWaitReady();
+  await cryptoWaitReady()
 
   /* Initialise keyring */
-  const keyring = new Keyring({ type: 'sr25519' });
+  const keyring = new Keyring({ type: 'sr25519' })
 
   /* Signer selection: supplied seed > derived dev key */
-  const signer = seedHex
-    ? keyring.addFromUri(seedHex)
-    : keyring.addFromUri(`${toAddress}//signer`);
+  const signer = seedHex ? keyring.addFromUri(seedHex) : keyring.addFromUri(`${toAddress}//signer`)
 
   /* Sign the hash (double-blake2 to ensure 32-byte payload) */
-  const payload = blake2AsU8a(hexToU8a(vcHash));
-  const sig = signer.sign(payload);
+  const payload = blake2AsU8a(hexToU8a(vcHash))
+  const sig = signer.sign(payload)
 
-  return u8aToHex(sig) as `0x${string}`;
+  return u8aToHex(sig) as `0x${string}`
 }

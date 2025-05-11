@@ -4,10 +4,10 @@ import { desc, and, eq, isNull } from 'drizzle-orm'
 
 import { requireAuth } from '@/lib/auth/guards'
 import { verifyToken } from '@/lib/auth/session'
+import { SESSION_COOKIE } from '@/lib/constants/auth'
 
 import { db } from '../drizzle'
 import { activityLogs, teamMembers, teams, users } from '../schema'
-import { SESSION_COOKIE } from '@/lib/constants/auth'
 
 /* -------------------------------------------------------------------------- */
 /*                              U S E R  H E L P E R                          */

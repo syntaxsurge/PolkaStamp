@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { decodeDispatchError } from '@/lib/utils'
 import { WS_URL } from '@/lib/config'
+import { decodeDispatchError } from '@/lib/utils'
 
 /* -------------------------------------------------------------------------- */
 /*                          I N K   E R R O R   P A R S E R                   */
@@ -35,11 +35,7 @@ export function parseInkError(err: unknown): string | React.ReactElement {
   /*                        S T R I N G   /   E R R O R                      */
   /* ---------------------------------------------------------------------- */
   const raw =
-    typeof err === 'string'
-      ? err
-      : err instanceof Error
-        ? err.message
-        : JSON.stringify(err ?? '')
+    typeof err === 'string' ? err : err instanceof Error ? err.message : JSON.stringify(err ?? '')
 
   /* Insufficient-funds patterns not caught above */
   if (/Payment/i.test(raw) || /InsufficientBalance/i.test(raw)) {
@@ -80,18 +76,12 @@ export function parseInkError(err: unknown): string | React.ReactElement {
  * a link that launches Polkadot.js Apps in a new tab so users can map quickly.
  */
 function renderUnmappedToast(prefix: string): React.ReactElement {
-  const mappingLink = `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(
-    WS_URL,
-  )}#/extrinsics`
+  const mappingLink = `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(WS_URL)}#/extrinsics`
   return React.createElement(
     'span',
     { className: 'flex flex-col gap-1' },
     React.createElement('span', null, prefix),
-    React.createElement(
-      'span',
-      null,
-      'Your account is not yet mapped on the local chain.',
-    ),
+    React.createElement('span', null, 'Your account is not yet mapped on the local chain.'),
     React.createElement(
       'a',
       {

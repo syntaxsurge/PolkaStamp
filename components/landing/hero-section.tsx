@@ -83,8 +83,8 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.05, ease: 'easeOut' }}
           className='mx-auto mt-6 max-w-2xl text-lg/relaxed text-white/90 sm:text-xl'
         >
-          PolkaStamp turns résumés into on-chain proofs secured by Polkadot so every hire
-          starts with <em>verifiable trust</em>.
+          PolkaStamp turns résumés into on-chain proofs secured by Polkadot so every hire starts
+          with <em>verifiable trust</em>.
         </motion.p>
 
         {/* Features ------------------------------------------------------ */}

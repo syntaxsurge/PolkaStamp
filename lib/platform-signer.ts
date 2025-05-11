@@ -1,7 +1,8 @@
-import { cryptoWaitReady } from '@polkadot/util-crypto'
 import { Keyring } from '@polkadot/keyring'
+import { cryptoWaitReady } from '@polkadot/util-crypto'
 import { type InjectedPolkadotAccount } from 'polkadot-api/pjs-signer'
-import { getPolkadotSigner } from "polkadot-api/signer"
+import { getPolkadotSigner } from 'polkadot-api/signer'
+
 import { PLATFORM_SIGNER_MNEMONIC } from '@/lib/config'
 
 let cached: InjectedPolkadotAccount | null = null

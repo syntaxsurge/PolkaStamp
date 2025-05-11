@@ -14,6 +14,8 @@ export default [
   {
     ignores: [
       '**/node_modules/**',
+      '**/.papi/**',
+      '**/blockchain/**',
       '**/.next/**',
       '**/dist/**',
       '**/build/**',

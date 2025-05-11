@@ -12,9 +12,7 @@
   "contract": {
     "name": "did_registry",
     "version": "0.1.0",
-    "authors": [
-      "PolkaStamp <dev@polkastamp.io>"
-    ]
+    "authors": ["PolkaStamp <dev@polkastamp.io>"]
   },
   "image": null,
   "spec": {
@@ -24,9 +22,7 @@
           {
             "label": "admin",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           }
@@ -36,10 +32,7 @@
         "label": "new",
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink_primitives",
-            "ConstructorResult"
-          ],
+          "displayName": ["ink_primitives", "ConstructorResult"],
           "type": 17
         },
         "selector": "0x9bae9d5e"
@@ -48,41 +41,29 @@
     "docs": [],
     "environment": {
       "accountId": {
-        "displayName": [
-          "AccountId"
-        ],
+        "displayName": ["AccountId"],
         "type": 28
       },
       "balance": {
-        "displayName": [
-          "Balance"
-        ],
+        "displayName": ["Balance"],
         "type": 29
       },
       "blockNumber": {
-        "displayName": [
-          "BlockNumber"
-        ],
+        "displayName": ["BlockNumber"],
         "type": 26
       },
       "chainExtension": {
-        "displayName": [
-          "ChainExtension"
-        ],
+        "displayName": ["ChainExtension"],
         "type": 31
       },
       "hash": {
-        "displayName": [
-          "Hash"
-        ],
+        "displayName": ["Hash"],
         "type": 1
       },
       "maxEventTopics": 4,
       "staticBufferSize": 16384,
       "timestamp": {
-        "displayName": [
-          "Timestamp"
-        ],
+        "displayName": ["Timestamp"],
         "type": 30
       }
     },
@@ -94,9 +75,7 @@
             "indexed": true,
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           },
@@ -105,9 +84,7 @@
             "indexed": false,
             "label": "did",
             "type": {
-              "displayName": [
-                "String"
-              ],
+              "displayName": ["String"],
               "type": 0
             }
           },
@@ -116,9 +93,7 @@
             "indexed": false,
             "label": "doc_hash",
             "type": {
-              "displayName": [
-                "Hash"
-              ],
+              "displayName": ["Hash"],
               "type": 1
             }
           }
@@ -135,9 +110,7 @@
             "indexed": false,
             "label": "did",
             "type": {
-              "displayName": [
-                "String"
-              ],
+              "displayName": ["String"],
               "type": 0
             }
           },
@@ -146,9 +119,7 @@
             "indexed": false,
             "label": "uri",
             "type": {
-              "displayName": [
-                "String"
-              ],
+              "displayName": ["String"],
               "type": 0
             }
           },
@@ -157,9 +128,7 @@
             "indexed": false,
             "label": "doc_hash",
             "type": {
-              "displayName": [
-                "Hash"
-              ],
+              "displayName": ["Hash"],
               "type": 1
             }
           }
@@ -171,10 +140,7 @@
       }
     ],
     "lang_error": {
-      "displayName": [
-        "ink",
-        "LangError"
-      ],
+      "displayName": ["ink", "LangError"],
       "type": 18
     },
     "messages": [
@@ -183,18 +149,14 @@
           {
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           },
           {
             "label": "doc_hash",
             "type": {
-              "displayName": [
-                "Hash"
-              ],
+              "displayName": ["Hash"],
               "type": 1
             }
           }
@@ -208,10 +170,7 @@
         "mutates": true,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 19
         },
         "selector": "0xfb9f4f54"
@@ -221,34 +180,25 @@
           {
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           },
           {
             "label": "doc_hash",
             "type": {
-              "displayName": [
-                "Hash"
-              ],
+              "displayName": ["Hash"],
               "type": 1
             }
           }
         ],
         "default": false,
-        "docs": [
-          " Admin-only: create a DID for someone else."
-        ],
+        "docs": [" Admin-only: create a DID for someone else."],
         "label": "admin_create_did",
         "mutates": true,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 19
         },
         "selector": "0x6b5a613b"
@@ -258,43 +208,32 @@
           {
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           },
           {
             "label": "uri",
             "type": {
-              "displayName": [
-                "String"
-              ],
+              "displayName": ["String"],
               "type": 0
             }
           },
           {
             "label": "doc_hash",
             "type": {
-              "displayName": [
-                "Hash"
-              ],
+              "displayName": ["Hash"],
               "type": 1
             }
           }
         ],
         "default": false,
-        "docs": [
-          " Update the DID document for `owner`; caller must equal `owner`."
-        ],
+        "docs": [" Update the DID document for `owner`; caller must equal `owner`."],
         "label": "set_document",
         "mutates": true,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 19
         },
         "selector": "0x25ea7a2c"
@@ -304,43 +243,32 @@
           {
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           },
           {
             "label": "uri",
             "type": {
-              "displayName": [
-                "String"
-              ],
+              "displayName": ["String"],
               "type": 0
             }
           },
           {
             "label": "doc_hash",
             "type": {
-              "displayName": [
-                "Hash"
-              ],
+              "displayName": ["Hash"],
               "type": 1
             }
           }
         ],
         "default": false,
-        "docs": [
-          " Admin-only: update another account’s DID document."
-        ],
+        "docs": [" Admin-only: update another account’s DID document."],
         "label": "admin_set_document",
         "mutates": true,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 19
         },
         "selector": "0x6adc090f"
@@ -350,9 +278,7 @@
           {
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           }
@@ -363,10 +289,7 @@
         "mutates": false,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 22
         },
         "selector": "0x066b13fa"
@@ -376,9 +299,7 @@
           {
             "label": "owner",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 5
             }
           }
@@ -389,10 +310,7 @@
         "mutates": false,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 24
         },
         "selector": "0x76538e1c"
@@ -402,34 +320,25 @@
           {
             "label": "start_index",
             "type": {
-              "displayName": [
-                "u32"
-              ],
+              "displayName": ["u32"],
               "type": 26
             }
           },
           {
             "label": "count",
             "type": {
-              "displayName": [
-                "u32"
-              ],
+              "displayName": ["u32"],
               "type": 26
             }
           }
         ],
         "default": false,
-        "docs": [
-          " Return up to `count` owners starting from `start_index`."
-        ],
+        "docs": [" Return up to `count` owners starting from `start_index`."],
         "label": "get_did_owners",
         "mutates": false,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 27
         },
         "selector": "0x570ed3d6"
@@ -529,11 +438,7 @@
             ]
           }
         },
-        "path": [
-          "ink_primitives",
-          "types",
-          "Hash"
-        ]
+        "path": ["ink_primitives", "types", "Hash"]
       }
     },
     {
@@ -575,12 +480,7 @@
             "type": 8
           }
         ],
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ]
+        "path": ["ink_storage", "lazy", "mapping", "Mapping"]
       }
     },
     {
@@ -596,10 +496,7 @@
             ]
           }
         },
-        "path": [
-          "primitive_types",
-          "H160"
-        ]
+        "path": ["primitive_types", "H160"]
       }
     },
     {
@@ -632,11 +529,7 @@
             ]
           }
         },
-        "path": [
-          "did_registry",
-          "did_registry",
-          "DidDocument"
-        ]
+        "path": ["did_registry", "did_registry", "DidDocument"]
       }
     },
     {
@@ -655,11 +548,7 @@
             "type": 10
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ResolverKey"]
       }
     },
     {
@@ -668,11 +557,7 @@
         "def": {
           "composite": {}
         },
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "AutoKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "AutoKey"]
       }
     },
     {
@@ -687,11 +572,7 @@
             "type": 11
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ManualKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ManualKey"]
       }
     },
     {
@@ -722,12 +603,7 @@
             "type": 13
           }
         ],
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ]
+        "path": ["ink_storage", "lazy", "mapping", "Mapping"]
       }
     },
     {
@@ -746,11 +622,7 @@
             "type": 14
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ResolverKey"]
       }
     },
     {
@@ -765,11 +637,7 @@
             "type": 11
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ManualKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ManualKey"]
       }
     },
     {
@@ -806,11 +674,7 @@
             ]
           }
         },
-        "path": [
-          "did_registry",
-          "did_registry",
-          "DidRegistry"
-        ]
+        "path": ["did_registry", "did_registry", "DidRegistry"]
       }
     },
     {
@@ -850,9 +714,7 @@
             "type": 18
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -868,10 +730,7 @@
             ]
           }
         },
-        "path": [
-          "ink_primitives",
-          "LangError"
-        ]
+        "path": ["ink_primitives", "LangError"]
       }
     },
     {
@@ -911,9 +770,7 @@
             "type": 18
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -953,9 +810,7 @@
             "type": 21
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -987,11 +842,7 @@
             ]
           }
         },
-        "path": [
-          "did_registry",
-          "did_registry",
-          "Error"
-        ]
+        "path": ["did_registry", "did_registry", "Error"]
       }
     },
     {
@@ -1031,9 +882,7 @@
             "type": 18
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -1081,9 +930,7 @@
             "type": 18
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -1114,9 +961,7 @@
             "type": 7
           }
         ],
-        "path": [
-          "Option"
-        ]
+        "path": ["Option"]
       }
     },
     {
@@ -1164,9 +1009,7 @@
             "type": 18
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -1182,11 +1025,7 @@
             ]
           }
         },
-        "path": [
-          "ink_primitives",
-          "types",
-          "AccountId"
-        ]
+        "path": ["ink_primitives", "types", "AccountId"]
       }
     },
     {
@@ -1211,11 +1050,7 @@
         "def": {
           "variant": {}
         },
-        "path": [
-          "ink_primitives",
-          "types",
-          "NoChainExtension"
-        ]
+        "path": ["ink_primitives", "types", "NoChainExtension"]
       }
     }
   ],

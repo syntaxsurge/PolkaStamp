@@ -11,9 +11,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 import { WALLET_HEADER } from '@/lib/constants/blockchain'
 import type { WalletOnboardModalProps } from '@/lib/types/components'
+import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
 /* -------------------------------------------------------------------------- */
 /*                                 C O N S T S                                */
@@ -107,7 +107,7 @@ export default function WalletOnboardModal({ isConnected, user }: WalletOnboardM
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            [WALLET_HEADER]: address,               // forward wallet header
+            [WALLET_HEADER]: address, // forward wallet header
           },
           body: JSON.stringify({ name, email, role, address }),
         })

@@ -8,10 +8,10 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { buildExplorerLink, copyToClipboard, ensureSigner } from '@/lib/utils'
-import { hasDid, createDid } from '@/lib/did-registry'
-import { parseInkError } from '@/lib/utils/ink-errors'
 import { toH160Hex } from '@/lib/contract-utils'
+import { hasDid, createDid } from '@/lib/did-registry'
+import { buildExplorerLink, copyToClipboard, ensureSigner } from '@/lib/utils'
+import { parseInkError } from '@/lib/utils/ink-errors'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
 export interface UpdateDidFormProps {
@@ -93,12 +93,7 @@ export default function UpdateDidForm({ defaultDid }: UpdateDidFormProps) {
     <div className='space-y-6'>
       {/* DID Display ---------------------------------------------------- */}
       <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
-        <Input
-          value={currentDid}
-          readOnly
-          placeholder='No DID yet'
-          className='flex-1 font-mono'
-        />
+        <Input value={currentDid} readOnly placeholder='No DID yet' className='flex-1 font-mono' />
         <Button
           variant='outline'
           size='icon'
@@ -140,7 +135,7 @@ export default function UpdateDidForm({ defaultDid }: UpdateDidFormProps) {
             href={explorerLink}
             target='_blank'
             rel='noopener noreferrer'
-            className='text-blue-500 underline break-all'
+            className='break-all text-blue-500 underline'
           >
             {explorerLink}
           </a>

@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useEffect, useState, useTransition } from 'react'
+
 import { Copy, ExternalLink, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { buildExplorerLink, copyToClipboard } from '@/lib/utils'
 import type { QuizMeta } from '@/lib/types/components'
+import { buildExplorerLink, copyToClipboard } from '@/lib/utils'
 
 import { startQuizAction } from './actions'
 
@@ -135,7 +136,7 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
   return (
     <>
       <button
-        className='w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary/90'
+        className='bg-primary text-background hover:bg-primary/90 w-full rounded-md px-4 py-2 text-sm font-medium transition-colors'
         onClick={() => setOpen(true)}
       >
         Take Quiz
@@ -143,11 +144,11 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
 
       {open && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
-          <div className='relative w-full max-w-lg rounded-lg bg-background p-6 shadow-lg'>
+          <div className='bg-background relative w-full max-w-lg rounded-lg p-6 shadow-lg'>
             {/* Close button */}
             <button
               type='button'
-              className='absolute right-4 top-4 text-xl font-bold'
+              className='absolute top-4 right-4 text-xl font-bold'
               onClick={() => setOpen(false)}
             >
               ✕
@@ -156,7 +157,7 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
             {/* Header */}
             <h2 className='text-xl font-bold'>{quiz.title}</h2>
             {quiz.description && (
-              <p className='mt-1 text-sm text-muted-foreground'>{quiz.description}</p>
+              <p className='text-muted-foreground mt-1 text-sm'>{quiz.description}</p>
             )}
 
             {score === null ? (
@@ -173,10 +174,7 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
                 )}
 
                 <div>
-                  <label
-                    htmlFor={`answer-${quiz.id}`}
-                    className='mb-1 block text-sm font-medium'
-                  >
+                  <label htmlFor={`answer-${quiz.id}`} className='mb-1 block text-sm font-medium'>
                     Your Answer
                   </label>
                   <textarea
@@ -192,11 +190,11 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
                 <button
                   type='submit'
                   disabled={isPending || !seed || !question}
-                  className='rounded-md bg-primary px-4 py-2 text-sm font-medium text-background transition-colors disabled:opacity-50'
+                  className='bg-primary text-background rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50'
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin inline' /> Submitting…
+                      <Loader2 className='mr-2 inline h-4 w-4 animate-spin' /> Submitting…
                     </>
                   ) : (
                     'Submit Answer'
@@ -232,7 +230,7 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
 
                 <button
                   type='button'
-                  className='rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted'
+                  className='hover:bg-muted rounded-md border px-3 py-1.5 text-sm transition-colors'
                   onClick={() => setScore(null)}
                 >
                   Try Again

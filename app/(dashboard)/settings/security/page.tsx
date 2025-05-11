@@ -4,6 +4,7 @@ import { Shield } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import PageCard from '@/components/ui/page-card'
+
 import DeleteAccountForm from './delete-account-form'
 
 export default function SecurityPage() {

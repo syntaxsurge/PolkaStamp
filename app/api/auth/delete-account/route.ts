@@ -1,15 +1,15 @@
 import { cookies } from 'next/headers'
 import { NextResponse, NextRequest } from 'next/server'
 
+import { signatureVerify } from '@polkadot/util-crypto'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { signatureVerify } from '@polkadot/util-crypto'
 
+import { SESSION_COOKIE } from '@/lib/constants/auth'
+import { WALLET_HEADER } from '@/lib/constants/blockchain'
+import { toH160Hex } from '@/lib/contract-utils'
 import { db } from '@/lib/db/drizzle'
 import { users } from '@/lib/db/schema'
-import { toH160Hex } from '@/lib/contract-utils'
-import { WALLET_HEADER } from '@/lib/constants/blockchain'
-import { SESSION_COOKIE } from '@/lib/constants/auth'
 
 /* -------------------------------------------------------------------------- */
 /*                                   SCHEMA                                   */

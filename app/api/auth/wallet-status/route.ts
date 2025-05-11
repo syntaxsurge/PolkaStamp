@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server'
 
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
-import { setSession } from "@/lib/auth/session";
-import { db } from "@/lib/db/drizzle";
-import { users } from "@/lib/db/schema";
-import { toH160Hex } from "@/lib/contract-utils";
-import { WALLET_HEADER } from "@/lib/constants/blockchain";
+import { setSession } from '@/lib/auth/session'
+import { WALLET_HEADER } from '@/lib/constants/blockchain'
+import { toH160Hex } from '@/lib/contract-utils'
+import { db } from '@/lib/db/drizzle'
+import { users } from '@/lib/db/schema'
 
 /* -------------------------------------------------------------------------- */
 /*                                   SCHEMA                                   */
@@ -15,8 +15,8 @@ import { WALLET_HEADER } from "@/lib/constants/blockchain";
 
 const paramsSchema = z.object({
   /** Wallet address (SS58 or 0x) */
-  address: z.string().min(1, "Address is required"),
-});
+  address: z.string().min(1, 'Address is required'),
+})
 
 /* -------------------------------------------------------------------------- */
 /*                                  HANDLER                                   */
@@ -25,23 +25,17 @@ const paramsSchema = z.object({
 export async function GET(req: NextRequest) {
   try {
     /* ------------------------------- Parse ------------------------------- */
-    const qs = Object.fromEntries(req.nextUrl.searchParams.entries());
-    const parsed = paramsSchema.safeParse(qs);
+    const qs = Object.fromEntries(req.nextUrl.searchParams.entries())
+    const parsed = paramsSchema.safeParse(qs)
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid address parameter." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Invalid address parameter.' }, { status: 400 })
     }
 
-    let walletAddress: `0x${string}`;
+    let walletAddress: `0x${string}`
     try {
-      walletAddress = toH160Hex(parsed.data.address);
+      walletAddress = toH160Hex(parsed.data.address)
     } catch {
-      return NextResponse.json(
-        { error: "Invalid wallet address." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Invalid wallet address.' }, { status: 400 })
     }
 
     /* ---------------------------- DB lookup ----------------------------- */
@@ -49,7 +43,7 @@ export async function GET(req: NextRequest) {
       .select()
       .from(users)
       .where(eq(users.walletAddress, walletAddress))
-      .limit(1);
+      .limit(1)
 
     /* ------------------------- User not found --------------------------- */
     if (!user) {
@@ -59,24 +53,21 @@ export async function GET(req: NextRequest) {
           status: 200,
           headers: { [WALLET_HEADER]: walletAddress },
         },
-      );
+      )
     }
 
     /* ---------------------- Refresh session cookie ---------------------- */
-    await setSession(user);
+    await setSession(user)
 
     return NextResponse.json(
       { exists: true },
       {
         status: 200,
-        headers: { "Set-Session": "true" },
+        headers: { 'Set-Session': 'true' },
       },
-    );
+    )
   } catch (err) {
-    console.error("wallet-status GET error:", err);
-    return NextResponse.json(
-      { error: "Internal server error." },
-      { status: 500 },
-    );
+    console.error('wallet-status GET error:', err)
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 })
   }
 }

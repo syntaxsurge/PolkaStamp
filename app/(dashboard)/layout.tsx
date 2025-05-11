@@ -153,7 +153,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       <div className='mx-auto flex min-h-[calc(100dvh-64px)] w-full max-w-7xl'>
         {/* Sidebar skeleton (desktop) */}
         <aside className='bg-background ring-border/30 hidden h-[calc(100dvh-64px)] w-64 border-r shadow-sm ring-1 lg:block'>
-          <div className='p-4 space-y-4'>
+          <div className='space-y-4 p-4'>
             <Skeleton className='h-6 w-32' />
             <Skeleton className='h-6 w-24' />
             <Skeleton className='h-6 w-28' />
@@ -161,7 +161,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         </aside>
 
         {/* Main content skeleton */}
-        <div className='flex min-w-0 flex-1 flex-col p-4 space-y-6'>
+        <div className='flex min-w-0 flex-1 flex-col space-y-6 p-4'>
           <Skeleton className='h-8 w-40' />
           <Skeleton className='h-64 w-full' />
         </div>

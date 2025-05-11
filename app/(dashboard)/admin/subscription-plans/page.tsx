@@ -2,10 +2,10 @@ import { asc, eq } from 'drizzle-orm'
 import { Tag } from 'lucide-react'
 
 import PageCard from '@/components/ui/page-card'
-import { priceOf } from '@/lib/subscription-manager'
 import { SERVER_CALLER } from '@/lib/constants/blockchain'
 import { db } from '@/lib/db/drizzle'
 import { planFeatures } from '@/lib/db/schema/pricing'
+import { priceOf } from '@/lib/subscription-manager'
 
 import UpdatePlanFeaturesForm from './update-plan-features-form'
 import UpdatePlanPricesForm from './update-plan-prices-form'

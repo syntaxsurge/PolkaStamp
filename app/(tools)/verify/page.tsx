@@ -1,24 +1,18 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
-import {
-  CheckCircle2,
-  Clipboard,
-  Fingerprint,
-  List,
-  Loader2,
-  XCircle,
-} from 'lucide-react'
+
+import { CheckCircle2, Clipboard, Fingerprint, List, Loader2, XCircle } from 'lucide-react'
+import type { InjectedPolkadotAccount } from 'polkadot-api/pjs-signer'
 import { toast } from 'sonner'
 
-import PageCard from '@/components/ui/page-card'
 import { Button } from '@/components/ui/button'
+import PageCard from '@/components/ui/page-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { hasDid, getDidOwners } from '@/lib/did-registry'
 import { normalizeAddressInput } from '@/lib/utils/address'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
-import type { InjectedPolkadotAccount } from 'polkadot-api/pjs-signer'
 
 /* -------------------------------------------------------------------------- */
 /*                               C O M P O N E N T                            */
@@ -32,9 +26,7 @@ export default function VerifyDidPage() {
 
   /* ----------------------------- check-DID state ------------------------- */
   const [input, setInput] = useState('')
-  const [result, setResult] = useState<
-    'verified' | 'unregistered' | 'error' | null
-  >(null)
+  const [result, setResult] = useState<'verified' | 'unregistered' | 'error' | null>(null)
   const [message, setMessage] = useState('')
   const [isPending, startTransition] = useTransition()
 
@@ -93,8 +85,7 @@ export default function VerifyDidPage() {
           toast.info('DID not found')
         }
       } catch (err: any) {
-        const errMsg =
-          'Error while querying the contract: ' + String(err?.message || err)
+        const errMsg = 'Error while querying the contract: ' + String(err?.message || err)
         setResult('error')
         setMessage(errMsg)
         toast.error('Verification failed')
@@ -130,9 +121,7 @@ export default function VerifyDidPage() {
         index += BATCH_SIZE
       }
       setOwners(all)
-      toast.success(
-        `Loaded ${all.length} verified DID${all.length === 1 ? '' : 's'}`,
-      )
+      toast.success(`Loaded ${all.length} verified DID${all.length === 1 ? '' : 's'}`)
     } catch (err: any) {
       toast.error('Failed to load owners: ' + String(err?.message || err))
     } finally {
@@ -163,17 +152,11 @@ export default function VerifyDidPage() {
         {/* explanatory paragraph ------------------------------------------------ */}
         <p className='text-sm leading-relaxed'>
           This tool talks directly to the{' '}
-          <code className='bg-muted rounded px-1 py-0.5 text-xs'>
-            DidRegistry
-          </code>{' '}
-          smart contract. A <strong>verified DID</strong> means the address
-          called{' '}
-          <code className='bg-muted rounded px-1 py-0.5 text-xs'>
-            create_did
-          </code>{' '}
-          and therefore owns a permanent on-chain identifier (
-          <code className='font-mono'>did:polkadot:0x…</code>). If the DID is{' '}
-          <em>unregistered</em>, no such transaction exists.
+          <code className='bg-muted rounded px-1 py-0.5 text-xs'>DidRegistry</code> smart contract.
+          A <strong>verified DID</strong> means the address called{' '}
+          <code className='bg-muted rounded px-1 py-0.5 text-xs'>create_did</code> and therefore
+          owns a permanent on-chain identifier (<code className='font-mono'>did:polkadot:0x…</code>
+          ). If the DID is <em>unregistered</em>, no such transaction exists.
         </p>
 
         {/* single-check form ---------------------------------------------------- */}
@@ -242,9 +225,7 @@ export default function VerifyDidPage() {
             ) : (
               <XCircle className='h-5 w-5 text-yellow-600' />
             )}
-            <StatusBadge
-              status={result === 'verified' ? 'verified' : 'failed'}
-            />
+            <StatusBadge status={result === 'verified' ? 'verified' : 'failed'} />
             <span>{message}</span>
           </div>
         )}
@@ -259,9 +240,9 @@ export default function VerifyDidPage() {
         )}
 
         {!ownersLoading && owners.length > 0 && (
-          <div className='space-y-2 max-h-80 overflow-y-auto'>
+          <div className='max-h-80 space-y-2 overflow-y-auto'>
             <h3 className='font-medium'>Verified DIDs ({owners.length})</h3>
-            <ul className='border-border divide-border max-h-72 space-y-1 overflow-y-auto rounded-md border p-3 text-xs font-mono'>
+            <ul className='border-border divide-border max-h-72 space-y-1 overflow-y-auto rounded-md border p-3 font-mono text-xs'>
               {owners.map((addr) => (
                 <li key={addr} className='break-all'>
                   did:polkadot:{addr}

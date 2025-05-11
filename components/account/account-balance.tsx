@@ -1,36 +1,31 @@
-"use client";
+'use client'
 
-import { useAccountBalance } from "@/hooks/use-account-balance";
-import { useLightClientApi } from "@/providers/lightclient-api-provider";
-import { useMemo } from "react";
-import { Identicon } from "@polkadot/react-identicon";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatLastUpdated } from "../../lib/utils";
-import { usePolkadotExtension } from "@/providers/polkadot-extension-provider";
-import { WalletSelect } from "./wallet-select";
-import { formatBalance } from "@/lib/format-balance";
+import { useMemo } from 'react'
+
+import { Identicon } from '@polkadot/react-identicon'
+
+import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useAccountBalance } from '@/hooks/use-account-balance'
+import { formatBalance } from '@/lib/format-balance'
+import { useLightClientApi } from '@/providers/lightclient-api-provider'
+import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
+
+import { WalletSelect } from './wallet-select'
+import { cn, formatLastUpdated } from '../../lib/utils'
 
 export function AccountBalance() {
-  const accountBalance = useAccountBalance();
-  const { activeChain } = useLightClientApi();
-  const { selectedAccount, isInitializing } = usePolkadotExtension();
+  const accountBalance = useAccountBalance()
+  const { activeChain } = useLightClientApi()
+  const { selectedAccount, isInitializing } = usePolkadotExtension()
 
   // Safely extract token info or provide sensible defaults
-  const tokenDecimals =
-    activeChain?.chainSpec?.properties?.tokenDecimals ?? 12;
-  const tokenSymbol =
-    activeChain?.chainSpec?.properties?.tokenSymbol ?? "UNIT";
+  const tokenDecimals = activeChain?.chainSpec?.properties?.tokenDecimals ?? 12
+  const tokenSymbol = activeChain?.chainSpec?.properties?.tokenSymbol ?? 'UNIT'
 
   // Format the balance for display
   const formattedBalance = useMemo(() => {
-    if (accountBalance?.free === undefined) return null;
+    if (accountBalance?.free === undefined) return null
 
     return formatBalance({
       value: accountBalance.free - accountBalance.frozen,
@@ -38,41 +33,36 @@ export function AccountBalance() {
       options: {
         nDecimals: 4,
       },
-    });
-  }, [accountBalance?.free, accountBalance?.frozen, tokenDecimals]);
+    })
+  }, [accountBalance?.free, accountBalance?.frozen, tokenDecimals])
 
   // Format the last updated time
   const lastUpdatedText = useMemo(
     () => formatLastUpdated(accountBalance?.lastUpdated),
     [accountBalance?.lastUpdated],
-  );
+  )
 
   // Determine the current state
-  const isLoading = isInitializing || (selectedAccount && !accountBalance);
-  const hasNoAccount = !selectedAccount;
+  const isLoading = isInitializing || (selectedAccount && !accountBalance)
+  const hasNoAccount = !selectedAccount
 
   return (
-    <Card
-      className={cn(
-        "w-full max-w-sm relative flex flex-col",
-        "border-2 rounded-xl",
-      )}
-    >
+    <Card className={cn('relative flex w-full max-w-sm flex-col', 'rounded-xl border-2')}>
       <CardHeader>
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className='text-muted-foreground text-sm font-medium'>
           Free Balance on {activeChain?.name}
         </CardTitle>
       </CardHeader>
       {isLoading ? (
         <>
           <CardContent>
-            <div className="min-h-[40px] flex items-center">
-              <div className="w-full flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-9 w-9 rounded-full" />
-                  <Skeleton className="h-4 w-24" />
+            <div className='flex min-h-[40px] items-center'>
+              <div className='flex w-full items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <Skeleton className='h-9 w-9 rounded-full' />
+                  <Skeleton className='h-4 w-24' />
                 </div>
-                <Skeleton className="h-8 w-28" />
+                <Skeleton className='h-8 w-28' />
               </div>
             </div>
           </CardContent>
@@ -80,14 +70,11 @@ export function AccountBalance() {
         </>
       ) : hasNoAccount ? (
         <>
-          <CardContent className="flex items-center justify-center flex-1">
-            <WalletSelect
-              className="w-full max-w-sm"
-              placeholder="Select an Account"
-            />
+          <CardContent className='flex flex-1 items-center justify-center'>
+            <WalletSelect className='w-full max-w-sm' placeholder='Select an Account' />
           </CardContent>
-          <CardFooter className="pt-1">
-            <div className="text-xs text-muted-foreground">
+          <CardFooter className='pt-1'>
+            <div className='text-muted-foreground text-xs'>
               Please select an account to view the balance.
             </div>
           </CardFooter>
@@ -95,20 +82,19 @@ export function AccountBalance() {
       ) : (
         <>
           <CardContent>
-            <div className="min-h-[40px] flex items-center">
-              <div className="w-full flex items-center justify-between flex-row gap-2 flex-wrap">
-                <div className="rounded-full flex items-center justify-center gap-2">
+            <div className='flex min-h-[40px] items-center'>
+              <div className='flex w-full flex-row flex-wrap items-center justify-between gap-2'>
+                <div className='flex items-center justify-center gap-2 rounded-full'>
                   <Identicon
                     value={selectedAccount.address}
                     size={36}
-                    theme="polkadot"
-                    className="[&>svg>circle:first-child]:fill-white"
+                    theme='polkadot'
+                    className='[&>svg>circle:first-child]:fill-white'
                   />
-                  <div className="font-medium">{selectedAccount.name}</div>
+                  <div className='font-medium'>{selectedAccount.name}</div>
                 </div>
-                <div className="text-2xl font-bold">
-                  {formattedBalance}{" "}
-                  <span className="text-sm font-normal">{tokenSymbol}</span>
+                <div className='text-2xl font-bold'>
+                  {formattedBalance} <span className='text-sm font-normal'>{tokenSymbol}</span>
                 </div>
               </div>
             </div>
@@ -117,25 +103,21 @@ export function AccountBalance() {
         </>
       )}
     </Card>
-  );
+  )
 }
 
 // Last updated footer component
-function LastUpdatedFooter({
-  lastUpdatedText,
-}: {
-  lastUpdatedText: string | null;
-}) {
+function LastUpdatedFooter({ lastUpdatedText }: { lastUpdatedText: string | null }) {
   return (
     <CardFooter>
-      <div className="flex items-center text-xs text-muted-foreground">
+      <div className='text-muted-foreground flex items-center text-xs'>
         <span>Last updated:</span>
         {lastUpdatedText ? (
-          <span className="ml-1">{lastUpdatedText}</span>
+          <span className='ml-1'>{lastUpdatedText}</span>
         ) : (
-          <Skeleton className="h-3 w-12 ml-1" />
+          <Skeleton className='ml-1 h-3 w-12' />
         )}
       </div>
     </CardFooter>
-  );
+  )
 }

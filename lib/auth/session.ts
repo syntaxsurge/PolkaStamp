@@ -1,8 +1,9 @@
 import { cookies } from 'next/headers'
+
 import { SignJWT, jwtVerify } from 'jose'
 
-import type { NewUser } from '@/lib/db/schema'
 import { SESSION_COOKIE } from '@/lib/constants/auth'
+import type { NewUser } from '@/lib/db/schema'
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */

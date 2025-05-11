@@ -30,17 +30,10 @@ interface Props {
  * Admin form that updates on-chain prices for Base and Plus plans
  * using Polkadot API transactions and explorer links in toasts.
  */
-export default function UpdatePlanPricesForm({
-  defaultBaseWei,
-  defaultPlusWei,
-}: Props) {
+export default function UpdatePlanPricesForm({ defaultBaseWei, defaultPlusWei }: Props) {
   /* ------------------------------- state -------------------------------- */
-  const [base, setBase] = React.useState<string>(
-    weiToDecimal(defaultBaseWei),
-  )
-  const [plus, setPlus] = React.useState<string>(
-    weiToDecimal(defaultPlusWei),
-  )
+  const [base, setBase] = React.useState<string>(weiToDecimal(defaultBaseWei))
+  const [plus, setPlus] = React.useState<string>(weiToDecimal(defaultPlusWei))
   const [pending, setPending] = React.useState(false)
 
   /* ------------------------- wallet context ----------------------------- */

@@ -6,10 +6,10 @@ import { openAIAssess } from '@/lib/ai/openai'
 import { requireAuth } from '@/lib/auth/guards'
 import { PLATFORM_ISSUER_DID } from '@/lib/config'
 import { mintCredential } from '@/lib/credential-nft'
-import { getPlatformSigner } from '@/lib/platform-signer'
 import { db } from '@/lib/db/drizzle'
 import { candidates, skillQuizzes } from '@/lib/db/schema/candidate'
 import { teams, teamMembers } from '@/lib/db/schema/core'
+import { getPlatformSigner } from '@/lib/platform-signer'
 import { extractAddressFromDid, toBytes32 } from '@/lib/utils/address'
 
 /* -------------------------------------------------------------------------- */
@@ -47,10 +47,7 @@ export async function startQuizAction(formData: FormData) {
     .limit(1)
 
   if (!candidateRow) {
-    const [created] = await db
-      .insert(candidates)
-      .values({ userId: user.id, bio: '' })
-      .returning()
+    const [created] = await db.insert(candidates).values({ userId: user.id, bio: '' }).returning()
     candidateRow = created
   }
 
@@ -75,11 +72,7 @@ export async function startQuizAction(formData: FormData) {
   /* ---------------------------------------------------------------------- */
   /*                            Q U I Z   L O O K U P                       */
   /* ---------------------------------------------------------------------- */
-  const [quiz] = await db
-    .select()
-    .from(skillQuizzes)
-    .where(eq(skillQuizzes.id, quizId))
-    .limit(1)
+  const [quiz] = await db.select().from(skillQuizzes).where(eq(skillQuizzes.id, quizId)).limit(1)
 
   if (!quiz) {
     return { score: 0, message: 'Quiz not found.' }

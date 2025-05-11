@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  InjectedExtension,
-  InjectedPolkadotAccount,
-  connectInjectedExtension,
-  getInjectedExtensions,
-} from 'polkadot-api/pjs-signer'
+import { useRouter } from 'next/navigation'
 import React, {
   createContext,
   useCallback,
@@ -15,10 +10,16 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react'
-import { useRouter } from 'next/navigation'
 
-import { toH160Hex } from '@/lib/contract-utils'
+import {
+  InjectedExtension,
+  InjectedPolkadotAccount,
+  connectInjectedExtension,
+  getInjectedExtensions,
+} from 'polkadot-api/pjs-signer'
+
 import { WALLET_HEADER } from '@/lib/constants/blockchain'
+import { toH160Hex } from '@/lib/contract-utils'
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -142,17 +143,15 @@ export function ExtensionProvider({ children }: { children: React.ReactNode }) {
   /* ----------------------- Local state & refs --------------------------- */
   const [isInitializing, setIsInitializing] = useState(true)
   const [availableExtensions, setAvailableExtensions] = useState<string[]>([])
-  const [selectedAccount, _setSelectedAccount] =
-    useState<(InjectedPolkadotAccount & { extension: InjectedExtension }) | null>(null)
+  const [selectedAccount, _setSelectedAccount] = useState<
+    (InjectedPolkadotAccount & { extension: InjectedExtension }) | null
+  >(null)
 
   /** Listener registry for selected-account changes */
   const listenersRef = useRef<Set<(addr: string | null) => void>>(new Set())
 
   /* ------------------------- Helper setters ----------------------------- */
-  const setSelectedAccount = (
-    extension: InjectedExtension,
-    account: InjectedPolkadotAccount,
-  ) => {
+  const setSelectedAccount = (extension: InjectedExtension, account: InjectedPolkadotAccount) => {
     _setSelectedAccount({ ...account, extension })
     const payload = tryNormalise(account.address)
     localStorage.setItem(
@@ -177,8 +176,7 @@ export function ExtensionProvider({ children }: { children: React.ReactNode }) {
 
   /* ----------------------- Convenience helpers -------------------------- */
   const connectExtension = useCallback(async () => {
-    if (availableExtensions.length === 0)
-      throw new Error('No browser extensions detected.')
+    if (availableExtensions.length === 0) throw new Error('No browser extensions detected.')
     await extStore.toggle(availableExtensions[0])
   }, [availableExtensions])
 

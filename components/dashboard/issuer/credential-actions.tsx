@@ -11,8 +11,8 @@ import {
   unverifyCredentialAction,
 } from '@/app/(dashboard)/issuer/credentials/actions'
 import { Button } from '@/components/ui/button'
-import { CredentialStatus } from '@/lib/db/schema/candidate'
 import { mintCredential } from '@/lib/credential-nft'
+import { CredentialStatus } from '@/lib/db/schema/candidate'
 import { ensureSigner, buildExplorerLink } from '@/lib/utils'
 import { extractAddressFromDid, toBytes32 } from '@/lib/utils/address'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
@@ -157,14 +157,9 @@ export function CredentialActions({
       let tokenId = ''
       try {
         const ev = (txResult?.events ?? []).find(
-          (e: any) =>
-            e.value?.type === 'CredentialMinted' ||
-            e.type === 'CredentialMinted',
+          (e: any) => e.value?.type === 'CredentialMinted' || e.type === 'CredentialMinted',
         )
-        tokenId =
-          ev?.value?.value?.token_id?.toString() ??
-          ev?.value?.token_id?.toString() ??
-          ''
+        tokenId = ev?.value?.value?.token_id?.toString() ?? ev?.value?.token_id?.toString() ?? ''
       } catch {
         /* ignore */
       }
@@ -210,12 +205,7 @@ export function CredentialActions({
           </Button>
         </form>
 
-        <Button
-          type='button'
-          variant='destructive'
-          disabled={rejecting}
-          onClick={handleReject}
-        >
+        <Button type='button' variant='destructive' disabled={rejecting} onClick={handleReject}>
           {rejecting ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -249,12 +239,7 @@ export function CredentialActions({
   if (status === CredentialStatus.VERIFIED) {
     return (
       <div className='flex flex-wrap gap-4'>
-        <Button
-          type='button'
-          variant='outline'
-          disabled={unverifying}
-          onClick={handleUnverify}
-        >
+        <Button type='button' variant='outline' disabled={unverifying} onClick={handleUnverify}>
           {unverifying ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -265,12 +250,7 @@ export function CredentialActions({
           )}
         </Button>
 
-        <Button
-          type='button'
-          variant='destructive'
-          disabled={rejecting}
-          onClick={handleReject}
-        >
+        <Button type='button' variant='destructive' disabled={rejecting} onClick={handleReject}>
           {rejecting ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />

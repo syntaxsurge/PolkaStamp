@@ -12,9 +12,7 @@
   "contract": {
     "name": "subscription_manager",
     "version": "0.1.0",
-    "authors": [
-      "PolkaStamp <dev@polkastamp.io>"
-    ]
+    "authors": ["PolkaStamp <dev@polkastamp.io>"]
   },
   "image": null,
   "spec": {
@@ -24,27 +22,21 @@
           {
             "label": "admin",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 2
             }
           },
           {
             "label": "price_base",
             "type": {
-              "displayName": [
-                "U256"
-              ],
+              "displayName": ["U256"],
               "type": 9
             }
           },
           {
             "label": "price_plus",
             "type": {
-              "displayName": [
-                "U256"
-              ],
+              "displayName": ["U256"],
               "type": 9
             }
           }
@@ -54,10 +46,7 @@
         "label": "new",
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink_primitives",
-            "ConstructorResult"
-          ],
+          "displayName": ["ink_primitives", "ConstructorResult"],
           "type": 15
         },
         "selector": "0x9bae9d5e"
@@ -66,41 +55,29 @@
     "docs": [],
     "environment": {
       "accountId": {
-        "displayName": [
-          "AccountId"
-        ],
+        "displayName": ["AccountId"],
         "type": 20
       },
       "balance": {
-        "displayName": [
-          "Balance"
-        ],
+        "displayName": ["Balance"],
         "type": 22
       },
       "blockNumber": {
-        "displayName": [
-          "BlockNumber"
-        ],
+        "displayName": ["BlockNumber"],
         "type": 24
       },
       "chainExtension": {
-        "displayName": [
-          "ChainExtension"
-        ],
+        "displayName": ["ChainExtension"],
         "type": 25
       },
       "hash": {
-        "displayName": [
-          "Hash"
-        ],
+        "displayName": ["Hash"],
         "type": 23
       },
       "maxEventTopics": 4,
       "staticBufferSize": 16384,
       "timestamp": {
-        "displayName": [
-          "Timestamp"
-        ],
+        "displayName": ["Timestamp"],
         "type": 0
       }
     },
@@ -112,9 +89,7 @@
             "indexed": true,
             "label": "team",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 2
             }
           },
@@ -123,9 +98,7 @@
             "indexed": false,
             "label": "plan_key",
             "type": {
-              "displayName": [
-                "u8"
-              ],
+              "displayName": ["u8"],
               "type": 4
             }
           },
@@ -134,9 +107,7 @@
             "indexed": false,
             "label": "paid_until",
             "type": {
-              "displayName": [
-                "u64"
-              ],
+              "displayName": ["u64"],
               "type": 0
             }
           }
@@ -148,10 +119,7 @@
       }
     ],
     "lang_error": {
-      "displayName": [
-        "ink",
-        "LangError"
-      ],
+      "displayName": ["ink", "LangError"],
       "type": 16
     },
     "messages": [
@@ -160,18 +128,14 @@
           {
             "label": "plan_key",
             "type": {
-              "displayName": [
-                "u8"
-              ],
+              "displayName": ["u8"],
               "type": 4
             }
           },
           {
             "label": "new_price",
             "type": {
-              "displayName": [
-                "U256"
-              ],
+              "displayName": ["U256"],
               "type": 9
             }
           }
@@ -182,10 +146,7 @@
         "mutates": true,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 15
         },
         "selector": "0x1a0cca6a"
@@ -195,18 +156,14 @@
           {
             "label": "team",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 2
             }
           },
           {
             "label": "plan_key",
             "type": {
-              "displayName": [
-                "u8"
-              ],
+              "displayName": ["u8"],
               "type": 4
             }
           }
@@ -217,10 +174,7 @@
         "mutates": true,
         "payable": true,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 15
         },
         "selector": "0xd9ef8355"
@@ -230,9 +184,7 @@
           {
             "label": "team",
             "type": {
-              "displayName": [
-                "H160"
-              ],
+              "displayName": ["H160"],
               "type": 2
             }
           }
@@ -243,10 +195,7 @@
         "mutates": false,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 17
         },
         "selector": "0x7ac28d0b"
@@ -256,9 +205,7 @@
           {
             "label": "plan_key",
             "type": {
-              "displayName": [
-                "u8"
-              ],
+              "displayName": ["u8"],
               "type": 4
             }
           }
@@ -269,10 +216,7 @@
         "mutates": false,
         "payable": false,
         "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
+          "displayName": ["ink", "MessageResult"],
           "type": 18
         },
         "selector": "0x56ee00d9"
@@ -360,12 +304,7 @@
             "type": 5
           }
         ],
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ]
+        "path": ["ink_storage", "lazy", "mapping", "Mapping"]
       }
     },
     {
@@ -381,10 +320,7 @@
             ]
           }
         },
-        "path": [
-          "primitive_types",
-          "H160"
-        ]
+        "path": ["primitive_types", "H160"]
       }
     },
     {
@@ -422,11 +358,7 @@
             "type": 7
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ResolverKey"]
       }
     },
     {
@@ -435,11 +367,7 @@
         "def": {
           "composite": {}
         },
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "AutoKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "AutoKey"]
       }
     },
     {
@@ -454,11 +382,7 @@
             "type": 8
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ManualKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ManualKey"]
       }
     },
     {
@@ -482,10 +406,7 @@
             ]
           }
         },
-        "path": [
-          "primitive_types",
-          "U256"
-        ]
+        "path": ["primitive_types", "U256"]
       }
     },
     {
@@ -519,12 +440,7 @@
             "type": 12
           }
         ],
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ]
+        "path": ["ink_storage", "lazy", "mapping", "Mapping"]
       }
     },
     {
@@ -543,11 +459,7 @@
             "type": 13
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ResolverKey"]
       }
     },
     {
@@ -562,11 +474,7 @@
             "type": 8
           }
         ],
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ManualKey"
-        ]
+        "path": ["ink_storage_traits", "impls", "ManualKey"]
       }
     },
     {
@@ -593,11 +501,7 @@
             ]
           }
         },
-        "path": [
-          "subscription_manager",
-          "subscription_manager",
-          "SubscriptionManager"
-        ]
+        "path": ["subscription_manager", "subscription_manager", "SubscriptionManager"]
       }
     },
     {
@@ -637,9 +541,7 @@
             "type": 16
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -655,10 +557,7 @@
             ]
           }
         },
-        "path": [
-          "ink_primitives",
-          "LangError"
-        ]
+        "path": ["ink_primitives", "LangError"]
       }
     },
     {
@@ -698,9 +597,7 @@
             "type": 16
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -740,9 +637,7 @@
             "type": 16
           }
         ],
-        "path": [
-          "Result"
-        ]
+        "path": ["Result"]
       }
     },
     {
@@ -773,9 +668,7 @@
             "type": 9
           }
         ],
-        "path": [
-          "Option"
-        ]
+        "path": ["Option"]
       }
     },
     {
@@ -791,11 +684,7 @@
             ]
           }
         },
-        "path": [
-          "ink_primitives",
-          "types",
-          "AccountId"
-        ]
+        "path": ["ink_primitives", "types", "AccountId"]
       }
     },
     {
@@ -830,11 +719,7 @@
             ]
           }
         },
-        "path": [
-          "ink_primitives",
-          "types",
-          "Hash"
-        ]
+        "path": ["ink_primitives", "types", "Hash"]
       }
     },
     {
@@ -851,11 +736,7 @@
         "def": {
           "variant": {}
         },
-        "path": [
-          "ink_primitives",
-          "types",
-          "NoChainExtension"
-        ]
+        "path": ["ink_primitives", "types", "NoChainExtension"]
       }
     }
   ],

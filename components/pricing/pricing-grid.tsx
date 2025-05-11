@@ -7,8 +7,8 @@ import { Check } from 'lucide-react'
 
 import { SubmitButton } from '@/app/(dashboard)/pricing/submit-button'
 import { Button } from '@/components/ui/button'
-import { weiToDecimal } from '@/lib/utils'
 import type { PricingGridProps } from '@/lib/types/ui'
+import { weiToDecimal } from '@/lib/utils'
 
 /* -------------------------------------------------------------------------- */
 /*                         P R I C I N G   G R I D                            */

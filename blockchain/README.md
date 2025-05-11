@@ -80,12 +80,12 @@ Outputs the first `0x…`/SS58 address found in the file/stdin.
 
 ## 🗝️ Environment Keys Written by the CLI
 
-| Purpose                        | Key                                        |
-| ------------------------------ | ------------------------------------------ |
-| DID Registry address           | `NEXT_PUBLIC_DID_CONTRACT_ADDRESS`         |
+| Purpose                        | Key                                                 |
+| ------------------------------ | --------------------------------------------------- |
+| DID Registry address           | `NEXT_PUBLIC_DID_CONTRACT_ADDRESS`                  |
 | Credential NFT address         | `NEXT_PUBLIC_CREDENTIAL_NFT_CONTRACT_ADDRESS`       |
 | Subscription Manager address   | `NEXT_PUBLIC_SUBSCRIPTION_MANAGER_CONTRACT_ADDRESS` |
-| Platform DID (polkadot method) | `NEXT_PUBLIC_PLATFORM_ISSUER_DID`          |
+| Platform DID (polkadot method) | `NEXT_PUBLIC_PLATFORM_ISSUER_DID`                   |
 
 ---
 

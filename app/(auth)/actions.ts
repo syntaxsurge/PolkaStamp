@@ -1,6 +1,5 @@
 'use server'
 
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { and, eq } from 'drizzle-orm'
@@ -8,6 +7,7 @@ import { z } from 'zod'
 
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware'
 import { setSession } from '@/lib/auth/session'
+import { toH160Hex } from '@/lib/contract-utils'
 import { db } from '@/lib/db/drizzle'
 import { getUserWithTeam } from '@/lib/db/queries/queries'
 import {
@@ -22,7 +22,6 @@ import {
   type NewActivityLog,
   ActivityType,
 } from '@/lib/db/schema'
-import { toH160Hex } from '@/lib/contract-utils'
 import { H160_REGEX } from '@/lib/utils/address'
 
 /* -------------------------------------------------------------------------- */

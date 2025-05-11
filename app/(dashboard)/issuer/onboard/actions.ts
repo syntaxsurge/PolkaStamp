@@ -8,12 +8,7 @@ import { z } from 'zod'
 import { validatedActionWithUser } from '@/lib/auth/middleware'
 import { db } from '@/lib/db/drizzle'
 import { teams, teamMembers } from '@/lib/db/schema/core'
-import {
-  issuers,
-  IssuerStatus,
-  IssuerCategory,
-  IssuerIndustry,
-} from '@/lib/db/schema/issuer'
+import { issuers, IssuerStatus, IssuerCategory, IssuerIndustry } from '@/lib/db/schema/issuer'
 import { POLKADOT_DID_REGEX } from '@/lib/utils/address'
 
 /* -------------------------------------------------------------------------- */
@@ -24,12 +19,8 @@ function refresh() {
   revalidatePath('/issuer/onboard')
 }
 
-const categoryEnum = z.enum([
-  ...Object.values(IssuerCategory),
-] as [string, ...string[]])
-const industryEnum = z.enum([
-  ...Object.values(IssuerIndustry),
-] as [string, ...string[]])
+const categoryEnum = z.enum([...Object.values(IssuerCategory)] as [string, ...string[]])
+const industryEnum = z.enum([...Object.values(IssuerIndustry)] as [string, ...string[]])
 
 /* -------------------------------------------------------------------------- */
 /*                          C R E A T E   I S S U E R                         */
@@ -54,8 +45,7 @@ export const createIssuerAction = validatedActionWithUser(
       .from(issuers)
       .where(eq(issuers.ownerUserId, user.id))
       .limit(1)
-    if (existing.length)
-      return { error: 'You already have an issuer organisation.' }
+    if (existing.length) return { error: 'You already have an issuer organisation.' }
 
     /* Require team DID ---------------------------------------------------- */
     const [teamRow] = await db
@@ -67,8 +57,7 @@ export const createIssuerAction = validatedActionWithUser(
 
     if (!teamRow?.did) {
       return {
-        error:
-          'Please create your team DID before creating an issuer organisation.',
+        error: 'Please create your team DID before creating an issuer organisation.',
       }
     }
 
@@ -100,10 +89,7 @@ export const updateIssuerDidAction = validatedActionWithUser(
     did: z
       .string()
       .trim()
-      .regex(
-        POLKADOT_DID_REGEX,
-        'Invalid Polkadot DID (expected did:polkadot:0x…)',
-      ),
+      .regex(POLKADOT_DID_REGEX, 'Invalid Polkadot DID (expected did:polkadot:0x…)'),
   }),
   async ({ did }, _, user) => {
     const [issuer] = await db

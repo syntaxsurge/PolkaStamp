@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { z } from 'zod'
 
-import { requireAuth } from '@/lib/auth/guards'
 import { verifyCredentialServerAction } from '@/app/(dashboard)/issuer/credentials/actions'
+import { requireAuth } from '@/lib/auth/guards'
 
 /* -------------------------------------------------------------------------- */
 /*                               V A L I D A T I O N                          */
@@ -41,9 +42,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err?.message ?? 'Internal error' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: err?.message ?? 'Internal error' }, { status: 500 })
   }
 }

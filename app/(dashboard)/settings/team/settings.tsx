@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import PageCard from '@/components/ui/page-card'
 import { TablePagination } from '@/components/ui/tables/table-pagination'
-
 import { paySubscription, priceOf } from '@/lib/subscription-manager'
 import type { SettingsProps } from '@/lib/types/components'
 import { buildExplorerLink, ensureSigner } from '@/lib/utils'
@@ -61,8 +60,7 @@ function RenewSubscriptionButton({ planName }: { planName: 'base' | 'plus' }) {
           id: toastId,
           action: {
             label: 'View',
-            onClick: () =>
-              window.open(buildExplorerLink(txResult.txHash!), '_blank'),
+            onClick: () => window.open(buildExplorerLink(txResult.txHash!), '_blank'),
           },
         })
       }
@@ -122,9 +120,7 @@ export function Settings({
   basePath,
   initialParams,
 }: SettingsProps) {
-  const paidUntilDate = team.subscriptionPaidUntil
-    ? new Date(team.subscriptionPaidUntil)
-    : null
+  const paidUntilDate = team.subscriptionPaidUntil ? new Date(team.subscriptionPaidUntil) : null
   const now = new Date()
   const isActive = paidUntilDate && paidUntilDate > now
 

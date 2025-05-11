@@ -17,12 +17,7 @@ import { POLKADOT_DID_REGEX } from '@/lib/utils/address'
  */
 export const createDidAction = validatedActionWithUser(
   z.object({
-    did: z
-      .string()
-      .regex(
-        POLKADOT_DID_REGEX,
-        'Invalid Polkadot DID (expected did:polkadot:0x…)',
-      ),
+    did: z.string().regex(POLKADOT_DID_REGEX, 'Invalid Polkadot DID (expected did:polkadot:0x…)'),
   }),
   async ({ did }, _formData, user) => {
     /* ------------------------------------------------------------ */
@@ -37,12 +32,7 @@ export const createDidAction = validatedActionWithUser(
     const [membership] = await db
       .select()
       .from(teamMembers)
-      .where(
-        and(
-          eq(teamMembers.userId, user.id),
-          eq(teamMembers.teamId, userWithTeam.teamId),
-        ),
-      )
+      .where(and(eq(teamMembers.userId, user.id), eq(teamMembers.teamId, userWithTeam.teamId)))
       .limit(1)
 
     if (membership?.role !== 'owner') {

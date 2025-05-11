@@ -2,14 +2,15 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, Trash } from 'lucide-react'
+
 import { stringToU8a, u8aToHex } from '@polkadot/util'
+import { Loader2, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 import { WALLET_HEADER } from '@/lib/constants/blockchain'
 import { toH160Hex } from '@/lib/contract-utils'
+import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
 /* -------------------------------------------------------------------------- */
 /*                         D E L E T E   A C C O U N T                        */

@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { paySubscription } from '@/lib/subscription-manager'
 import { syncSubscription } from '@/lib/payments/client'
+import { paySubscription } from '@/lib/subscription-manager'
+import type { SubmitButtonProps } from '@/lib/types/forms'
 import { buildExplorerLink, ensureSigner } from '@/lib/utils'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
-import type { SubmitButtonProps } from '@/lib/types/forms'
 
 /**
  * Pay‑in‑DOT subscription checkout button (Polkadot API version).
@@ -59,8 +59,7 @@ export function SubmitButton({ planKey, priceWei }: SubmitButtonProps) {
           id: toastId,
           action: {
             label: 'View',
-            onClick: () =>
-              window.open(buildExplorerLink(txResult.txHash!), '_blank'),
+            onClick: () => window.open(buildExplorerLink(txResult.txHash!), '_blank'),
           },
         })
       }
