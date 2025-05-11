@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { useMemo } from 'react'
 
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
-import { ArrowDown, BadgeCheck, CloudLightning, Shield } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { BadgeCheck, CloudLightning, Shield } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -15,8 +15,8 @@ import { cn } from '@/lib/utils'
 
 const FEATURES = [
   { icon: BadgeCheck, label: 'Smart-Contract Proofs' },
-  { icon: CloudLightning, label: 'PAPI Light Client' },
-  { icon: Shield, label: 'Confidential Deploys' },
+  { icon: CloudLightning, label: 'PAPI&nbsp;Light&nbsp;Client' },
+  { icon: Shield, label: 'Confidential&nbsp;Deploys' },
 ] as const
 
 /* -------------------------------------------------------------------------- */
@@ -24,101 +24,105 @@ const FEATURES = [
 /* -------------------------------------------------------------------------- */
 
 export default function HeroSection() {
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-
-  /* Parallax transform helpers */
-  const rotateX = useTransform(mouseY, [0, 1], [8, -8])
-  const rotateY = useTransform(mouseX, [0, 1], [-8, 8])
-  const springX = useSpring(rotateX, { stiffness: 120, damping: 20 })
-  const springY = useSpring(rotateY, { stiffness: 120, damping: 20 })
-
-  function handleMouseMove(e: React.MouseEvent) {
-    const { width, height, left, top } = e.currentTarget.getBoundingClientRect()
-    mouseX.set((e.clientX - left) / width)
-    mouseY.set((e.clientY - top) / height)
-  }
-
-  /* Pre-generate particle positions so they stay stable between renders */
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 36 }, () => ({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        s: Math.random() * 4 + 2,
-        d: Math.random() * 15 + 8,
-      })),
-    [],
-  )
+  /* Evenly-spaced orbiting nodes (degrees only; radius & size via CSS) */
+  const nodes = useMemo(() => Array.from({ length: 12 }, (_, i) => i * (360 / 12)), [])
 
   return (
     <section
       id='hero'
-      onMouseMove={handleMouseMove}
-      className='relative isolate -mt-16 flex min-h-[90dvh] flex-col justify-center overflow-hidden px-4 pt-40 pb-32 text-center sm:px-6 lg:px-0'
+      className='relative isolate overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-40'
+      aria-label='Introduction'
     >
       <GradientBackdrop />
-      <Particles points={particles} />
 
-      {/* Copy block ------------------------------------------------------ */}
-      <motion.div
-        style={{ rotateX: springX, rotateY: springY }}
-        className='relative z-10 mx-auto max-w-4xl'
-      >
-        <motion.h1
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className='bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-balance text-5xl font-extrabold leading-tight text-transparent drop-shadow md:text-6xl lg:text-7xl'
-        >
-          Verifiable&nbsp;Credentials&nbsp;on{' '}
-          <span className='text-polkastamp-gradient animate-polkastamp-gradient'>Polkadot</span>
-        </motion.h1>
+      {/* Content grid */}
+      <div className='mx-auto grid max-w-7xl items-center gap-16 px-4 lg:grid-cols-2'>
+        {/* Copy block ------------------------------------------------------ */}
+        <div>
+          <motion.h1
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className='text-balance text-5xl font-extrabold leading-tight text-white md:text-6xl lg:text-7xl'
+          >
+            Verifiable&nbsp;Credentials&nbsp;on&nbsp;
+            <span className='text-polkastamp-gradient animate-polkastamp-gradient'>
+              Polkadot
+            </span>
+          </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.05, ease: 'easeOut' }}
-          className='mx-auto mt-6 max-w-2xl text-lg/relaxed text-white/90 sm:text-xl'
-        >
-          PolkaStamp merges ink! smart contracts, PAPI light-client libraries and Apillon
-          confidential compute so every credential you issue is provable, portable and upgrade-safe.
-        </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.05, ease: 'easeOut' }}
+            className='mt-6 max-w-xl text-lg/relaxed text-white/90 sm:text-xl'
+          >
+            PolkaStamp&nbsp;fuses ink! contracts, PAPI light clients and Apillon confidential
+            compute so every credential you issue is provable, portable and upgrade-safe.
+          </motion.p>
 
-        {/* Features ------------------------------------------------------ */}
-        <ul className='mt-10 flex flex-wrap items-center justify-center gap-4 font-medium'>
-          {FEATURES.map(({ icon: Icon, label }, i) => (
-            <motion.li
-              key={label}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
-              className='inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm text-white backdrop-blur-md'
-            >
-              <Icon className='h-5 w-5 text-amber-300' />
-              {label}
-            </motion.li>
-          ))}
-        </ul>
+          {/* Features ------------------------------------------------------ */}
+          <ul className='mt-10 flex flex-wrap gap-3'>
+            {FEATURES.map(({ icon: Icon, label }, i) => (
+              <motion.li
+                key={label}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+                className='inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-md'
+                dangerouslySetInnerHTML={{ __html: `<svg class="h-5 w-5 text-amber-300">${Icon({})}</svg> ${label}` }}
+              />
+            ))}
+          </ul>
 
-        {/* CTAs ---------------------------------------------------------- */}
-        <div className='mt-12 flex flex-wrap justify-center gap-4'>
-          <GradientButton href='/connect-wallet'>Launch&nbsp;App</GradientButton>
-          <GradientButton href='/#pricing' tone='outline'>
-            View&nbsp;Pricing
-          </GradientButton>
+          {/* CTAs ---------------------------------------------------------- */}
+          <div className='mt-12 flex flex-wrap gap-4'>
+            <GradientButton href='/connect-wallet'>Launch&nbsp;App</GradientButton>
+            <GradientButton href='/#pricing' tone='outline'>
+              View&nbsp;Pricing
+            </GradientButton>
+          </div>
         </div>
-      </motion.div>
 
-      {/* Scroll hint ----------------------------------------------------- */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 0.8, y: 0 }}
-        transition={{ duration: 0.6, delay: 1 }}
-        className='absolute bottom-10 left-1/2 -translate-x-1/2 md:block'
-      >
-        <ArrowDown className='h-8 w-8 animate-bounce text-white' />
-      </motion.div>
+        {/* Visual block ---------------------------------------------------- */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, ease: 'easeOut' }}
+          className='relative mx-auto size-[22rem] lg:mx-0'
+        >
+          {/* Central nucleus */}
+          <span className='bg-polkastamp-gradient absolute left-1/2 top-1/2 z-10 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-2xl' />
+
+          {/* Orbiting nodes */}
+          <div className='absolute inset-0 animate-spin-slow'>
+            {nodes.map((deg) => (
+              <span
+                key={deg}
+                style={{ transform: `rotate(${deg}deg) translateX(9rem)` }}
+                className='absolute left-1/2 top-1/2 -ml-1 -mt-1 size-3 rounded-full bg-white'
+              />
+            ))}
+          </div>
+
+          {/* Outer ring */}
+          <span className='border-primary/20 dark:border-primary/30 absolute inset-0 rounded-full border-2' />
+        </motion.div>
+      </div>
+
+      {/* Decorative grid overlay */}
+      <div className='pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_0%,transparent_70%)]' />
+
+      <style jsx global>{`
+        .animate-spin-slow {
+          animation: spin 18s linear infinite;
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </section>
   )
 }
@@ -129,57 +133,11 @@ export default function HeroSection() {
 
 function GradientBackdrop() {
   return (
-    <div className='pointer-events-none absolute inset-0 -z-10'>
-      {/* Angled gradient sweep */}
-      <div className='bg-polkastamp-gradient absolute inset-0 -rotate-6 opacity-40 blur-3xl md:opacity-60' />
-      {/* Top glow */}
-      <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.25)_0%,transparent_70%)]' />
+    <div className='pointer-events-none absolute inset-0 -z-20'>
+      {/* Angled sweep */}
+      <div className='bg-polkastamp-gradient absolute -inset-10 -rotate-3 opacity-40 blur-3xl md:opacity-60' />
       {/* Dark overlay for contrast */}
-      <div className='absolute inset-0 bg-black/60 mix-blend-multiply' />
-    </div>
-  )
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                PARTICLES                                   */
-/* -------------------------------------------------------------------------- */
-
-type Particle = { x: number; y: number; s: number; d: number }
-
-function Particles({ points }: { points: Particle[] }) {
-  return (
-    <div className='pointer-events-none absolute inset-0 -z-10'>
-      {points.map((p, i) => (
-        <span
-          key={i}
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.s,
-            height: p.s,
-            animationDelay: `${i * 0.12}s`,
-            animationDuration: `${p.d}s`,
-          }}
-          className='absolute animate-[pulse_4s_linear_infinite] rounded-full bg-white/70 opacity-0'
-        />
-      ))}
-
-      <style jsx global>{`
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: scale(0);
-            opacity: 0;
-          }
-          30% {
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-        }
-      `}</style>
+      <div className='absolute inset-0 bg-black/65 mix-blend-multiply' />
     </div>
   )
 }
