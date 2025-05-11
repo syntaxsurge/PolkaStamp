@@ -1,9 +1,10 @@
+import React from 'react'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 import { WS_URL } from './config'
-import { buildAccountMappingInstructions } from './utils/account-mapping'
+import { buildAccountMappingInstructions, renderAccountMappingToast } from './utils/account-mapping'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -114,11 +115,10 @@ export function prettify(text?: string | null): string {
 }
 
 /**
- * Decode a Polkadot dispatch error into human-readable form.
- * When an unmapped-account error is detected, the centralised
- * instruction helper is returned instead of duplicating logic.
+ * Decode a Polkadot dispatch error into human-readable form or a rich JSX
+ * element when unmapped-account guidance is required.
  */
-export function decodeDispatchError(error: unknown): string {
+export function decodeDispatchError(error: unknown): React.ReactNode {
   /* ---------------- base decoding logic ------------------ */
   let msg = 'Unknown error'
 
@@ -172,7 +172,10 @@ export function decodeDispatchError(error: unknown): string {
 
   /* ------------------ unmapped account ------------------- */
   if (/AccountUnmapped/i.test(msg)) {
-    return buildAccountMappingInstructions()
+    // Return rich JSX toast for UI contexts; fall back to text if not used in a React renderer.
+    return typeof window === 'undefined'
+      ? buildAccountMappingInstructions()
+      : renderAccountMappingToast()
   }
 
   return msg
