@@ -41,7 +41,7 @@ const TOOLS_MENU = [
 
 export default function SiteHeader() {
   const { userPromise } = useUser()
-  const [currentUser, setCurrentUser] = useState<Awaited<typeof userPromise> | null>(null)
+  const [_currentUser, setCurrentUser] = useState<Awaited<typeof userPromise> | null>(null)
 
   const [mobileOpen, setMobileOpen] = useState(false)
   const [learnMobileOpen, setLearnMobileOpen] = useState(false)
