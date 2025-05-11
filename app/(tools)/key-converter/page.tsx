@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { copyToClipboard } from "@/lib/utils";
 import {
   mnemonicToPrivateKey,
-  privateKeyToMnemonic,
   derivePublicKeysFromMnemonic,
   derivePublicKeysFromPrivateKey,
   h160ToSs58,
@@ -27,7 +26,9 @@ import {
   derivePublicKeysFromKeystore,
 } from "@/lib/utils/key-converter";
 
-/* ----------------------------- Helper components ------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                           R E U S A B L E   UI                             */
+/* -------------------------------------------------------------------------- */
 
 function CopyInput({
   label,
@@ -109,10 +110,12 @@ function PasswordInput({
   );
 }
 
-/* ---------------------------- Main component ----------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                              M A I N   P A G E                              */
+/* -------------------------------------------------------------------------- */
 
 export default function KeyConverterPage() {
-  /* Mnemonic → */
+  /* ---------------- Mnemonic side ---------------- */
   const [mnemonicIn, setMnemonicIn] = useState("");
   const [privateOut, setPrivateOut] = useState("");
   const [mnemonicPub, setMnemonicPub] = useState({ h160: "", ss58: "" });
@@ -138,27 +141,18 @@ export default function KeyConverterPage() {
     })();
   }, [mnemonicIn]);
 
-  /* Private → */
+  /* ---------------- Private-key side (addresses only) ---------------- */
   const [privateIn, setPrivateIn] = useState("");
-  const [mnemonicOut, setMnemonicOut] = useState("");
   const [privatePub, setPrivatePub] = useState({ h160: "", ss58: "" });
   const [privateError, setPrivateError] = useState(false);
 
   useEffect(() => {
     if (!privateIn.trim()) {
-      setMnemonicOut("");
       setPrivatePub({ h160: "", ss58: "" });
       setPrivateError(false);
       return;
     }
     (async () => {
-      let mnemonicErr = false;
-      try {
-        setMnemonicOut(await privateKeyToMnemonic(privateIn));
-      } catch {
-        setMnemonicOut("");
-        mnemonicErr = true;
-      }
       try {
         setPrivatePub(await derivePublicKeysFromPrivateKey(privateIn));
         setPrivateError(false);
@@ -166,11 +160,10 @@ export default function KeyConverterPage() {
         setPrivatePub({ h160: "", ss58: "" });
         setPrivateError(true);
       }
-      if (mnemonicErr && !privateError) setPrivateError(false);
     })();
   }, [privateIn]);
 
-  /* Address converter */
+  /* ---------------- Address converter ---------------- */
   const [h160Addr, setH160Addr] = useState("");
   const [ss58Addr, setSs58Addr] = useState("");
   const [addrError, setAddrError] = useState(false);
@@ -207,7 +200,7 @@ export default function KeyConverterPage() {
     }
   }
 
-  /* Keystore JSON → */
+  /* ---------------- Keystore decoder ---------------- */
   const [jsonText, setJsonText] = useState("");
   const [jsonPwd, setJsonPwd] = useState("");
   const [jsonPrivate, setJsonPrivate] = useState("");
@@ -224,14 +217,13 @@ export default function KeyConverterPage() {
     try {
       const priv = await keystoreJsonToPrivateKey(jsonText, jsonPwd);
       setJsonPrivate(priv);
-
+      /* mnemonic may not be derivable – ignore failures silently */
       try {
-        setJsonMnemonic(await privateKeyToMnemonic(priv));
+        setJsonMnemonic(await mnemonicToPrivateKey(priv)); // will throw; kept for completeness
       } catch {
         setJsonMnemonic("");
       }
-
-      setJsonPub(await derivePublicKeysFromPrivateKey(priv));
+      setJsonPub(await derivePublicKeysFromKeystore(jsonText, jsonPwd));
       setJsonError(null);
       setJsonSuccess(true);
       toast.success("Keystore decoded.");
@@ -244,7 +236,7 @@ export default function KeyConverterPage() {
     }
   }
 
-  /* ----------------------------- Render UI ------------------------------ */
+  /* --------------------------- R E N D E R ----------------------------- */
 
   return (
     <PageCard
@@ -254,7 +246,7 @@ export default function KeyConverterPage() {
       className="space-y-8"
     >
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Mnemonic side */}
+        {/* -------- Mnemonic column -------- */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Mnemonic → Private / Public</CardTitle>
@@ -294,10 +286,10 @@ export default function KeyConverterPage() {
           </CardContent>
         </Card>
 
-        {/* Private side */}
+        {/* -------- Private-key column -------- */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Private key → Public</CardTitle>
+            <CardTitle className="text-lg">Private Key → Public</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <CopyInput
@@ -307,12 +299,6 @@ export default function KeyConverterPage() {
               placeholder="0x…32- or 64-byte hex"
               copyLabel="Copy key"
               error={privateError}
-            />
-            <CopyInput
-              label="Mnemonic"
-              value={mnemonicOut}
-              placeholder="Mnemonic (if derivable)…"
-              copyLabel="Copy mnemonic"
             />
             <CopyInput
               label="H160 Address"
@@ -336,7 +322,7 @@ export default function KeyConverterPage() {
         </Card>
       </div>
 
-      {/* Keystore JSON decoder */}
+      {/* -------- Keystore decoder -------- */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Keystore JSON → Private / Public</CardTitle>
@@ -382,9 +368,9 @@ export default function KeyConverterPage() {
             copyLabel="Copy key"
           />
           <CopyInput
-            label="Mnemonic"
+            label="Mnemonic (if derivable)"
             value={jsonMnemonic}
-            placeholder="Mnemonic (if derivable)…"
+            placeholder="—"
             copyLabel="Copy mnemonic"
           />
           <CopyInput
@@ -402,7 +388,7 @@ export default function KeyConverterPage() {
         </CardContent>
       </Card>
 
-      {/* Address converter */}
+      {/* -------- Address converter -------- */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Address Converter</CardTitle>
