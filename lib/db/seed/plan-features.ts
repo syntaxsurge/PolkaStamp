@@ -21,7 +21,7 @@ export async function seedPlanFeatures() {
     if (existing.length === 0) {
       const rows = plan.features.map((feature, i) => ({
         planKey: plan.key,
-        feature,
+        feature: feature.replace('Upload credential file', 'Anchor credential file to IPFS'),
         sortOrder: i + 1,
       }))
       await db.insert(planFeatures).values(rows)
