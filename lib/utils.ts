@@ -114,14 +114,16 @@ export function prettify(text?: string | null): string {
 
 /**
  * Decode a Polkadot dispatch error into human-readable form.
- * Now supports deep "Module → Revive → AccountUnmapped” paths and
- * returns them delimited by ": ”, e.g. "Module: Revive: AccountUnmapped”.
+ * Extended to return a full step-by-step mapping guide when the
+ * unmapped-account error is detected.
  */
 export function decodeDispatchError(error: unknown): string {
-  if (!error || typeof error !== 'object') return 'Unknown error'
+  /* ---------------- base decoding logic ------------------ */
+  let msg = 'Unknown error'
+
+  if (!error || typeof error !== 'object') return msg
   const err: any = error
 
-  /* New hierarchical Module decoding ----------------------------------- */
   if (err.type === 'Module' && err.value && typeof err.value === 'object') {
     const pallet = err.value.type ?? 'UnknownModule'
 
@@ -135,14 +137,10 @@ export function decodeDispatchError(error: unknown): string {
       }
     }
 
-    return `Module: ${pallet}: ${detail}`
-  }
-
-  /* Direct descriptive type (e.g. 'OutOfGas', 'Payment') */
-  if (err.type && err.type !== 'Module') return String(err.type)
-
-  /* Legacy structure with `module` details */
-  if (err.module) {
+    msg = `Module: ${pallet}: ${detail}`
+  } else if (err.type && err.type !== 'Module') {
+    msg = String(err.type)
+  } else if (err.module) {
     const mod = err.module
     const pallet = mod.pallet ?? mod.section ?? mod.type ?? 'UnknownModule'
     const name =
@@ -150,11 +148,8 @@ export function decodeDispatchError(error: unknown): string {
       mod.error ??
       (typeof mod.value === 'string' ? mod.value : undefined) ??
       'UnknownError'
-    return `${pallet}.${name}`
-  }
-
-  /* Nested `value` carrying pallet/error info (polkadot-api 0.4+) */
-  if (err.value && typeof err.value === 'object') {
+    msg = `${pallet}.${name}`
+  } else if (err.value && typeof err.value === 'object') {
     const val: any = err.value
     if (val.type) {
       const pallet = String(val.type)
@@ -165,11 +160,28 @@ export function decodeDispatchError(error: unknown): string {
           inner.error ??
           (typeof inner === 'string' ? inner : undefined) ??
           'UnknownError'
-        return `${pallet}.${innerName}`
+        msg = `${pallet}.${innerName}`
+      } else {
+        msg = pallet
       }
-      return pallet
     }
+  } else {
+    msg = 'Module error'
   }
 
-  return 'Module error'
+  /* --------------- friendly mapping for unmapped error ---------------- */
+  if (/AccountUnmapped/i.test(msg)) {
+    return (
+      'Your account is not yet mapped on the local chain. ' +
+      'Open **Developer → Extrinsics** in Polkadot-JS Apps, then:\n' +
+      '1. In **Using the selected account**, pick the wallet you wish to map.\n' +
+      '2. In **submit the following extrinsic**, choose the **Revive** pallet.\n' +
+      '3. Select the **map_account()** function.\n' +
+      '4. Click **Submit Transaction**.\n' +
+      '5. In your extension, hit **Sign and Submit**, then **Approve**.\n' +
+      'After the transaction is finalized, your account will be mapped successfully.'
+    )
+  }
+
+  return msg
 }
