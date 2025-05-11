@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import * as React from 'react'
 
-import { Eye, Copy } from 'lucide-react'
+import { Eye, Copy, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -24,15 +24,28 @@ function ActionsCell({ row }: { row: IssuerDirectoryRow }) {
   const [dialogOpen, setDialogOpen] = React.useState(false)
 
   const actions = React.useMemo<TableRowAction<IssuerDirectoryRow>[]>(() => {
-    return [
-      {
-        label: 'View DID',
-        icon: Eye,
-        onClick: () => setDialogOpen(true),
-        disabled: () => !row.did,
-      },
-    ]
-  }, [row.did])
+    const list: TableRowAction<IssuerDirectoryRow>[] = []
+
+    /* View Transaction sits at the top when a tx hash exists */
+    if (row.grantTxHash) {
+      list.push({
+        label: 'View Transaction',
+        icon: ExternalLink,
+        onClick: () => window.open(buildExplorerLink(row.grantTxHash!), '_blank'),
+        disabled: () => !row.grantTxHash,
+      })
+    }
+
+    /* View DID action (always last) */
+    list.push({
+      label: 'View DID',
+      icon: Eye,
+      onClick: () => setDialogOpen(true),
+      disabled: () => !row.did,
+    })
+
+    return list
+  }, [row.grantTxHash, row.did])
 
   return (
     <>
@@ -155,26 +168,6 @@ export default function IssuersTable({
         header: sortableHeader('Status', 'status'),
         sortable: false,
         render: (v) => <StatusBadge status={String(v)} />,
-      },
-      {
-        key: 'grantTxHash',
-        header: 'Tx',
-        sortable: false,
-        render: (_v, row) => {
-          const hash = (row as any).grantTxHash as string | null | undefined
-          return hash ? (
-            <a
-              href={buildExplorerLink(hash)}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='font-mono text-xs text-primary hover:underline'
-            >
-              {hash.slice(0, 6)}…{hash.slice(-4)}
-            </a>
-          ) : (
-            '—'
-          )
-        },
       },
       {
         key: 'createdAt',

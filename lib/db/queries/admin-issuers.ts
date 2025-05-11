@@ -14,6 +14,8 @@ import { issuers } from '../schema/issuer'
 export interface AdminIssuerRowWithWallet extends AdminIssuerRow {
   /** Wallet address of the issuer owner (H160 or SS58, lower-case 0x preferred) */
   ownerWalletAddress: string | null
+  /** On-chain transaction hash granting issuer role (if any) */
+  grantTxHash: string | null
 }
 
 export async function getAdminIssuersPage(
@@ -43,6 +45,7 @@ export async function getAdminIssuersPage(
       category: issuers.category,
       industry: issuers.industry,
       status: issuers.status,
+      grantTxHash: issuers.grantTxHash,
     })
     .from(issuers)
     .leftJoin(users, eq(issuers.ownerUserId, users.id))

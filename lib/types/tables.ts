@@ -242,5 +242,6 @@ export interface IssuerDirectoryRow {
   status: string
   logoUrl?: string | null
   did?: string | null
+  grantTxHash: string | null
   createdAt: string
 }

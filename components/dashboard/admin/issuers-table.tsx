@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Trash2 } from 'lucide-react'
+import { Trash2, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
 import {
@@ -22,7 +22,10 @@ import { grantIssuerRole } from '@/lib/credential-nft'
 import { ensureSigner, buildExplorerLink } from '@/lib/utils'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
-type Row = AdminIssuerRow & { ownerWalletAddress: string | null }
+type Row = AdminIssuerRow & {
+  ownerWalletAddress: string | null
+  grantTxHash: string | null
+}
 
 export default function AdminIssuersTable({
   rows,
@@ -37,6 +40,7 @@ export default function AdminIssuersTable({
 
   /* -------------------------- Bulk-selection actions ---------------------- */
   const bulkActions = useBulkActions<Row>([
+    /* (unchanged bulk actions) */
     {
       label: 'Verify',
       icon: VerifyIcon,
@@ -147,6 +151,16 @@ export default function AdminIssuersTable({
     (row: Row): TableRowAction<Row>[] => {
       const actions: TableRowAction<Row>[] = []
 
+      /* ---- View Transaction (always first if available) ----------------- */
+      if (row.grantTxHash) {
+        actions.push({
+          label: 'View Transaction',
+          icon: ExternalLink,
+          onClick: () => window.open(buildExplorerLink(row.grantTxHash!), '_blank'),
+        })
+      }
+
+      /* ---- Existing Verify / Unverify / Reject / Delete logic ----------- */
       if (row.status !== 'ACTIVE') {
         actions.push({
           label: 'Verify',

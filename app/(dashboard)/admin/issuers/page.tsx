@@ -30,7 +30,10 @@ export default async function AdminIssuersPage({
     searchTerm,
   )
 
-  const rows: (AdminIssuerRow & { ownerWalletAddress: string | null })[] = issuers.map((i) => ({
+  const rows: (AdminIssuerRow & {
+    ownerWalletAddress: string | null
+    grantTxHash: string | null
+  })[] = issuers.map((i: AdminIssuerRowWithWallet) => ({
     id: i.id,
     name: i.name,
     domain: i.domain,
@@ -39,6 +42,7 @@ export default async function AdminIssuersPage({
     category: i.category,
     industry: i.industry,
     status: i.status,
+    grantTxHash: i.grantTxHash,
   }))
 
   return (
