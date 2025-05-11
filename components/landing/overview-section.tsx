@@ -18,8 +18,8 @@ const FEATURES = [
   },
   {
     icon: Layers3,
-    title: 'Docker + Apillon',
-    desc: 'Package your dApp once and roll it out to confidential compute on every cloud.',
+    title: 'Docker + Apillon Storage',
+    desc: 'Package your dApp once and roll it out to confidential compute and IPFS storage in every cloud.',
   },
   {
     icon: Rocket,
@@ -43,8 +43,8 @@ export default function OverviewSection() {
             Why&nbsp;PolkaStamp?
           </h2>
           <p className='text-muted-foreground mx-auto mt-4 max-w-2xl text-lg/relaxed'>
-            Everything you need to launch verifiable credentials—from contract to wallet—in a single
-            stack.
+            Everything you need to launch verifiable credentials—from smart contracts and Apillon
+            Storage on IPFS to wallet delivery—in a single stack.
           </p>
         </header>
 

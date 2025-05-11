@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { CheckCircle2, Wallet, ShieldCheck, Key } from 'lucide-react'
+import { CheckCircle2, Wallet, ShieldCheck, Key, HardDrive } from 'lucide-react'
 
 const features = [
   {
@@ -24,7 +24,13 @@ const features = [
     title: 'Provable Credential NFTs',
     description: 'Every verified credential mints an ERC-721 NFT with immutable provenance.',
   },
-]
+  {
+    icon: HardDrive,
+    title: 'File permanence on IPFS',
+    description:
+      'All credential files are stored on Apillon-backed IPFS, guaranteeing tamper-proof access.',
+  },
+] as const
 
 export default function FeaturesSection() {
   return (
@@ -34,7 +40,7 @@ export default function FeaturesSection() {
           Built&nbsp;for&nbsp;Proof
         </h2>
 
-        <div className='mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4'>
+        <div className='mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-5'>
           {features.map(({ icon: Icon, title, description }, i) => (
             <motion.div
               key={title}
