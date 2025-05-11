@@ -1,3 +1,4 @@
+'use client'
 import { redirect } from 'next/navigation'
 
 import { eq, sql } from 'drizzle-orm'
@@ -11,6 +12,9 @@ import { UserAvatar } from '@/components/ui/user-avatar'
 import { requireAuth } from '@/lib/auth/guards'
 import { db } from '@/lib/db/drizzle'
 import { teamMembers, users as usersT, teams } from '@/lib/db/schema/core'
+import { hasDid } from '@/lib/did-registry'
+import { SERVER_CALLER } from '@/lib/constants/blockchain'
+import { normalizeH160 } from '@/lib/contract-utils'
 
 export const revalidate = 0
 
@@ -26,6 +30,12 @@ const MAX_DISPLAY = 5
  * Server component that renders the "Create DID” workflow for the
  * current user’s workspace; reused by Candidate, Issuer and Recruiter
  * dashboards to enforce a single, consistent flow.
+ *
+ * Added logic:
+ *   • When the DB lacks a DID, query the smart-contract via has_did(owner)
+ *     to detect pre-existing on-chain registrations (e.g. after DB reset).
+ *   • Persist the on-chain DID to the teams table and immediately render
+ *     the "already registered” modal so users see accurate real-time state.
  */
 export default async function CreateDidPage() {
   const user = await requireAuth()
@@ -41,13 +51,29 @@ export default async function CreateDidPage() {
 
   if (!membership?.teamId) redirect('/dashboard')
 
-  /* Existing DID? -------------------------------------------------------- */
-  const [{ did } = {}] = await db
+  /* ------------------------ DB DID lookup ---------------------- */
+  let [{ did } = {}] = await db
     .select({ did: teams.did })
     .from(teams)
     .where(eq(teams.id, membership.teamId))
     .limit(1)
 
+  /* ------------------ Chain sync when DID missing -------------- */
+  if (!did && user.walletAddress) {
+    try {
+      const owner = normalizeH160(user.walletAddress)
+      const exists = await hasDid({ account: SERVER_CALLER, owner })
+      if (exists) {
+        did = `did:polkadot:${owner}`
+        await db.update(teams).set({ did }).where(eq(teams.id, membership.teamId))
+      }
+    } catch (err) {
+      console.error('[create-did-page] on-chain DID check failed:', err)
+      /* Non-fatal – continue with normal flow */
+    }
+  }
+
+  /* Existing DID? -------------------------------------------------------- */
   if (did) {
     return (
       <AppModal
