@@ -10,7 +10,11 @@ import { toH160Hex } from '@/lib/contract-utils'
 /*                            P R O T E C T E D  P A T H S                    */
 /* -------------------------------------------------------------------------- */
 
-/** Every prefix inside this array requires a valid session cookie. */
+/**
+ * Every prefix inside this array requires a valid session cookie.
+ * NOTE: /api/storage is added for the secure Apillon upload endpoint
+ * at app/api/storage/upload/route.ts — keep in sync if new sub-routes emerge.
+ */
 const PROTECTED_PREFIXES = [
   '/dashboard',
   '/candidate',
@@ -21,6 +25,7 @@ const PROTECTED_PREFIXES = [
   '/invitations',
   '/pricing',
   '/api/credentials/verify',
+  '/api/storage',
 ] as const
 
 /** Path-prefix → role mapping used for coarse-grain role guards. */
