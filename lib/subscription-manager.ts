@@ -9,12 +9,12 @@ import {
   hash32Binary,
 } from "./contract-utils";
 import { makeInkHelpers } from "./ink-helpers";
-import { SUBSCRIPTION_CONTRACT_ADDRESS } from "@/to-be-applied/lib/constants";
+import { SUBSCRIPTION_MANAGER_ADDRESS } from "./config";
 
 /* ---------- contract instance & helpers ---------- */
 const subscriptionManager = getInkClient(contracts.subscription_manager);
 const { msg, reviveCall, sendTx } = makeInkHelpers(
-  SUBSCRIPTION_CONTRACT_ADDRESS,
+  SUBSCRIPTION_MANAGER_ADDRESS,
   subscriptionManager,
 );
 

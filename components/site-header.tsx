@@ -30,6 +30,7 @@ const TOOLS_MENU = [
   { href: '/jobs', label: 'Job Openings' },
   { href: '/candidates', label: 'Candidates' },
   { href: '/issuers', label: 'Issuers' },
+  { href: '/key-converter', label: 'Key Converter' },
   { href: '/verify', label: 'Verify' },
 ] as const
 

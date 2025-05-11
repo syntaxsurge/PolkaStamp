@@ -29,6 +29,12 @@ importers:
       '@polkadot-api/sdk-ink':
         specifier: 0.0.1-1
         version: 0.0.1-1(@polkadot-api/ink-contracts@0.3.0)(polkadot-api@1.10.2(bufferutil@4.0.9)(jiti@2.4.2)(postcss@8.5.3)(rxjs@7.8.2)(tsx@4.19.3)(utf-8-validate@5.0.10))(rxjs@7.8.2)
+      '@polkadot-labs/hdkd':
+        specifier: ^0.0.15
+        version: 0.0.15
+      '@polkadot-labs/hdkd-helpers':
+        specifier: ^0.0.15
+        version: 0.0.15
       '@polkadot/keyring':
         specifier: ^13.4.4
         version: 13.4.4(@polkadot/util-crypto@13.4.4(@polkadot/util@13.4.4))(@polkadot/util@13.4.4)
@@ -1343,8 +1349,16 @@ packages:
     resolution: {integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@noble/curves@1.8.2':
+    resolution: {integrity: sha512-vnI7V6lFNe0tLAuJMu+2sX+FcL14TaCWy1qiczg1VwRmPrpQCdq5ESXQMqUc2tluRNf6irBXrWbl1mGN8uaU/g==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@noble/curves@1.9.0':
     resolution: {integrity: sha512-7YDlXiNMdO1YZeH6t/kvopHHbIZzlxrCV9WLqCY6QhcXOoXiNCMDqJIglZ9Yjx5+w7Dz30TITFrlTjnRg7sKEg==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@1.7.2':
+    resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
     engines: {node: ^14.21.3 || >=16}
 
   '@noble/hashes@1.8.0':
@@ -1572,6 +1586,12 @@ packages:
 
   '@polkadot-api/ws-provider@0.4.0':
     resolution: {integrity: sha512-ZurjUHHAlQ1Ux8HiZz7mtkg1qjq6LmqxcHljcZxne0U7foCZrXdWHsohwlV8kUQUir5kXuDsNvdZN/MFCUMaVw==}
+
+  '@polkadot-labs/hdkd-helpers@0.0.15':
+    resolution: {integrity: sha512-MeQkVOiSLgltNRd+tuBV1vUP4HOKuRA966YyQ3w4QkOza862JHXFAOieHtioUJhE90vsnmkv2LosCNIHpQBG6w==}
+
+  '@polkadot-labs/hdkd@0.0.15':
+    resolution: {integrity: sha512-ju2C0RhbcV2WaZ5y5ZYIcPCTSJTOAhmUvomgg1CENNTeN9Nua2stHBWAH1pL9082XdK/maStVl7VmtrU0q3t+Q==}
 
   '@polkadot/keyring@13.4.4':
     resolution: {integrity: sha512-pIm+u1lat+mGUABsCZyTm1/qgwL3NS94SC7TPtSzhzFZq6faUFNMyq1gBfTicrb7MjGFc8FlrKlGxFtudnQC9Q==}
@@ -4739,6 +4759,9 @@ packages:
     engines: {node: '>=18.18'}
     hasBin: true
 
+  micro-sr25519@0.1.3:
+    resolution: {integrity: sha512-Tw1I3Yjq9XySsU3hsgPVkQTG3NIje070VUWtT4tb9d1tVwQqpCIBH4SM5h4Mxp2Ua4PUyPsot2F40eyJ0QnzTg==}
+
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
@@ -7722,9 +7745,15 @@ snapshots:
 
   '@noble/ciphers@1.3.0': {}
 
+  '@noble/curves@1.8.2':
+    dependencies:
+      '@noble/hashes': 1.7.2
+
   '@noble/curves@1.9.0':
     dependencies:
       '@noble/hashes': 1.8.0
+
+  '@noble/hashes@1.7.2': {}
 
   '@noble/hashes@1.8.0': {}
 
@@ -8091,6 +8120,18 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  '@polkadot-labs/hdkd-helpers@0.0.15':
+    dependencies:
+      '@noble/curves': 1.9.0
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.5
+      micro-sr25519: 0.1.3
+      scale-ts: 1.6.1
+
+  '@polkadot-labs/hdkd@0.0.15':
+    dependencies:
+      '@polkadot-labs/hdkd-helpers': 0.0.15
 
   '@polkadot/keyring@13.4.4(@polkadot/util-crypto@13.4.4(@polkadot/util@13.4.4))(@polkadot/util@13.4.4)':
     dependencies:
@@ -11599,6 +11640,11 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  micro-sr25519@0.1.3:
+    dependencies:
+      '@noble/curves': 1.8.2
+      '@noble/hashes': 1.7.2
 
   micromatch@4.0.8:
     dependencies:
