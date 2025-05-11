@@ -25,45 +25,7 @@ import {
 } from "@/lib/utils/key-converter";
 import { trimAddress } from "@/lib/utils/address";
 
-/* -------------------------------------------------------------------------- */
-/*                       D E V   A C C O U N T   D A T A                      */
-/* -------------------------------------------------------------------------- */
-
-const BASE_MNEMONIC =
-  "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
-
-const DERIVATIONS = [
-  "//Alice",
-  "//Bob",
-  "//Charlie",
-  "//Dave",
-  "//Eve",
-  "//Ferdie",
-] as const;
-
-type DevAccount = {
-  label: string;
-  path: string;
-  seedPhrase: string;
-  privateKey: `0x${string}`;
-};
-
-function buildDevAccounts(): DevAccount[] {
-  return DERIVATIONS.map((path) => {
-    const label = path.replace("//", "");
-    const seedPhrase = `${BASE_MNEMONIC}${path}`;
-    return {
-      label,
-      path,
-      seedPhrase,
-      privateKey: "0x" + "0".repeat(64), // placeholder, filled async below
-    };
-  });
-}
-
-const DEV_ACCOUNTS = buildDevAccounts();
-
-/* ----------------------------- UI Helpers --------------------------------- */
+/* ----------------------------- Helper component -------------------------- */
 
 function CopyInput({
   value,
@@ -103,81 +65,75 @@ function CopyInput({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               C O M P O N E N T                            */
-/* -------------------------------------------------------------------------- */
+/* ---------------------------- Main component ----------------------------- */
 
 export default function KeyConverterPage() {
-  /* ------------------------- Mnemonic ⇄ Private key --------------------- */
+  /* Mnemonic → */
   const [mnemonicIn, setMnemonicIn] = useState("");
   const [privateOut, setPrivateOut] = useState("");
-  const [mnemonicPubH160, setMnemonicPubH160] = useState("");
-  const [mnemonicPubSs58, setMnemonicPubSs58] = useState("");
+  const [mnemonicPub, setMnemonicPub] = useState({ h160: "", ss58: "" });
   const [mnemonicError, setMnemonicError] = useState(false);
 
   useEffect(() => {
     if (!mnemonicIn.trim()) {
       setPrivateOut("");
-      setMnemonicPubH160("");
-      setMnemonicPubSs58("");
+      setMnemonicPub({ h160: "", ss58: "" });
       setMnemonicError(false);
       return;
     }
     (async () => {
       try {
-        const pk = await mnemonicToPrivateKey(mnemonicIn);
-        const pub = await derivePublicKeysFromMnemonic(mnemonicIn);
-        setPrivateOut(pk);
-        setMnemonicPubH160(pub.h160);
-        setMnemonicPubSs58(pub.ss58);
+        setPrivateOut(await mnemonicToPrivateKey(mnemonicIn));
+        setMnemonicPub(await derivePublicKeysFromMnemonic(mnemonicIn));
         setMnemonicError(false);
       } catch {
         setPrivateOut("");
-        setMnemonicPubH160("");
-        setMnemonicPubSs58("");
+        setMnemonicPub({ h160: "", ss58: "" });
         setMnemonicError(true);
       }
     })();
   }, [mnemonicIn]);
 
-  /* ------------------------- Private key ⇄ Mnemonic --------------------- */
+  /* Private → */
   const [privateIn, setPrivateIn] = useState("");
   const [mnemonicOut, setMnemonicOut] = useState("");
-  const [privatePubH160, setPrivatePubH160] = useState("");
-  const [privatePubSs58, setPrivatePubSs58] = useState("");
+  const [privatePub, setPrivatePub] = useState({ h160: "", ss58: "" });
   const [privateError, setPrivateError] = useState(false);
 
   useEffect(() => {
     if (!privateIn.trim()) {
       setMnemonicOut("");
-      setPrivatePubH160("");
-      setPrivatePubSs58("");
+      setPrivatePub({ h160: "", ss58: "" });
       setPrivateError(false);
       return;
     }
     (async () => {
+      let hadMnemonicError = false;
       try {
-        const mn = await privateKeyToMnemonic(privateIn);
-        const pub = await derivePublicKeysFromPrivateKey(privateIn);
-        setMnemonicOut(mn);
-        setPrivatePubH160(pub.h160);
-        setPrivatePubSs58(pub.ss58);
-        setPrivateError(false);
+        setMnemonicOut(await privateKeyToMnemonic(privateIn));
       } catch {
         setMnemonicOut("");
-        setPrivatePubH160("");
-        setPrivatePubSs58("");
-        setPrivateError(true);
+        hadMnemonicError = true;
       }
+      try {
+        setPrivatePub(await derivePublicKeysFromPrivateKey(privateIn));
+      } catch {
+        setPrivatePub({ h160: "", ss58: "" });
+        /* Count as real error only if both conversions failed */
+        if (hadMnemonicError) setPrivateError(true);
+        else setPrivateError(false);
+        return;
+      }
+      /* At least address derivation succeeded → no field error */
+      setPrivateError(false);
     })();
   }, [privateIn]);
 
-  /* --------------------------- H160 ⇄ SS58 ------------------------------ */
+  /* Address converter */
   const [h160Addr, setH160Addr] = useState("");
   const [ss58Addr, setSs58Addr] = useState("");
   const [addrError, setAddrError] = useState(false);
 
-  /* H160 input */
   function handleH160Change(v: string) {
     setH160Addr(v);
     if (!v.trim()) {
@@ -186,8 +142,7 @@ export default function KeyConverterPage() {
       return;
     }
     try {
-      const ss = h160ToSs58(v.trim());
-      setSs58Addr(ss);
+      setSs58Addr(h160ToSs58(v.trim()));
       setAddrError(false);
     } catch {
       setSs58Addr("");
@@ -195,7 +150,6 @@ export default function KeyConverterPage() {
     }
   }
 
-  /* SS58 input */
   function handleSs58Change(v: string) {
     setSs58Addr(v);
     if (!v.trim()) {
@@ -204,8 +158,7 @@ export default function KeyConverterPage() {
       return;
     }
     try {
-      const h = ss58ToH160(v.trim());
-      setH160Addr(h);
+      setH160Addr(ss58ToH160(v.trim()));
       setAddrError(false);
     } catch {
       setH160Addr("");
@@ -213,42 +166,40 @@ export default function KeyConverterPage() {
     }
   }
 
-  /* ---------------------------------------------------------------------- */
-  /*                                UI                                      */
-  /* ---------------------------------------------------------------------- */
+  /* ----------------------------- Render UI ------------------------------ */
+
   return (
     <PageCard
       icon={KeyIcon}
       title="Key & Address Converter"
-      description="Convert between mnemonic, private key, H160 and SS58 with automatic public-key derivation."
+      description="Convert between mnemonics, raw private keys, H160 and SS58 addresses."
       className="space-y-8"
     >
-      {/* Key converters ---------------------------------------------------- */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Mnemonic → Private */}
-        <Card className="flex flex-col">
+        {/* Mnemonic side */}
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Mnemonic → Private key</CardTitle>
+            <CardTitle className="text-lg">Mnemonic → Private / Public</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 flex-1">
+          <CardContent className="flex flex-col gap-4">
             <CopyInput
               value={mnemonicIn}
               onChange={setMnemonicIn}
-              placeholder='e.g. "bottom drive… //Alice"'
+              placeholder='e.g. "bottom drive … //Alice"'
               copyLabel="Copy mnemonic"
             />
             <CopyInput
               value={privateOut}
-              placeholder="0x…"
-              copyLabel="Copy private key"
+              placeholder="0x…private key"
+              copyLabel="Copy key"
             />
             <CopyInput
-              value={mnemonicPubH160}
+              value={mnemonicPub.h160}
               placeholder="H160 address…"
               copyLabel="Copy H160"
             />
             <CopyInput
-              value={mnemonicPubSs58}
+              value={mnemonicPub.ss58}
               placeholder="SS58 address…"
               copyLabel="Copy SS58"
             />
@@ -261,45 +212,45 @@ export default function KeyConverterPage() {
           </CardContent>
         </Card>
 
-        {/* Private → Mnemonic */}
-        <Card className="flex flex-col">
+        {/* Private side */}
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Private key → Mnemonic</CardTitle>
+            <CardTitle className="text-lg">Private key → Public</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 flex-1">
+          <CardContent className="flex flex-col gap-4">
             <CopyInput
               value={privateIn}
               onChange={setPrivateIn}
-              placeholder="0x…16- or 32-byte hex"
-              copyLabel="Copy private key"
+              placeholder="0x…32- or 64-byte hex"
+              copyLabel="Copy key"
               error={privateError}
             />
             <CopyInput
               value={mnemonicOut}
-              placeholder="Mnemonic will appear…"
+              placeholder="Mnemonic (if derivable)…"
               copyLabel="Copy mnemonic"
             />
             <CopyInput
-              value={privatePubH160}
+              value={privatePub.h160}
               placeholder="H160 address…"
               copyLabel="Copy H160"
             />
             <CopyInput
-              value={privatePubSs58}
+              value={privatePub.ss58}
               placeholder="SS58 address…"
               copyLabel="Copy SS58"
             />
             {privateError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
-                Invalid entropy hex supplied.
+                Invalid private key supplied.
               </p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Address converter -------------------------------------------------- */}
+      {/* Address converter */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Address Converter</CardTitle>
@@ -325,58 +276,6 @@ export default function KeyConverterPage() {
               Invalid address supplied.
             </p>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Dev accounts ------------------------------------------------------- */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-4">
-            <CardTitle className="text-lg">Polkadot Dev Accounts</CardTitle>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setMnemonicIn(BASE_MNEMONIC);
-                toast.success("Loaded base mnemonic into converter ✨");
-              }}
-            >
-              <RefreshCcw className="mr-2 size-4" />
-              Base mnemonic
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {DEV_ACCOUNTS.map(({ label, path, seedPhrase }) => (
-            <div
-              key={label}
-              className="rounded-md border p-4 bg-muted/50 space-y-2"
-            >
-              <h3 className="font-semibold flex items-center gap-1">
-                {label}
-                <CheckCircle2 className="size-4 text-emerald-600" />
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Path ignored: <code className="font-mono">{path}</code>
-              </p>
-              <p className="text-xs break-all font-mono">
-                <span className="text-muted-foreground">Seed phrase:</span>{" "}
-                {seedPhrase}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(seedPhrase)}
-                >
-                  <Clipboard className="mr-1 size-4" />
-                  Copy seed
-                </Button>
-              </div>
-            </div>
-          ))}
         </CardContent>
       </Card>
     </PageCard>
