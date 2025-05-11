@@ -20,13 +20,13 @@ const EMBEDS: Embed[] = [
   {
     key: 'video',
     title: '2-Minute Product Tour',
-    src: 'https://www.youtube.com/embed/f11PnUgLKno',
+    src: 'https://www.youtube.com/embed/xxxxxxx',
     link: '/demo-video',
   },
   {
     key: 'deck',
     title: 'Investor Deck',
-    src: 'https://www.canva.com/design/DAGmXhyuvZA/FkR_sRHov5MhExPDpH6jRg/view?embed',
+    src: 'https://www.canva.com/design/xxxxxxx/view?embed',
     link: '/pitch-deck',
   },
 ]

@@ -65,13 +65,13 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/demo-video', // <──  the local path
-        destination: 'https://youtu.be/f11PnUgLKno', // where to send the user
+        destination: 'https://youtu.be/xxxxxxx', // where to send the user
         permanent: false, // 307 at build-time / 308 in prod if true
       },
       {
         source: '/pitch-deck',
         destination:
-          'https://www.canva.com/design/DAGmXhyuvZA/FkR_sRHov5MhExPDpH6jRg/view?utm_content=DAGmXhyuvZA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h3945d3e964',
+          'https://www.canva.com/design/xxxxxxx',
         permanent: false,
       },
       // add any future redirects here
