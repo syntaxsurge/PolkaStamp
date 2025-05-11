@@ -2,6 +2,7 @@ import React from 'react'
 
 import { WS_URL } from '@/lib/config'
 import { decodeDispatchError } from '@/lib/utils'
+import { ACCOUNT_MAPPING_GUIDE_STEPS } from './account-mapping'
 
 /* -------------------------------------------------------------------------- */
 /*                          I N K   E R R O R   P A R S E R                   */
@@ -43,25 +44,16 @@ export function parseInkError(err: unknown): string | React.ReactElement {
   }
 
   /* ---------------------------------------------------------------------- */
-  /*               R A W   R E V I V E :   A C C O U N T U N M A P P E D      */
-  /* ---------------------------------------------------------------------- */
-  if (raw.toLowerCase().includes('revive') && raw.toLowerCase().includes('accountunmapped')) {
-    return renderUnmappedToast(raw)
-  }
-
-  /* ---------------------------------------------------------------------- */
   /*                    D I S P A T C H   E R R O R   C O D E                */
   /* ---------------------------------------------------------------------- */
   const decoded = decodeDispatchError(err)
 
-  /* Newline guidance for unmapped accounts received from Revive pallet */
-  if (
-    decoded.toLowerCase().includes('revive') &&
-    decoded.toLowerCase().includes('accountunmapped')
-  ) {
-    return renderUnmappedToast(decoded)
+  /* Unmapped account — return rich toast element */
+  if (/accountunmapped/i.test(raw) || /accountunmapped/i.test(decoded)) {
+    return renderUnmappedToast()
   }
 
+  /* Anything else decoded successfully */
   if (decoded && decoded !== 'Module error') return decoded
 
   return raw
@@ -72,23 +64,28 @@ export function parseInkError(err: unknown): string | React.ReactElement {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Build a React element summarising the unmapped-account error and include
- * a link that launches Polkadot.js Apps in a new tab so users can map quickly.
+ * Build a React element containing the full unmapped-account guide
+ * along with a direct link to Polkadot-JS Apps for quick mapping.
  */
-function renderUnmappedToast(prefix: string): React.ReactElement {
+function renderUnmappedToast(): React.ReactElement {
   const mappingLink = `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(WS_URL)}#/extrinsics`
+
   return React.createElement(
     'span',
-    { className: 'flex flex-col gap-1' },
-    React.createElement('span', null, prefix),
-    React.createElement('span', null, 'Your account is not yet mapped on the local chain.'),
+    { className: 'flex flex-col gap-2 text-sm' },
+    React.createElement('strong', null, 'Your account is not yet mapped on the local chain.'),
+    React.createElement(
+      'ol',
+      { className: 'list-decimal ml-4 space-y-1 text-left' },
+      ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) => React.createElement('li', { key: i }, step)),
+    ),
     React.createElement(
       'a',
       {
         href: mappingLink,
         target: '_blank',
         rel: 'noopener noreferrer',
-        className: 'text-primary underline font-medium',
+        className: 'text-primary underline font-medium mt-1',
       },
       'Open mapping ↗',
     ),

@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 import { WS_URL } from './config'
+import { buildAccountMappingInstructions } from './utils/account-mapping'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -114,8 +115,8 @@ export function prettify(text?: string | null): string {
 
 /**
  * Decode a Polkadot dispatch error into human-readable form.
- * Extended to return a full step-by-step mapping guide when the
- * unmapped-account error is detected.
+ * When an unmapped-account error is detected, the centralised
+ * instruction helper is returned instead of duplicating logic.
  */
 export function decodeDispatchError(error: unknown): string {
   /* ---------------- base decoding logic ------------------ */
@@ -169,18 +170,9 @@ export function decodeDispatchError(error: unknown): string {
     msg = 'Module error'
   }
 
-  /* --------------- friendly mapping for unmapped error ---------------- */
+  /* ------------------ unmapped account ------------------- */
   if (/AccountUnmapped/i.test(msg)) {
-    return (
-      'Your account is not yet mapped on the local chain. ' +
-      'Open **Developer → Extrinsics** in Polkadot-JS Apps, then:\n' +
-      '1. In **Using the selected account**, pick the wallet you wish to map.\n' +
-      '2. In **submit the following extrinsic**, choose the **Revive** pallet.\n' +
-      '3. Select the **mapAccount()** function.\n' +
-      '4. Click **Submit Transaction** then **Sign and Submit**.\n' +
-      '5. In your extension, hit **Approve**.\n' +
-      'After the transaction is finalized, your account will be mapped successfully.'
-    )
+    return buildAccountMappingInstructions()
   }
 
   return msg
