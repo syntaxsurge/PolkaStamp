@@ -18,6 +18,11 @@ import { IssuerStatus } from '@/lib/db/schema/issuer'
 import { useBulkActions } from '@/lib/hooks/use-bulk-actions'
 import { useTableNavigation } from '@/lib/hooks/use-table-navigation'
 import type { TableProps, AdminIssuerRow } from '@/lib/types/tables'
+import { grantIssuerRole } from '@/lib/credential-nft'
+import { ensureSigner, buildExplorerLink } from '@/lib/utils'
+import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
+
+type Row = AdminIssuerRow & { ownerWalletAddress: string | null }
 
 export default function AdminIssuersTable({
   rows,
@@ -26,24 +31,49 @@ export default function AdminIssuersTable({
   basePath,
   initialParams,
   searchQuery,
-}: TableProps<AdminIssuerRow>) {
+}: TableProps<Row>) {
   const router = useRouter()
+  const { selectedAccount } = usePolkadotExtension()
 
   /* -------------------------- Bulk-selection actions ---------------------- */
-  const bulkActions = useBulkActions<AdminIssuerRow>([
+  const bulkActions = useBulkActions<Row>([
     {
       label: 'Verify',
       icon: VerifyIcon,
       handler: async (selected) => {
-        const toastId = toast.loading('Updating issuers…')
-        await Promise.all(
-          selected.map(async (row) => {
+        try {
+          ensureSigner(selectedAccount)
+        } catch (e: any) {
+          toast.error(e?.message ?? 'Connect a wallet first.')
+          return
+        }
+
+        const toastId = toast.loading('Submitting on-chain transactions…')
+
+        for (const row of selected) {
+          if (!row.ownerWalletAddress) {
+            toast.error(`Issuer ${row.name} has no owner wallet.`, { id: toastId })
+            continue
+          }
+          try {
+            /* ---------- sign & submit extrinsic ---------- */
+            const txRes = await grantIssuerRole({
+              account: selectedAccount!,
+              issuer: row.ownerWalletAddress,
+            })
+
+            /* ---------- persist to DB ---------- */
             const fd = new FormData()
             fd.append('issuerId', row.id.toString())
             fd.append('status', IssuerStatus.ACTIVE)
-            return updateIssuerStatusAction({}, fd)
-          }),
-        )
+            fd.append('txHash', txRes.txHash)
+            await updateIssuerStatusAction({}, fd)
+          } catch (err: any) {
+            toast.error(err?.message ?? 'Transaction failed.', { id: toastId })
+            continue
+          }
+        }
+
         toast.success('Issuers updated.', { id: toastId })
         router.refresh()
       },
@@ -114,23 +144,58 @@ export default function AdminIssuersTable({
 
   /* ----------------------- Row-level actions builder ---------------------- */
   const makeActions = React.useCallback(
-    (row: AdminIssuerRow): TableRowAction<AdminIssuerRow>[] => {
-      const actions: TableRowAction<AdminIssuerRow>[] = []
+    (row: Row): TableRowAction<Row>[] => {
+      const actions: TableRowAction<Row>[] = []
 
       if (row.status !== 'ACTIVE') {
         actions.push({
           label: 'Verify',
           icon: VerifyIcon,
           onClick: async () => {
-            const toastId = toast.loading('Updating issuer…')
-            const fd = new FormData()
-            fd.append('issuerId', row.id.toString())
-            fd.append('status', IssuerStatus.ACTIVE)
-            const res = await updateIssuerStatusAction({}, fd)
-            res?.error
-              ? toast.error(res.error, { id: toastId })
-              : toast.success(res?.success ?? 'Issuer updated.', { id: toastId })
-            router.refresh()
+            /* Validate wallet & owner address */
+            try {
+              ensureSigner(selectedAccount)
+            } catch (e: any) {
+              toast.error(e?.message ?? 'Connect a wallet first.')
+              return
+            }
+            if (!row.ownerWalletAddress) {
+              toast.error('Issuer owner wallet address missing.')
+              return
+            }
+
+            const toastId = toast.loading('Signing & submitting…')
+
+            try {
+              const tx = await grantIssuerRole({
+                account: selectedAccount!,
+                issuer: row.ownerWalletAddress,
+              })
+
+              toast.loading(
+                `Tx sent: ${tx.txHash.slice(0, 10)}…`,
+                {
+                  id: toastId,
+                  action: {
+                    label: 'View',
+                    onClick: () => window.open(buildExplorerLink(tx.txHash), '_blank'),
+                  },
+                },
+              )
+
+              const fd = new FormData()
+              fd.append('issuerId', row.id.toString())
+              fd.append('status', IssuerStatus.ACTIVE)
+              fd.append('txHash', tx.txHash)
+              const res = await updateIssuerStatusAction({}, fd)
+              res?.error
+                ? toast.error(res.error, { id: toastId })
+                : toast.success('Issuer verified ✅', { id: toastId })
+
+              router.refresh()
+            } catch (err: any) {
+              toast.error(err?.message ?? 'Transaction failed.', { id: toastId })
+            }
           },
         })
       }
@@ -191,11 +256,11 @@ export default function AdminIssuersTable({
 
       return actions
     },
-    [router],
+    [router, selectedAccount],
   )
 
   /* ------------------------------- Columns -------------------------------- */
-  const columns = React.useMemo<Column<AdminIssuerRow>[]>(() => {
+  const columns = React.useMemo<Column<Row>[]>(() => {
     return [
       {
         key: 'name',

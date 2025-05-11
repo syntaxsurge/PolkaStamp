@@ -3,7 +3,7 @@ import { Building } from 'lucide-react'
 import AdminIssuersTable from '@/components/dashboard/admin/issuers-table'
 import PageCard from '@/components/ui/page-card'
 import { TablePagination } from '@/components/ui/tables/table-pagination'
-import { getAdminIssuersPage } from '@/lib/db/queries/admin-issuers'
+import { getAdminIssuersPage, type AdminIssuerRowWithWallet } from '@/lib/db/queries/admin-issuers'
 import type { AdminIssuerRow } from '@/lib/types/tables'
 import { getTableParams, resolveSearchParams, type Query } from '@/lib/utils/query'
 
@@ -14,17 +14,14 @@ export default async function AdminIssuersPage({
 }: {
   searchParams?: Promise<Query>
 }) {
-  /* Resolve synchronous or async `searchParams` supplied by Next.js */
   const params = await resolveSearchParams(searchParams)
 
-  /* ---------------------- Pagination, sort, search ----------------------- */
   const { page, pageSize, sort, order, searchTerm, initialParams } = getTableParams(
     params,
     ['name', 'domain', 'owner', 'category', 'industry', 'status', 'id'] as const,
     'id',
   )
 
-  /* ---------------------------- Data fetch ------------------------------- */
   const { issuers, hasNext } = await getAdminIssuersPage(
     page,
     pageSize,
@@ -33,17 +30,17 @@ export default async function AdminIssuersPage({
     searchTerm,
   )
 
-  const rows: AdminIssuerRow[] = issuers.map((i) => ({
+  const rows: (AdminIssuerRow & { ownerWalletAddress: string | null })[] = issuers.map((i) => ({
     id: i.id,
     name: i.name,
     domain: i.domain,
     owner: i.owner,
+    ownerWalletAddress: i.ownerWalletAddress,
     category: i.category,
     industry: i.industry,
     status: i.status,
   }))
 
-  /* ------------------------------ View ----------------------------------- */
   return (
     <PageCard
       icon={Building}

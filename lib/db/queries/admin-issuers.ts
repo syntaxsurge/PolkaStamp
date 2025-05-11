@@ -11,13 +11,18 @@ import { issuers } from '../schema/issuer'
 /*                         A D M I N   I S S U E R S                          */
 /* -------------------------------------------------------------------------- */
 
+export interface AdminIssuerRowWithWallet extends AdminIssuerRow {
+  /** Wallet address of the issuer owner (H160 or SS58, lower-case 0x preferred) */
+  ownerWalletAddress: string | null
+}
+
 export async function getAdminIssuersPage(
   page: number,
   pageSize = 10,
   sortBy: 'name' | 'domain' | 'owner' | 'category' | 'industry' | 'status' | 'id' = 'id',
   order: 'asc' | 'desc' = 'desc',
   searchTerm = '',
-): Promise<{ issuers: AdminIssuerRow[]; hasNext: boolean }> {
+): Promise<{ issuers: AdminIssuerRowWithWallet[]; hasNext: boolean }> {
   const sortMap = {
     name: issuers.name,
     domain: issuers.domain,
@@ -34,6 +39,7 @@ export async function getAdminIssuersPage(
       name: issuers.name,
       domain: issuers.domain,
       owner: users.email,
+      ownerWalletAddress: users.walletAddress,
       category: issuers.category,
       industry: issuers.industry,
       status: issuers.status,
@@ -41,7 +47,7 @@ export async function getAdminIssuersPage(
     .from(issuers)
     .leftJoin(users, eq(issuers.ownerUserId, users.id))
 
-  const { rows, hasNext } = await getPaginatedList<AdminIssuerRow>(
+  const { rows, hasNext } = await getPaginatedList<AdminIssuerRowWithWallet>(
     baseQuery,
     page,
     pageSize,
