@@ -1,4 +1,4 @@
-import { Storage } from '@apillon/sdk'
+import { Storage, LogLevel } from '@apillon/sdk'
 
 import {
   APILLON_API_KEY,
@@ -14,27 +14,26 @@ import {
 const storage = new Storage({
   key: APILLON_API_KEY,
   secret: APILLON_API_SECRET,
+  logLevel: LogLevel.ERROR,
 })
 
 /* -------------------------------------------------------------------------- */
 /*                         B U C K E T   H A N D L E                          */
 /* -------------------------------------------------------------------------- */
 
-/** Cached bucket handle to avoid repeated instantiation. */
 let _bucket: ReturnType<typeof storage.bucket> | null = null
 
 /**
- * Get the configured bucket instance.
- * The first call hits the network; subsequent calls reuse the handle.
+ * Retrieve the configured bucket instance (memoised).
  */
 export async function getBucket() {
   if (_bucket) return _bucket
   _bucket = storage.bucket(APILLON_BUCKET_UUID)
-  /* Pre-fetch bucket metadata so the handle is fully initialised. */
+  /* Warm the handle by fetching metadata – ignore failures for now. */
   try {
     await _bucket.get()
   } catch {
-    /* Silent fail – subsequent operations will surface errors. */
+    /* noop */
   }
   return _bucket
 }
@@ -58,7 +57,7 @@ export async function uploadCredentialFile(
 ): Promise<string> {
   const bucket = await getBucket()
 
-  /* Normalise inputs ----------------------------------------------------- */
+  /* ----------------------- Normalise inputs ---------------------------- */
   let fileName = 'file'
   let contentType = 'application/octet-stream'
   let content: Buffer
@@ -72,7 +71,7 @@ export async function uploadCredentialFile(
     content = Buffer.from(await f.arrayBuffer())
   }
 
-  /* Upload --------------------------------------------------------------- */
+  /* ---------------------------- Upload --------------------------------- */
   const res: any = await bucket.uploadFiles(
     [
       {
@@ -81,9 +80,7 @@ export async function uploadCredentialFile(
         content,
       },
     ],
-    opts.wrapDir
-      ? { wrapWithDirectory: true, directoryPath: opts.wrapDir }
-      : undefined,
+    opts.wrapDir ? { wrapWithDirectory: true, directoryPath: opts.wrapDir } : undefined,
   )
 
   const cid: string =
@@ -94,31 +91,4 @@ export async function uploadCredentialFile(
     })()
 
   return `ipfs://${cid}/${fileName}`
-}
-
-/* -------------------------------------------------------------------------- */
-/*                     P U B L I C   G A T E W A Y   U R L                    */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Convert an IPFS URI to a HTTP gateway URL.
- *
- * @example
- * buildGatewayUrl('ipfs://bafy.../doc.pdf')
- * // → 'https://ipfs.io/ipfs/bafy.../doc.pdf'
- */
-export function buildGatewayUrl(
-  ipfsUrl: string,
-  gateway: string = 'ipfs.io',
-): string {
-  if (!ipfsUrl.startsWith('ipfs://')) return ipfsUrl
-  const [, cidAndPath] = ipfsUrl.split('ipfs://')
-  return `https://${gateway}/ipfs/${cidAndPath}`
-}
-
-/**
- * Lightweight check whether a string is an IPFS URI.
- */
-export function isIpfsUrl(url: string): boolean {
-  return url.startsWith('ipfs://')
 }

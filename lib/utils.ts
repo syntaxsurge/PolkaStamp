@@ -2,7 +2,6 @@ import React from 'react'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
-import { buildGatewayUrl as buildIpfsGatewayUrl } from '@/lib/services/apillon-storage'
 
 import { WS_URL } from './config'
 import {
@@ -211,8 +210,23 @@ export function isIpfs(url: string): boolean {
 }
 
 /**
- * Convert an IPFS URI to a public gateway URL using Apillon’s helper,
- * or return the input unchanged when already HTTP(S).
+ * Convert an IPFS URI to a HTTP gateway URL.
+ *
+ * @example
+ * buildIpfsGatewayUrl('ipfs://bafy.../doc.pdf')
+ * // → 'https://ipfs.io/ipfs/bafy.../doc.pdf'
+ */
+export function buildIpfsGatewayUrl(
+  ipfsUrl: string,
+  gateway: string = 'ipfs.io',
+): string {
+  if (!isIpfs(ipfsUrl)) return ipfsUrl
+  const [, cidAndPath] = ipfsUrl.split('ipfs://')
+  return `https://${gateway}/ipfs/${cidAndPath}`
+}
+
+/**
+ * Resolve an IPFS URI to a public gateway URL, or return HTTP(S) links unchanged.
  */
 export function gatewayUrl(ipfsOrHttp: string): string {
   return isIpfs(ipfsOrHttp) ? buildIpfsGatewayUrl(ipfsOrHttp) : ipfsOrHttp
