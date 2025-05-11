@@ -15,8 +15,8 @@ import { cn } from '@/lib/utils'
 
 const FEATURES = [
   { icon: BadgeCheck, label: 'Smart-Contract Proofs' },
-  { icon: CloudLightning, label: 'PAPI&nbsp;Light&nbsp;Client' },
-  { icon: Shield, label: 'Confidential&nbsp;Deploys' },
+  { icon: CloudLightning, label: 'PAPI Light Client' },
+  { icon: Shield, label: 'Confidential Deploys' },
 ] as const
 
 /* -------------------------------------------------------------------------- */
@@ -30,55 +30,53 @@ export default function HeroSection() {
   return (
     <section
       id='hero'
-      className='relative isolate overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-40'
+      className='relative isolate overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-40'
       aria-label='Introduction'
     >
       <GradientBackdrop />
 
       {/* Content grid */}
-      <div className='mx-auto grid max-w-7xl items-center gap-16 px-4 lg:grid-cols-2'>
+      <div className='mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2'>
         {/* Copy block ------------------------------------------------------ */}
         <div>
           <motion.h1
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
-            className='text-balance text-5xl font-extrabold leading-tight text-white md:text-6xl lg:text-7xl'
+            className='text-balance text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl'
           >
-            Verifiable&nbsp;Credentials&nbsp;on&nbsp;
-            <span className='text-polkastamp-gradient animate-polkastamp-gradient'>
-              Polkadot
-            </span>
+            Verifiable Credentials on{' '}
+            <span className='text-polkastamp-gradient animate-polkastamp-gradient'>Polkadot</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.05, ease: 'easeOut' }}
-            className='mt-6 max-w-xl text-lg/relaxed text-white/90 sm:text-xl'
+            className='mt-6 max-w-prose text-base/relaxed text-white/90 sm:text-lg'
           >
-            PolkaStamp&nbsp;fuses ink! contracts, PAPI light clients and Apillon confidential
-            compute so every credential you issue is provable, portable and upgrade-safe.
+            PolkaStamp fuses ink! contracts, PAPI light clients and Apillon confidential compute so
+            every credential you issue is provable, portable and upgrade-safe.
           </motion.p>
 
           {/* Features ------------------------------------------------------ */}
-          <ul className='mt-10 flex flex-wrap gap-3'>
+          <ul className='mt-8 flex flex-wrap gap-3'>
             {FEATURES.map(({ icon: Icon, label }, i) => (
               <motion.li
                 key={label}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
-                className='inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-md'
+                className='inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white backdrop-blur-md sm:text-sm'
               >
                 <Icon className='h-5 w-5 text-amber-300' />
-                <span dangerouslySetInnerHTML={{ __html: label }} />
+                {label}
               </motion.li>
             ))}
           </ul>
 
           {/* CTAs ---------------------------------------------------------- */}
-          <div className='mt-12 flex flex-wrap gap-4'>
+          <div className='mt-10 flex flex-wrap gap-4'>
             <GradientButton href='/connect-wallet'>Launch&nbsp;App</GradientButton>
             <GradientButton href='/#pricing' tone='outline'>
               View&nbsp;Pricing
@@ -91,7 +89,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.9, ease: 'easeOut' }}
-          className='relative mx-auto size-[22rem] lg:mx-0'
+          className='relative mx-auto size-72 sm:size-80 md:size-96 lg:mx-0'
         >
           {/* Central nucleus */}
           <span className='bg-polkastamp-gradient absolute left-1/2 top-1/2 z-10 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-2xl' />
@@ -101,8 +99,8 @@ export default function HeroSection() {
             {nodes.map((deg) => (
               <span
                 key={deg}
-                style={{ transform: `rotate(${deg}deg) translateX(9rem)` }}
-                className='absolute left-1/2 top-1/2 -ml-1 -mt-1 size-3 rounded-full bg-white'
+                style={{ transform: `rotate(${deg}deg) translateX(8rem)` }}
+                className='absolute left-1/2 top-1/2 -ml-1 -mt-1 size-2.5 rounded-full bg-white'
               />
             ))}
           </div>
@@ -169,7 +167,7 @@ function GradientButton({
       asChild
       size='lg'
       className={cn(
-        'relative isolate overflow-hidden rounded-full px-8 py-3 font-semibold shadow-xl transition-transform duration-200 focus-visible:outline-none',
+        'relative isolate overflow-hidden rounded-full px-6 py-3 font-semibold shadow-xl transition-transform duration-200 focus-visible:outline-none',
         solid
           ? 'bg-primary text-primary-foreground hover:-translate-y-0.5 hover:shadow-2xl'
           : 'ring-border bg-white/10 text-white/90 ring-1 backdrop-blur hover:bg-white/20 hover:text-white',

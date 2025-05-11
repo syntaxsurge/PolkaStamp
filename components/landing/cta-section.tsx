@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 
 export default function CTASection() {
   return (
-    <section id='cta' className='relative isolate overflow-hidden px-4 py-32 sm:px-6'>
+    <section id='cta' className='relative isolate overflow-hidden px-4 py-24 sm:px-6 lg:py-32'>
       <Backdrop />
 
       <div className='mx-auto max-w-4xl px-4 text-center'>
@@ -19,7 +19,7 @@ export default function CTASection() {
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className='bg-gradient-to-r from-white via-neutral-200 to-white bg-clip-text text-balance text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl md:text-6xl'
         >
-          Issue&nbsp;Your&nbsp;First&nbsp;Credential&nbsp;Today
+          Issue Your First Credential Today
         </motion.h2>
 
         <motion.p
@@ -27,9 +27,9 @@ export default function CTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-          className='mx-auto mt-6 max-w-xl text-lg/relaxed text-white/90'
+          className='mx-auto mt-6 max-w-xl text-base/relaxed text-white/90 sm:text-lg'
         >
-          Spin up a workspace, deploy an ink! contract and mint provable NFTs in under&nbsp;5 mins.
+          Spin up a workspace, deploy an ink! contract and mint provable NFTs in under&nbsp;5&nbsp;minutes.
         </motion.p>
 
         <motion.div
