@@ -5,26 +5,24 @@ import { CheckCircle2, Wallet, ShieldCheck, Key } from 'lucide-react'
 
 const features = [
   {
-    icon: Wallet,
-    title: 'Native RBTC Payments',
-    description: 'Pay and settle subscriptions in Polkadot native asset—no bridges.',
+    icon: ShieldCheck,
+    title: 'Upgradeable ink! Contracts',
+    description: 'Ship new credential logic without redeploying addresses or breaking proofs.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Untamperable Anchors',
-    description: 'Credential hashes live on-chain forever.',
+    icon: Wallet,
+    title: 'One-Click Wallet Login',
+    description: 'Works with any Polkadot wallet—desktop, mobile or in-browser light client.',
   },
   {
     icon: Key,
-    title: 'Polkadot DIDs',
-    description:
-      'Deterministic on-chain identities that bind verifiable credentials to teams and issuers.',
+    title: 'did:polkadot Identities',
+    description: 'Deterministic on-chain IDs bind issuers, teams and credentials together.',
   },
   {
     icon: CheckCircle2,
-    title: 'Credential NFTs',
-    description:
-      'Each verified credential mints an ERC-721 token providing immutable provenance and transferability.',
+    title: 'Provable Credential NFTs',
+    description: 'Every verified credential mints an ERC-721 NFT with immutable provenance.',
   },
 ]
 
@@ -33,7 +31,7 @@ export default function FeaturesSection() {
     <section id='features' className='bg-background py-24'>
       <div className='mx-auto max-w-6xl px-4 text-center'>
         <h2 className='text-foreground text-3xl font-extrabold tracking-tight sm:text-4xl'>
-          Built&nbsp;Different
+          Built&nbsp;for&nbsp;Proof
         </h2>
 
         <div className='mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4'>

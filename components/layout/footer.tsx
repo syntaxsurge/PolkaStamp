@@ -10,13 +10,13 @@ const footerLinks = [
     title: 'Resources',
     links: [
       {
-        name: 'Github Repository',
+        name: 'GitHub Repo',
         href: 'https://github.com/niklasp/polkadot-nextjs-starter',
-        icon: <Image src={Github} alt='Github' width={16} height={16} />,
+        icon: <Image src={Github} alt='GitHub' width={16} height={16} />,
       },
-      { name: 'Papi docs', href: 'https://papi.how' },
-      { name: 'Polkadot docs', href: 'https://docs.polkadot.com/' },
-      { name: 'Next.js docs', href: 'https://nextjs.org/docs' },
+      { name: 'PAPI Docs', href: 'https://papi.how' },
+      { name: 'Polkadot Docs', href: 'https://docs.polkadot.com' },
+      { name: 'ink! Guide', href: 'https://use.ink' },
     ],
   },
 ]
@@ -28,15 +28,15 @@ export default function Footer() {
         <div className='grid grid-cols-2 gap-8 md:grid-cols-4'>
           <div className='col-span-3'>
             <Link href='/' className='text-2xl font-bold dark:text-white'>
-              Polkadot Next.js Starter
+              PolkaStamp
             </Link>
             <p className='mt-4 max-w-lg text-sm text-gray-600 dark:text-gray-400'>
-              A starter project for building Polkadot dApps with Next.js.
+              Smart-contract-powered, PAPI-first credential platform built on Polkadot.
             </p>
           </div>
           {footerLinks.map((category) => (
             <div key={category.title} className='text-left sm:text-right'>
-              <h3 className='text-sm font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500'>
+              <h3 className='text-sm font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500'>
                 {category.title}
               </h3>
               <ul className='mt-4 space-y-2'>
@@ -55,10 +55,12 @@ export default function Footer() {
             </div>
           ))}
         </div>
+
         <div className='mt-8 flex w-full flex-col items-center justify-center gap-4 border-t border-gray-200 pt-8 text-center dark:border-gray-800'>
           <Link
             href='https://polkadot.network'
             target='_blank'
+            rel='noreferrer'
             className='inline-block items-center'
           >
             <PolkadotLogo withPoweredBy={true} />

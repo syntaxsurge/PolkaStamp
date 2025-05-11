@@ -7,24 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const FEATURES = [
   {
-    icon: Rocket,
-    title: 'One-Tap Issuance',
-    desc: 'Mint verifiable credentials in seconds—zero crypto setup required.',
-  },
-  {
-    icon: Layers3,
-    title: 'Data-Layer Agnostic',
-    desc: 'Self-host or BYO database while Polkadot anchors the proofs.',
-  },
-  {
     icon: Cpu,
-    title: 'AI-Driven Scoring',
-    desc: 'GPT-powered evaluations grade skills with deterministic validators.',
+    title: 'ink! Smart Contracts',
+    desc: 'Modular ink! contracts run on PolkaVM with seamless upgradability and RISC-V performance.',
   },
   {
     icon: Globe,
-    title: 'Borderless Trust',
-    desc: 'did:polkadot identifiers resolve instantly across any wallet or marketplace.',
+    title: 'PAPI Light Client',
+    desc: 'First-class Rust & TypeScript SDKs talk to Polkadot directly—no central indexers.',
+  },
+  {
+    icon: Layers3,
+    title: 'Docker + Apillon',
+    desc: 'Package your dApp once and roll it out to confidential compute on every cloud.',
+  },
+  {
+    icon: Rocket,
+    title: 'Zero-Friction UX',
+    desc: 'One-tap wallet connect, gas-abstracted flows and instant credential minting.',
   },
 ] as const
 
@@ -43,7 +43,8 @@ export default function OverviewSection() {
             Why&nbsp;PolkaStamp?
           </h2>
           <p className='text-muted-foreground mx-auto mt-4 max-w-2xl text-lg/relaxed'>
-            Every primitive you need to graduate from hopeful claims to bullet-proof proofs.
+            Everything you need to launch verifiable credentials—from contract to wallet—in a single
+            stack.
           </p>
         </header>
 

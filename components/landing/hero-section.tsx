@@ -14,9 +14,9 @@ import { cn } from '@/lib/utils'
 /* -------------------------------------------------------------------------- */
 
 const FEATURES = [
-  { icon: BadgeCheck, label: 'Verifiable Proofs' },
-  { icon: Shield, label: 'Polkadot-Grade Security' },
-  { icon: CloudLightning, label: 'Instant Issuance' },
+  { icon: BadgeCheck, label: 'Smart-Contract Proofs' },
+  { icon: CloudLightning, label: 'PAPI Light Client' },
+  { icon: Shield, label: 'Confidential Deploys' },
 ] as const
 
 /* -------------------------------------------------------------------------- */
@@ -35,10 +35,8 @@ export default function HeroSection() {
 
   function handleMouseMove(e: React.MouseEvent) {
     const { width, height, left, top } = e.currentTarget.getBoundingClientRect()
-    const x = (e.clientX - left) / width
-    const y = (e.clientY - top) / height
-    mouseX.set(x)
-    mouseY.set(y)
+    mouseX.set((e.clientX - left) / width)
+    mouseY.set((e.clientY - top) / height)
   }
 
   /* Pre-generate particle positions so they stay stable between renders */
@@ -71,9 +69,9 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
-          className='bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-5xl leading-tight font-extrabold tracking-tight text-balance text-transparent drop-shadow md:text-6xl lg:text-7xl'
+          className='bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-balance text-5xl font-extrabold leading-tight text-transparent drop-shadow md:text-6xl lg:text-7xl'
         >
-          Trustless Hiring on{' '}
+          Verifiable&nbsp;Credentials&nbsp;on{' '}
           <span className='text-polkastamp-gradient animate-polkastamp-gradient'>Polkadot</span>
         </motion.h1>
 
@@ -83,8 +81,8 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.05, ease: 'easeOut' }}
           className='mx-auto mt-6 max-w-2xl text-lg/relaxed text-white/90 sm:text-xl'
         >
-          PolkaStamp turns résumés into on-chain proofs secured by Polkadot so every hire starts
-          with <em>verifiable trust</em>.
+          PolkaStamp merges ink! smart contracts, PAPI light-client libraries and Apillon
+          confidential compute so every credential you issue is provable, portable and upgrade-safe.
         </motion.p>
 
         {/* Features ------------------------------------------------------ */}

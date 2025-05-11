@@ -17,9 +17,9 @@ export default function CTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className='bg-gradient-to-r from-white via-neutral-200 to-white bg-clip-text text-4xl font-extrabold tracking-tight text-balance text-transparent sm:text-5xl md:text-6xl'
+          className='bg-gradient-to-r from-white via-neutral-200 to-white bg-clip-text text-balance text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl md:text-6xl'
         >
-          Bring&nbsp;Verifiable&nbsp;Trust&nbsp;to&nbsp;Hiring&nbsp;Today
+          Issue&nbsp;Your&nbsp;First&nbsp;Credential&nbsp;Today
         </motion.h2>
 
         <motion.p
@@ -29,8 +29,7 @@ export default function CTASection() {
           transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
           className='mx-auto mt-6 max-w-xl text-lg/relaxed text-white/90'
         >
-          Launch your workspace, mint a did:polkadot and start issuing proofs in minutes—no solidity
-          knowledge required.
+          Spin up a workspace, deploy an ink! contract and mint provable NFTs in under&nbsp;5 mins.
         </motion.p>
 
         <motion.div
