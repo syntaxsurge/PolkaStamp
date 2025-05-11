@@ -12,6 +12,10 @@ const isBrowser = typeof window !== 'undefined'
  * which is hydrated at runtime via <PublicEnvScript>. This removes the need to
  * inline public variables during the build step while still allowing secret
  * server-only vars to throw when missing.
+ *
+ * Secrets such as APILLON_API_SECRET are intended for server use only: accessing
+ * them on the server will throw if they are undefined, while on the client this
+ * helper returns undefined so callers can avoid leaking values into the bundle.
  */
 export function getEnv(
   name: string,
@@ -20,7 +24,8 @@ export function getEnv(
   let raw: string | undefined
 
   if (isBrowser) {
-    raw = window.__NEXT_PUBLIC_ENV__?.[name] ?? process.env[name]
+    // During runtime on the client, public env vars are injected via a script
+    raw = (window as any).__NEXT_PUBLIC_ENV__?.[name] ?? (process as any).env?.[name]
   } else {
     raw = process.env[name]
   }

@@ -23,6 +23,12 @@ export const SUBSCRIPTION_MANAGER_ADDRESS = getEnv(
   { kind: 'address' },
 ) as `0x${string}`
 
+/* ----------------------------- Apillon Storage ---------------------------- */
+
+export const APILLON_API_KEY = getEnv('APILLON_API_KEY') as string
+export const APILLON_API_SECRET = getEnv('APILLON_API_SECRET') as string
+export const APILLON_BUCKET_UUID = getEnv('APILLON_BUCKET_UUID') as string
+
 /* ----------------------------- Platform config ---------------------------- */
 
 export const PLATFORM_ISSUER_DID = getEnv('NEXT_PUBLIC_PLATFORM_ISSUER_DID') as string
