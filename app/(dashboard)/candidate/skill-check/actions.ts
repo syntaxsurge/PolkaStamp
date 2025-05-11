@@ -126,12 +126,13 @@ export async function startQuizAction(formData: FormData) {
     const signer = await getPlatformSigner()
     const res = await mintCredential({
       account: signer,
-      to: toAddr!,            /* non-null asserted */
+      to: toAddr!,
       vcHash: vcHashHex,
       uri: '',
     })
 
-    txHash = res.txHash
+    /* Coerce null to undefined to satisfy string | undefined */
+    txHash = res.txHash ?? undefined
   }
 
   /* ---------------------------------------------------------------------- */
