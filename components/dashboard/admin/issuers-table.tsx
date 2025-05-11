@@ -59,14 +59,14 @@ export default function AdminIssuersTable({
             /* ---------- sign & submit extrinsic ---------- */
             const txRes = await grantIssuerRole({
               account: selectedAccount!,
-              issuer: row.ownerWalletAddress,
+              issuer: row.ownerWalletAddress!, // non-null asserted after guard
             })
 
             /* ---------- persist to DB ---------- */
             const fd = new FormData()
             fd.append('issuerId', row.id.toString())
             fd.append('status', IssuerStatus.ACTIVE)
-            fd.append('txHash', txRes.txHash)
+            if (txRes.txHash) fd.append('txHash', txRes.txHash)
             await updateIssuerStatusAction({}, fd)
           } catch (err: any) {
             toast.error(err?.message ?? 'Transaction failed.', { id: toastId })
@@ -169,24 +169,23 @@ export default function AdminIssuersTable({
             try {
               const tx = await grantIssuerRole({
                 account: selectedAccount!,
-                issuer: row.ownerWalletAddress,
+                issuer: row.ownerWalletAddress!, // non-null asserted after guard
               })
 
-              toast.loading(
-                `Tx sent: ${tx.txHash.slice(0, 10)}…`,
-                {
+              if (tx.txHash) {
+                toast.loading(`Tx sent: ${tx.txHash.slice(0, 10)}…`, {
                   id: toastId,
                   action: {
                     label: 'View',
-                    onClick: () => window.open(buildExplorerLink(tx.txHash), '_blank'),
+                    onClick: () => window.open(buildExplorerLink(tx.txHash!), '_blank'),
                   },
-                },
-              )
+                })
+              }
 
               const fd = new FormData()
               fd.append('issuerId', row.id.toString())
               fd.append('status', IssuerStatus.ACTIVE)
-              fd.append('txHash', tx.txHash)
+              if (tx.txHash) fd.append('txHash', tx.txHash)
               const res = await updateIssuerStatusAction({}, fd)
               res?.error
                 ? toast.error(res.error, { id: toastId })
