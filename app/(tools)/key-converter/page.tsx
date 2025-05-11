@@ -53,7 +53,7 @@ function CopyInput({
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
-          className={`font-mono text-xs pr-12 ${error ? "border-destructive" : ""}`}
+          className={`font-mono text-xs ${error ? "border-destructive" : ""}`}
           spellCheck={false}
         />
         {value && (
@@ -78,34 +78,23 @@ function PasswordInput({
   value,
   onChange,
   placeholder,
+  visible,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
+  visible: boolean;
 }) {
-  const [visible, setVisible] = useState(false);
-
   return (
-    <div className="flex flex-col gap-1 flex-1 relative">
+    <div className="flex flex-col gap-1 flex-1">
       <label className="text-xs font-medium text-foreground/70">{label}</label>
       <Input
         type={visible ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="pr-12"
       />
-      <Button
-        type="button"
-        size="icon"
-        variant="outline"
-        className="absolute right-1 top-7 -translate-y-1/2"
-        onClick={() => setVisible((v) => !v)}
-      >
-        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-        <span className="sr-only">{visible ? "Hide password" : "Show password"}</span>
-      </Button>
     </div>
   );
 }
@@ -203,6 +192,7 @@ export default function KeyConverterPage() {
   /* ---------------- Keystore decoder ---------------- */
   const [jsonText, setJsonText] = useState("");
   const [jsonPwd, setJsonPwd] = useState("");
+  const [pwdVisible, setPwdVisible] = useState(false);
   const [jsonPrivate, setJsonPrivate] = useState("");
   const [jsonMnemonic, setJsonMnemonic] = useState("");
   const [jsonPub, setJsonPub] = useState({ h160: "", ss58: "" });
@@ -219,7 +209,7 @@ export default function KeyConverterPage() {
       setJsonPrivate(priv);
       /* mnemonic may not be derivable – ignore failures silently */
       try {
-        setJsonMnemonic(await mnemonicToPrivateKey(priv)); // will throw; kept for completeness
+        setJsonMnemonic(await mnemonicToPrivateKey(priv));
       } catch {
         setJsonMnemonic("");
       }
@@ -346,7 +336,17 @@ export default function KeyConverterPage() {
               value={jsonPwd}
               onChange={setJsonPwd}
               placeholder="Password (leave blank if none)"
+              visible={pwdVisible}
             />
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              onClick={() => setPwdVisible((v) => !v)}
+            >
+              {pwdVisible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              <span className="sr-only">{pwdVisible ? "Hide password" : "Show password"}</span>
+            </Button>
             <Button onClick={decodeKeystore}>Decode</Button>
           </div>
 

@@ -17,8 +17,8 @@ import { toH160Hex } from "@/lib/contract-utils";
 /*                               C R Y P T O                                  */
 /* -------------------------------------------------------------------------- */
 
-let _ready: Promise<void> | null = null;
-async function ensureReady() {
+let _ready: Promise<boolean> | null = null;
+async function ensureReady(): Promise<void> {
   if (!_ready) _ready = cryptoWaitReady();
   await _ready;
 }
@@ -144,7 +144,9 @@ export async function keystoreJsonToPrivateKey(
     const content = ((json as any).encoding?.content ?? [])[1];
     const cand = typeof content === "string" ? content.toLowerCase() : "";
     if (cand === "ed25519" || cand === "ecdsa") keyType = cand as any;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
@@ -154,11 +156,15 @@ export async function keystoreJsonToPrivateKey(
     throw new Error("Incorrect password");
   }
 
-  /* Different keyring versions expose the secret differently */
+  /* Different keyring versions expose the secret in various fields */
   const secret: Uint8Array | undefined =
     (pair as any).secretKey ??
     (pair as any)._pair?.secretKey ??
-    (pair as any).secret ?? undefined;
+    (pair as any).keypair?.secretKey ??
+    (pair as any).privateKey ??
+    (pair as any).secret ??
+    (pair as any).seed ??
+    undefined;
 
   if (!secret || secret.length < 32) {
     throw new Error("Unable to extract private key");
@@ -188,7 +194,9 @@ export async function derivePublicKeysFromKeystore(
     const content = ((json as any).encoding?.content ?? [])[1];
     const cand = typeof content === "string" ? content.toLowerCase() : "";
     if (cand === "ed25519" || cand === "ecdsa") keyType = cand as any;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
