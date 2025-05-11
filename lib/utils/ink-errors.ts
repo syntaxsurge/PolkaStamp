@@ -23,8 +23,8 @@ export function parseInkError(err: unknown): string {
   if (
     err &&
     typeof err === 'object' &&
-    err.type === 'Invalid' &&
-    err.value?.type === 'Payment'
+    (err as any).type === 'Invalid' &&
+    (err as any).value?.type === 'Payment'
   ) {
     return 'Insufficient balance to pay for gas. Please top up your account and try again.'
   }
@@ -49,16 +49,17 @@ export function parseInkError(err: unknown): string {
   /* ---------------------------------------------------------------------- */
   const decoded = decodeDispatchError(err)
 
-  /* Show mapping instructions only for explicit Revive mapping errors */
+  /* Newline guidance for unmapped accounts received from Revive pallet */
   if (
-    /revive\./i.test(decoded) &&
-    /(mapping|mapaccount|notmapped|account)/i.test(decoded)
+    decoded.toLowerCase().includes('revive') &&
+    decoded.toLowerCase().includes('accountunmapped')
   ) {
     const mappingLink = `https://polkadot.js.org/apps/?rpc=${WS_URL}#/extrinsics`
     return [
+      decoded,
       'Your account is not yet mapped on the local chain.',
       `Open Polkadot.js Apps at ${mappingLink} → revive → mapAccount() → Submit the transaction, then retry.`,
-    ].join(' ')
+    ].join('\n')
   }
 
   if (decoded && decoded !== 'Module error') return prettify(decoded)

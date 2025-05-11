@@ -122,10 +122,33 @@ export function prettify(text?: string | null): string {
 
 /**
  * Decode a Polkadot dispatch error into human-readable form.
+ * Now supports deep "Module → Revive → AccountUnmapped” paths and
+ * returns them delimited by ": ”, e.g. "Module: Revive: AccountUnmapped”.
  */
 export function decodeDispatchError(error: unknown): string {
   if (!error || typeof error !== "object") return "Unknown error";
-  const err = error as any;
+  const err: any = error;
+
+  /* New hierarchical Module decoding ----------------------------------- */
+  if (
+    err.type === "Module" &&
+    err.value &&
+    typeof err.value === "object"
+  ) {
+    const pallet = err.value.type ?? "UnknownModule";
+
+    let detail = "UnknownError";
+    if (err.value.value) {
+      const inner = err.value.value;
+      if (typeof inner === "object" && inner.type) {
+        detail = inner.type;
+      } else if (typeof inner === "string") {
+        detail = inner;
+      }
+    }
+
+    return `Module: ${pallet}: ${detail}`;
+  }
 
   /* Direct descriptive type (e.g. 'OutOfGas', 'Payment') */
   if (err.type && err.type !== "Module") return String(err.type);
