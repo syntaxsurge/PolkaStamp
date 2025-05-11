@@ -28,18 +28,27 @@ export function buildAccountMappingInstructions(): string {
 }
 
 /**
- * Rich JSX variant rendered inside toast notifications.
- * Uses React.createElement to keep this file as .ts (non-TSX).
+ * Rich JSX variant shown via `toast.custom`.
+ * Wrapped in a fixed-width container so Sonner lays it out correctly.
  */
 export function renderAccountMappingToast(): React.ReactElement {
   return React.createElement(
-    'span',
-    { className: 'flex flex-col gap-2 text-sm' },
-    React.createElement('strong', null, 'Your account is not yet mapped on the local chain.'),
+    'div',
+    {
+      className:
+        'w-80 max-h-72 overflow-y-auto rounded-md bg-background p-4 shadow-lg flex flex-col gap-3',
+    },
+    React.createElement(
+      'strong',
+      { className: 'text-sm font-semibold' },
+      'Your account is not yet mapped on the local chain.',
+    ),
     React.createElement(
       'ol',
-      { className: 'list-decimal ml-4 space-y-1 text-left' },
-      ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) => React.createElement('li', { key: i }, step)),
+      { className: 'list-decimal ml-5 space-y-1 text-sm leading-relaxed text-left' },
+      ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) =>
+        React.createElement('li', { key: i }, step),
+      ),
     ),
     React.createElement(
       'a',
@@ -47,7 +56,7 @@ export function renderAccountMappingToast(): React.ReactElement {
         href: getMappingLink(),
         target: '_blank',
         rel: 'noopener noreferrer',
-        className: 'text-primary underline font-medium mt-1',
+        className: 'mt-1 text-primary underline font-medium hover:opacity-80',
       },
       'Open mapping ↗',
     ),
@@ -59,5 +68,7 @@ export function renderAccountMappingToast(): React.ReactElement {
 /* -------------------------------------------------------------------------- */
 
 function getMappingLink(): string {
-  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(WS_URL)}#/extrinsics`
+  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(
+    WS_URL,
+  )}#/extrinsics`
 }
