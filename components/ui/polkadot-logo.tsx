@@ -18,8 +18,8 @@ export function PolkadotLogo({ withPoweredBy = false }: { withPoweredBy?: boolea
 
   const logo =
     theme === 'dark'
-      ? '/Polkadot_Logo_Horizontal_Pink_White.svg'
-      : '/Polkadot_Logo_Horizontal_Pink_Black.svg'
+      ? '/images/Polkadot_Logo_Horizontal_Pink_White.svg'
+      : '/images/Polkadot_Logo_Horizontal_Pink_Black.svg'
 
   return (
     <div className='flex items-center'>
