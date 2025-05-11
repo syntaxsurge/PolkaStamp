@@ -176,9 +176,9 @@ export function decodeDispatchError(error: unknown): string {
       'Open **Developer → Extrinsics** in Polkadot-JS Apps, then:\n' +
       '1. In **Using the selected account**, pick the wallet you wish to map.\n' +
       '2. In **submit the following extrinsic**, choose the **Revive** pallet.\n' +
-      '3. Select the **map_account()** function.\n' +
-      '4. Click **Submit Transaction**.\n' +
-      '5. In your extension, hit **Sign and Submit**, then **Approve**.\n' +
+      '3. Select the **mapAccount()** function.\n' +
+      '4. Click **Submit Transaction** then **Sign and Submit**.\n' +
+      '5. In your extension, hit **Approve**.\n' +
       'After the transaction is finalized, your account will be mapped successfully.'
     )
   }
