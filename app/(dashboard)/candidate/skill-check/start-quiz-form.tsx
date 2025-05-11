@@ -110,14 +110,6 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
         if (res.passed && res.txHash) {
           setTxHash(res.txHash)
 
-          toast.loading(`Tx sent: ${res.txHash.slice(0, 10)}…`, {
-            id: toastId,
-            action: {
-              label: 'View',
-              onClick: () => window.open(buildExplorerLink(res.txHash!), '_blank'),
-            },
-          })
-
           /* Persist attempt ---------------------------------------------- */
           await fetch('/api/skill-pass', {
             method: 'POST',
@@ -142,7 +134,10 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
   /* ------------------------------ UI ------------------------------------ */
   return (
     <>
-      <button className='w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary/90' onClick={() => setOpen(true)}>
+      <button
+        className='w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary/90'
+        onClick={() => setOpen(true)}
+      >
         Take Quiz
       </button>
 
