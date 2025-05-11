@@ -9,6 +9,7 @@ import WalletOnboardMount from '@/components/auth/wallet-onboard-mount'
 import { ChainInfo } from '@/components/chain/chain-info'
 import PublicEnvScript from '@/components/public-env-script'
 import SiteHeader from '@/components/site-header'
+import Footer from '@/components/layout/footer'
 import { UserProvider } from '@/lib/auth'
 import { isDatabaseHealthy } from '@/lib/db/health'
 import { getUser } from '@/lib/db/queries/queries'
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <WalletOnboardMount />
 
             <main>{children}</main>
+            <Footer />
           </UserProvider>
 
           {/* Chain connection status indicator */}
