@@ -53,7 +53,7 @@ export default function AddCredentialDialog({
           title='DID Required'
           description='You need to create a Decentralised Identifier (DID) for your team before adding credentials.'
           buttonText='Create DID'
-          redirectTo='/candidate/register-did'
+          redirectTo='/candidate/create-did'
           required
         />
       )}

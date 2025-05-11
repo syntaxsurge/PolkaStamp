@@ -64,7 +64,7 @@ export default async function CredentialDetailPage({
 
   /* -------------------------------- UI ---------------------------------- */
   return (
-    <RequireDidGate createPath='/issuer/register-did'>
+    <RequireDidGate createPath='/issuer/create-did'>
       <PageCard
         icon={StatusIcon}
         title={cred.title}

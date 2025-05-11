@@ -20,7 +20,7 @@ type Props = {
 /**
  * Server component that enforces the presence of a DID for the
  * caller’s workspace.  When no DID is found it renders a blocking modal
- * with a single "Register DID” CTA; otherwise it transparently renders
+ * with a single "Create DID” CTA; otherwise it transparently renders
  * the provided children.
  */
 export default async function RequireDidGate({ children, createPath }: Props) {
@@ -39,17 +39,17 @@ export default async function RequireDidGate({ children, createPath }: Props) {
     const fallback =
       createPath ??
       (user.role === 'issuer'
-        ? '/issuer/register-did'
+        ? '/issuer/create-did'
         : user.role === 'recruiter'
-          ? '/recruiter/register-did'
-          : '/candidate/register-did')
+          ? '/recruiter/create-did'
+          : '/candidate/create-did')
 
     return (
       <AppModal
         iconKey='keyround'
         title='DID Required'
         description='You need to register a Decentralised Identifier (DID) for your team before you can continue.'
-        buttonText='Register DID'
+        buttonText='Create DID'
         redirectTo={fallback}
         required
       />

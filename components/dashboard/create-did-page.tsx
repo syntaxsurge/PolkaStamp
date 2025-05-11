@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { eq, sql } from 'drizzle-orm'
 import { KeyRound } from 'lucide-react'
 
-import { CreateDidButton } from '@/app/(dashboard)/candidate/register-did/create-did-button'
+import { CreateDidButton } from '@/app/(dashboard)/candidate/create-did/create-did-button'
 import { AppModal } from '@/components/ui/app-modal'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import PageCard from '@/components/ui/page-card'
@@ -23,7 +23,7 @@ type Member = {
 const MAX_DISPLAY = 5
 
 /**
- * Server component that renders the "Register DID” workflow for the
+ * Server component that renders the "Create DID” workflow for the
  * current user’s workspace; reused by Candidate, Issuer and Recruiter
  * dashboards to enforce a single, consistent flow.
  */

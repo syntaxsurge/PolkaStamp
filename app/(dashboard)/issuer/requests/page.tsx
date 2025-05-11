@@ -50,7 +50,7 @@ export default async function RequestsPage({ searchParams }: { searchParams?: Pr
 
   /* ------------------------------ View ---------------------------------- */
   return (
-    <RequireDidGate createPath='/issuer/register-did'>
+    <RequireDidGate createPath='/issuer/create-did'>
       <PageCard
         icon={ListChecks}
         title='Verification Requests'

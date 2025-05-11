@@ -25,7 +25,7 @@ export default async function IssuerOnboardPage() {
   const [issuer] = await db.select().from(issuers).where(eq(issuers.ownerUserId, user.id)).limit(1)
 
   return (
-    <RequireDidGate createPath='/issuer/register-did'>
+    <RequireDidGate createPath='/issuer/create-did'>
       {/* ----------------------- First-time creation ----------------------- */}
       {!issuer && (
         <PageCard

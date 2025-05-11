@@ -48,13 +48,13 @@ function roleNav(role?: string, counts?: PendingCounts): SidebarNavItem[] {
         { href: '/candidate/highlights', icon: Star, label: 'Profile Highlight' },
         { href: '/candidate/credentials', icon: BookOpen, label: 'Credentials' },
         { href: '/candidate/skill-check', icon: Award, label: 'Skill Quiz' },
-        { href: '/candidate/register-did', icon: Key, label: 'Create DID' },
+        { href: '/candidate/create-did', icon: Key, label: 'Create DID' },
       ]
     case 'recruiter':
       return [
         { href: '/recruiter/talent', icon: Users, label: 'Talent' },
         { href: '/recruiter/pipelines', icon: FolderKanban, label: 'Pipelines' },
-        { href: '/recruiter/register-did', icon: Key, label: 'Create DID' },
+        { href: '/recruiter/create-did', icon: Key, label: 'Create DID' },
       ]
     case 'issuer':
       return [
@@ -65,7 +65,7 @@ function roleNav(role?: string, counts?: PendingCounts): SidebarNavItem[] {
           badgeCount: counts?.issuerRequests,
         },
         { href: '/issuer/onboard', icon: ShieldCheck, label: 'Organisation' },
-        { href: '/issuer/register-did', icon: Key, label: 'Create DID' },
+        { href: '/issuer/create-did', icon: Key, label: 'Create DID' },
       ]
     case 'admin':
       return [

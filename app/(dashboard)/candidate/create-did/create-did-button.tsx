@@ -90,7 +90,7 @@ export function CreateDidButton() {
           Registering DID…
         </>
       ) : (
-        'Register DID for My Team'
+        'Create DID for My Team'
       )}
     </Button>
   )
