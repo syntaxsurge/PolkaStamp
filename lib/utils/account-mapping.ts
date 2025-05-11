@@ -16,7 +16,7 @@ export const ACCOUNT_MAPPING_GUIDE_STEPS: readonly string[] = [
 ]
 
 /**
- * Plain-text variant used for logs or non-HTML renderers.
+ * Plain-text variant used for logs or terminal outputs.
  */
 export function buildAccountMappingInstructions(): string {
   return [
@@ -29,25 +29,28 @@ export function buildAccountMappingInstructions(): string {
 
 /**
  * Rich JSX variant rendered inside toast notifications.
+ * Uses React.createElement to keep this file as .ts (non-TSX).
  */
 export function renderAccountMappingToast(): React.ReactElement {
-  return (
-    <span className='flex flex-col gap-2 text-sm'>
-      <strong>Your account is not yet mapped on the local chain.</strong>
-      <ol className='list-decimal ml-4 space-y-1 text-left'>
-        {ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) => (
-          <li key={i}>{step}</li>
-        ))}
-      </ol>
-      <a
-        href={getMappingLink()}
-        target='_blank'
-        rel='noopener noreferrer'
-        className='text-primary underline font-medium mt-1'
-      >
-        Open mapping ↗
-      </a>
-    </span>
+  return React.createElement(
+    'span',
+    { className: 'flex flex-col gap-2 text-sm' },
+    React.createElement('strong', null, 'Your account is not yet mapped on the local chain.'),
+    React.createElement(
+      'ol',
+      { className: 'list-decimal ml-4 space-y-1 text-left' },
+      ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) => React.createElement('li', { key: i }, step)),
+    ),
+    React.createElement(
+      'a',
+      {
+        href: getMappingLink(),
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        className: 'text-primary underline font-medium mt-1',
+      },
+      'Open mapping ↗',
+    ),
   )
 }
 

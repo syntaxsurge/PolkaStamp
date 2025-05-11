@@ -36,13 +36,18 @@ export function parseInkError(err: unknown): string | React.ReactElement {
   /* ---------------------------------------------------------------------- */
   const decoded = decodeDispatchError(err)
 
-  /* Unmapped account — always render rich toast */
+  /* If decodeDispatchError already returned a React element, use it directly */
+  if (React.isValidElement(decoded)) {
+    return decoded
+  }
+
+  /* Unmapped account not caught earlier — ensure rich toast */
   if (/accountunmapped/i.test(raw) || /accountunmapped/i.test(String(decoded))) {
     return renderAccountMappingToast()
   }
 
-  /* Anything else decoded successfully */
-  if (decoded && decoded !== 'Module error') return decoded as any
+  /* Anything else decoded successfully as string */
+  if (typeof decoded === 'string' && decoded !== 'Module error') return decoded
 
   return raw
 }
