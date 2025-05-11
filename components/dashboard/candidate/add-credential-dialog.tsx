@@ -7,7 +7,13 @@ import { KeyRound } from 'lucide-react'
 import AddCredentialForm from '@/app/(dashboard)/candidate/credentials/add/add-credential-form'
 import { AppModal } from '@/components/ui/app-modal'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import type { AddCredentialDialogProps } from '@/lib/types/components'
 
 /**
@@ -41,6 +47,7 @@ export default function AddCredentialDialog({
         <DialogContent className='sm:max-w-xl'>
           <DialogHeader>
             <DialogTitle>New Credential</DialogTitle>
+            <DialogDescription>Upload or link a credential</DialogDescription>
           </DialogHeader>
           <AddCredentialForm addCredentialAction={addCredentialAction} />
         </DialogContent>
