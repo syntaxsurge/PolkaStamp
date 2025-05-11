@@ -28,25 +28,25 @@ export async function seedUserTeam() {
       name: 'Platform Admin',
       email: 'admin@test.com',
       role: 'admin' as const,
-      walletAddress: process.env.ADMIN_ADDRESS ?? '0x7CE33579392AEAF1791c9B0c8302a502B5867688',
+      walletAddress: '0x41dccbd49b26c50d34355ed86ff0fa9e489d1e01',
     },
     {
       name: 'Test Candidate',
       email: 'candidate@test.com',
       role: 'candidate' as const,
-      walletAddress: '0x141Decc9Dabd2E41B9164c13E203fEDC95070F86',
+      walletAddress: '0xa799a942f85792ddc0028a7dd32b582e75d5e57b',
     },
     {
       name: 'Test Issuer',
       email: 'issuer@test.com',
       role: 'issuer' as const,
-      walletAddress: '0x320ea628FE881529bAfF1d68545c9F61db0b1efd',
+      walletAddress: '0xe2235a2ffe0354b27a6a1c543be6bf2920ff2134',
     },
     {
       name: 'Test Recruiter',
       email: 'recruiter@test.com',
       role: 'recruiter' as const,
-      walletAddress: '0xF3c9d3fbD88B3fDf8BCf7DCAc9C64179C66bB83F',
+      walletAddress: '0x203aedc6e1ee061f55ec52309d5ac8674d4e8352',
     },
   ]
 
