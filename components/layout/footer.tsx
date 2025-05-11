@@ -10,8 +10,8 @@ const footerLinks = [
     title: 'Resources',
     links: [
       {
-        name: 'GitHub Repo',
-        href: 'https://github.com/niklasp/polkadot-nextjs-starter',
+        name: 'PolkaStamp GitHub Repo',
+        href: 'httpshttps://github.com/syntaxsurge/PolkaStamp',
         icon: <Image src={Github} alt='GitHub' width={16} height={16} />,
       },
       { name: 'PAPI Docs', href: 'https://papi.how' },
