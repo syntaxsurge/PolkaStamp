@@ -118,7 +118,6 @@ export default function VerifyDidPage() {
     try {
       let index = 0
       const all: string[] = []
-      /* eslint-disable no-constant-condition */
       while (true) {
         const chunk = await getDidOwners({
           account: signer,
