@@ -32,7 +32,7 @@ function u256ToBigInt(raw: unknown): bigint {
   /* Array of little-endian 64-bit limbs ---------------------------------- */
   if (Array.isArray(raw)) {
     return raw.reduce<bigint>(
-      (acc, limb, idx) => acc + (BigInt(Number(limb)) << (64n * BigInt(idx))),
+      (acc, limb, idx) => acc + (BigInt(limb as any) << (64n * BigInt(idx))),
       0n,
     )
   }
@@ -41,7 +41,7 @@ function u256ToBigInt(raw: unknown): bigint {
   if (raw && typeof raw === 'object' && Array.isArray((raw as any).words)) {
     const words = (raw as any).words as unknown[]
     return words.reduce<bigint>(
-      (acc, limb, idx) => acc + (BigInt(Number(limb)) << (64n * BigInt(idx))),
+      (acc, limb, idx) => acc + (BigInt(limb as any) << (64n * BigInt(idx))),
       0n,
     )
   }
@@ -53,6 +53,20 @@ function u256ToBigInt(raw: unknown): bigint {
   }
 
   throw new Error('Unsupported U256 format')
+}
+
+/**
+ * Encode a bigint into the tuple representation expected by ink!'s U256
+ * (little-endian array of four 64-bit limbs).
+ */
+function bigIntToU256(value: bigint): [bigint, bigint, bigint, bigint] {
+  const mask = (1n << 64n) - 1n
+  return [
+    value & mask,
+    (value >> 64n) & mask,
+    (value >> 128n) & mask,
+    (value >> 192n) & mask,
+  ]
 }
 
 /* -------------------------------------------------------------------------- */
@@ -89,7 +103,8 @@ export const priceOf = async ({
 
 /**
  * Admin-only: set price for a plan.
- * Passes `newPrice` as a raw bigint (U256) expected by the contract.
+ * Accepts `newPrice` as bigint and converts it to the 4-limb U256 tuple
+ * required by the contract.
  */
 export const setPlanPrice = async ({
   account,
@@ -104,7 +119,7 @@ export const setPlanPrice = async ({
     account,
     msg('set_plan_price').encode({
       plan_key: planKey,
-      new_price: newPrice,
+      new_price: bigIntToU256(newPrice),
     }),
   )
 
