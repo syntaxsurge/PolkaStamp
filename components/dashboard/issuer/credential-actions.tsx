@@ -26,6 +26,8 @@ interface CredentialActionsProps {
   credentialType: string
   candidateName: string
   issuerDid: string
+  /** IPFS or HTTP link to the credential file */
+  fileUrl: string
 }
 
 export function CredentialActions({
@@ -36,6 +38,7 @@ export function CredentialActions({
   credentialType,
   candidateName,
   issuerDid,
+  fileUrl,
 }: CredentialActionsProps) {
   const router = useRouter()
   const { selectedAccount } = usePolkadotExtension()
@@ -120,6 +123,7 @@ export function CredentialActions({
       type: ['VerifiableCredential', 'PolkaStampCredential'],
       issuer: issuerDid,
       issuanceDate: new Date().toISOString(),
+      fileUrl,
       credentialSubject: {
         id: candidateDid,
         title: credentialTitle,
@@ -175,7 +179,7 @@ export function CredentialActions({
         }),
       })
 
-      toast.success('Credential verified ✅', { id: toastId })
+      toast.success('Credential & file anchored', { id: toastId })
       router.push('/issuer/requests')
     } catch (err: any) {
       toast.error(err?.message ?? 'Transaction failed.', { id: toastId })

@@ -14,6 +14,7 @@ import { db } from '@/lib/db/drizzle'
 import { candidateCredentials, CredentialStatus, candidates } from '@/lib/db/schema/candidate'
 import { users, teams, teamMembers } from '@/lib/db/schema/core'
 import { issuers } from '@/lib/db/schema/issuer'
+import { gatewayUrl } from '@/lib/utils'
 
 export const revalidate = 0
 
@@ -108,7 +109,7 @@ export default async function CredentialDetailPage({
                     Attached File
                   </p>
                   <a
-                    href={cred.fileUrl}
+                    href={gatewayUrl(cred.fileUrl)}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-primary inline-flex items-center gap-2 font-medium underline-offset-2 hover:underline'
@@ -129,6 +130,7 @@ export default async function CredentialDetailPage({
                   candidateName={candUser?.name || candUser?.email || 'Unknown'}
                   credentialTitle={cred.title}
                   credentialType={cred.type}
+                  fileUrl={cred.fileUrl || ''}
                   issuerDid={issuer.did || ''}
                 />
               </div>
