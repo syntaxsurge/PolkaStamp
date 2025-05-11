@@ -83,8 +83,6 @@ export async function uploadCredentialFile(
     opts.wrapDir ? { wrapWithDirectory: true, directoryPath: opts.wrapDir } : undefined,
   )
 
-  console.log(res)
-
   /* Robustly extract the CID from the SDK response, supporting both
      legacy object shapes and the newer array-of-file-objects format. */
   const cid: string | null = (() => {
