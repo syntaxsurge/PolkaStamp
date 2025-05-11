@@ -96,8 +96,7 @@ export async function derivePublicKeysFromPrivateKey(
     try {
       const kr = new Keyring({ type });
       const pair = kr.addFromSeed(seed);
-      // quick SS58 sanity check – will throw if invalid for type
-      decodeAddress(pair.address);
+      decodeAddress(pair.address); // validates address
       return { ss58: pair.address, h160: toH160Hex(pair.address) };
     } catch {
       /* try next kind */
@@ -124,7 +123,6 @@ export function h160ToSs58(h160: string, prefix = 42): string {
 
 /**
  * Extract a 32-byte secret from a Polkadot keystore JSON.
- * Handles sr25519, ed25519 and ecdsa key types.
  */
 export async function keystoreJsonToPrivateKey(
   jsonStr: string | Record<string, unknown>,
@@ -138,7 +136,7 @@ export async function keystoreJsonToPrivateKey(
     throw new Error("Invalid keystore JSON");
   }
 
-  /* Detect key type from encoding.content – fallback sr25519 */
+  /* Detect key type from encoding.content – default sr25519 */
   let keyType: "sr25519" | "ed25519" | "ecdsa" = "sr25519";
   try {
     const content = ((json as any).encoding?.content ?? [])[1];
@@ -150,26 +148,16 @@ export async function keystoreJsonToPrivateKey(
 
   const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
+
   try {
-    pair.decodePkcs8(password);
+    let res = pair.unlock(password); // ensures secretKey is populated
+    console.log(res)
+    console.log(pair)
   } catch {
     throw new Error("Incorrect password");
   }
 
-  console.log(pair)
-  console.log(pair.derive)
-  console.log(pair.decodePkcs8)
-  
-  /* Robust extraction across keyring versions */
-  let secret: Uint8Array | undefined =
-    (pair as any).secretKey ||
-    (pair as any)._secretKey ||
-    (pair as any)._pair?.secretKey ||
-    (pair as any).keypair?.secretKey ||
-    (pair as any).privateKey ||
-    (pair as any).secret ||
-    (pair as any).seed ||
-    undefined;
+  const secret: Uint8Array | undefined = (pair as any).secretKey;
 
   if (!secret || secret.length < 32) {
     throw new Error("Unable to extract private key");
@@ -179,7 +167,7 @@ export async function keystoreJsonToPrivateKey(
 
 /**
  * Derive public keys directly from a keystore JSON without
- * requiring the caller to handle the private key.
+ * exposing the private key.
  */
 export async function derivePublicKeysFromKeystore(
   jsonStr: string | Record<string, unknown>,
@@ -193,7 +181,6 @@ export async function derivePublicKeysFromKeystore(
     throw new Error("Invalid keystore JSON");
   }
 
-  /* Detect key type to initialise the correct keyring */
   let keyType: "sr25519" | "ed25519" | "ecdsa" = "sr25519";
   try {
     const content = ((json as any).encoding?.content ?? [])[1];
@@ -206,7 +193,7 @@ export async function derivePublicKeysFromKeystore(
   const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
   try {
-    pair.decodePkcs8(password);
+    pair.unlock(password);
   } catch {
     throw new Error("Incorrect password");
   }
