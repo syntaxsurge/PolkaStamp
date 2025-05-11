@@ -1,53 +1,99 @@
-"use client"
+"use client";
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState } from "react";
 import {
   KeyRound as KeyIcon,
   Clipboard,
   RefreshCcw,
   CheckCircle2,
   AlertCircle,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react";
+import { toast } from "sonner";
 
-import PageCard from "@/components/ui/page-card"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { copyToClipboard } from "@/lib/utils"
+import PageCard from "@/components/ui/page-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { copyToClipboard } from "@/lib/utils";
 import {
   mnemonicToPrivateKey,
   privateKeyToMnemonic,
-} from "@/lib/utils/key-converter"
-import { trimAddress } from "@/lib/utils/address"
+  derivePublicKeysFromMnemonic,
+  derivePublicKeysFromPrivateKey,
+  PublicKeys,
+} from "@/lib/utils/key-converter";
+import { trimAddress } from "@/lib/utils/address";
 
 /* -------------------------------------------------------------------------- */
 /*                       D E V   A C C O U N T   D A T A                      */
 /* -------------------------------------------------------------------------- */
 
 const BASE_MNEMONIC =
-  "bottom drive obey lake curtain smoke basket hold race lonely fit walk"
+  "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
 
-const DERIVATIONS = ["//Alice", "//Bob", "//Charlie", "//Dave", "//Eve", "//Ferdie"] as const
+const DERIVATIONS = [
+  "//Alice",
+  "//Bob",
+  "//Charlie",
+  "//Dave",
+  "//Eve",
+  "//Ferdie",
+] as const;
 
 type DevAccount = {
-  label: string
-  path: string
-  seedPhrase: string
-  privateKey: `0x${string}`
-}
+  label: string;
+  path: string;
+  seedPhrase: string;
+  privateKey: `0x${string}`;
+};
 
 function buildDevAccounts(): DevAccount[] {
   return DERIVATIONS.map((path) => {
-    const label = path.replace("//", "")
-    const seedPhrase = `${BASE_MNEMONIC}${path}`
+    const label = path.replace("//", "");
+    const seedPhrase = `${BASE_MNEMONIC}${path}`;
     /* Path component is ignored; all accounts map to the base entropy */
-    const privateKey = mnemonicToPrivateKey(seedPhrase)
-    return { label, path, seedPhrase, privateKey }
-  })
+    const privateKey = mnemonicToPrivateKey(seedPhrase);
+    return { label, path, seedPhrase, privateKey };
+  });
 }
 
-const DEV_ACCOUNTS = buildDevAccounts()
+const DEV_ACCOUNTS = buildDevAccounts();
+
+/* ----------------------------- UI Helpers --------------------------------- */
+
+function ReadonlyField({
+  value,
+  placeholder,
+  copyLabel,
+}: {
+  value: string;
+  placeholder: string;
+  copyLabel: string;
+}) {
+  return (
+    <div className="relative">
+      <Input
+        readOnly
+        value={value}
+        placeholder={placeholder}
+        className="font-mono text-xs pr-12"
+        spellCheck={false}
+      />
+      {value && (
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="absolute right-1 top-1/2 -translate-y-1/2"
+          onClick={() => copyToClipboard(value)}
+        >
+          <Clipboard className="size-4" />
+          <span className="sr-only">{copyLabel}</span>
+        </Button>
+      )}
+    </div>
+  );
+}
 
 /* -------------------------------------------------------------------------- */
 /*                               C O M P O N E N T                            */
@@ -55,49 +101,53 @@ const DEV_ACCOUNTS = buildDevAccounts()
 
 export default function KeyConverterPage() {
   /* --------------------------- convert → private ------------------------ */
-  const [mnemonicIn, setMnemonicIn] = useState("")
-  const [mnemonicError, setMnemonicError] = useState(false)
+  const [mnemonicIn, setMnemonicIn] = useState("");
+  const [mnemonicError, setMnemonicError] = useState(false);
 
-  const privateOut = useMemo(() => {
-    if (!mnemonicIn.trim()) {
-      setMnemonicError(false)
-      return ""
-    }
-    try {
-      const key = mnemonicToPrivateKey(mnemonicIn)
-      setMnemonicError(false)
-      return key
-    } catch {
-      setMnemonicError(true)
-      return ""
-    }
-  }, [mnemonicIn])
+  const { privateOut, mnemonicPub }: { privateOut: string; mnemonicPub: PublicKeys | null } =
+    useMemo(() => {
+      if (!mnemonicIn.trim()) {
+        setMnemonicError(false);
+        return { privateOut: "", mnemonicPub: null };
+      }
+      try {
+        const key = mnemonicToPrivateKey(mnemonicIn);
+        const pub = derivePublicKeysFromMnemonic(mnemonicIn);
+        setMnemonicError(false);
+        return { privateOut: key, mnemonicPub: pub };
+      } catch {
+        setMnemonicError(true);
+        return { privateOut: "", mnemonicPub: null };
+      }
+    }, [mnemonicIn]);
 
   /* --------------------------- convert → mnemonic ----------------------- */
-  const [privateIn, setPrivateIn] = useState("")
-  const [privateError, setPrivateError] = useState(false)
+  const [privateIn, setPrivateIn] = useState("");
+  const [privateError, setPrivateError] = useState(false);
 
-  const mnemonicOut = useMemo(() => {
-    if (!privateIn.trim()) {
-      setPrivateError(false)
-      return ""
-    }
-    try {
-      const mn = privateKeyToMnemonic(privateIn)
-      setPrivateError(false)
-      return mn
-    } catch {
-      setPrivateError(true)
-      return ""
-    }
-  }, [privateIn])
+  const { mnemonicOut, privatePub }: { mnemonicOut: string; privatePub: PublicKeys | null } =
+    useMemo(() => {
+      if (!privateIn.trim()) {
+        setPrivateError(false);
+        return { mnemonicOut: "", privatePub: null };
+      }
+      try {
+        const mn = privateKeyToMnemonic(privateIn);
+        const pub = derivePublicKeysFromPrivateKey(privateIn);
+        setPrivateError(false);
+        return { mnemonicOut: mn, privatePub: pub };
+      } catch {
+        setPrivateError(true);
+        return { mnemonicOut: "", privatePub: null };
+      }
+    }, [privateIn]);
 
   /* --------------------------------- UI ---------------------------------- */
   return (
     <PageCard
       icon={KeyIcon}
       title="Seed ⇄ Private-Key Converter"
-      description="Convert BIP-39 seed phrases to raw entropy hex and back — conversions are now perfectly reversible."
+      description="Convert BIP-39 seed phrases to raw entropy hex and back — now with instant public-key derivation."
       className="space-y-8"
     >
       {/* Converters --------------------------------------------------------- */}
@@ -115,25 +165,26 @@ export default function KeyConverterPage() {
               spellCheck={false}
               className="font-mono text-xs"
             />
-            <div className="relative">
-              <Input
-                readOnly
-                value={privateOut}
-                placeholder="0x…"
-                className="font-mono text-xs pr-12"
-              />
-              {privateOut && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  className="absolute right-1 top-1/2 -translate-y-1/2"
-                  onClick={() => copyToClipboard(privateOut)}
-                >
-                  <Clipboard className="size-4" />
-                </Button>
-              )}
-            </div>
+
+            {/* Private key output */}
+            <ReadonlyField
+              value={privateOut}
+              placeholder="0x…"
+              copyLabel="Copy private key"
+            />
+
+            {/* Public key outputs */}
+            <ReadonlyField
+              value={mnemonicPub?.h160 ?? ""}
+              placeholder="H160 address will appear here…"
+              copyLabel="Copy H160"
+            />
+            <ReadonlyField
+              value={mnemonicPub?.ss58 ?? ""}
+              placeholder="SS58 address will appear here…"
+              copyLabel="Copy SS58"
+            />
+
             {mnemonicError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
@@ -156,25 +207,26 @@ export default function KeyConverterPage() {
               spellCheck={false}
               className="font-mono text-xs"
             />
-            <div className="relative">
-              <Input
-                readOnly
-                value={mnemonicOut}
-                placeholder="mnemonic will appear here…"
-                className="font-mono text-xs pr-12"
-              />
-              {mnemonicOut && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  className="absolute right-1 top-1/2 -translate-y-1/2"
-                  onClick={() => copyToClipboard(mnemonicOut)}
-                >
-                  <Clipboard className="size-4" />
-                </Button>
-              )}
-            </div>
+
+            {/* Mnemonic output */}
+            <ReadonlyField
+              value={mnemonicOut}
+              placeholder="Mnemonic will appear here…"
+              copyLabel="Copy mnemonic"
+            />
+
+            {/* Public key outputs */}
+            <ReadonlyField
+              value={privatePub?.h160 ?? ""}
+              placeholder="H160 address will appear here…"
+              copyLabel="Copy H160"
+            />
+            <ReadonlyField
+              value={privatePub?.ss58 ?? ""}
+              placeholder="SS58 address will appear here…"
+              copyLabel="Copy SS58"
+            />
+
             {privateError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
@@ -195,8 +247,8 @@ export default function KeyConverterPage() {
               variant="secondary"
               size="sm"
               onClick={() => {
-                setMnemonicIn(BASE_MNEMONIC)
-                toast.success("Loaded base mnemonic into converter ✨")
+                setMnemonicIn(BASE_MNEMONIC);
+                toast.success("Loaded base mnemonic into converter ✨");
               }}
             >
               <RefreshCcw className="mr-2 size-4" />
@@ -250,5 +302,5 @@ export default function KeyConverterPage() {
         </CardContent>
       </Card>
     </PageCard>
-  )
+  );
 }
