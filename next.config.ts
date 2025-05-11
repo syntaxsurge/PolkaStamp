@@ -70,8 +70,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/pitch-deck',
-        destination:
-          'https://www.canva.com/design/xxxxxxx',
+        destination: 'https://www.canva.com/design/xxxxxxx',
         permanent: false,
       },
       // add any future redirects here

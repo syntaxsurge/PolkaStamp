@@ -132,7 +132,7 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector: "Literal[value=/APILLON_API_(KEY|SECRET)/]",
+          selector: 'Literal[value=/APILLON_API_(KEY|SECRET)/]',
           message: 'Avoid hard-coding Apillon credentials; use environment variables.',
         },
       ],

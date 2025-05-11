@@ -5,7 +5,6 @@ import { eq } from 'drizzle-orm'
 import { PDFDocument, StandardFonts, rgb, type PDFFont } from 'pdf-lib'
 
 import { db } from '@/lib/db/drizzle'
-import { gatewayUrl } from '@/lib/utils'
 import {
   candidates,
   candidateCredentials,
@@ -15,6 +14,7 @@ import {
 import { users } from '@/lib/db/schema/core'
 import { issuers } from '@/lib/db/schema/issuer'
 import type { ResumeData } from '@/lib/types/resume'
+import { gatewayUrl } from '@/lib/utils'
 
 /* -------------------------------------------------------------------------- */
 /*                         R É S U M É   B U I L D E R                        */
@@ -264,9 +264,7 @@ export async function generateResumePdf(data: ResumeData): Promise<Uint8Array> {
   if (data.projects.length > 0) {
     drawSectionTitle('Projects')
     data.projects.forEach((proj) =>
-      bulletLine(
-        proj.link ? `${proj.title} — ${gatewayUrl(proj.link)}` : proj.title,
-      ),
+      bulletLine(proj.link ? `${proj.title} — ${gatewayUrl(proj.link)}` : proj.title),
     )
   }
 

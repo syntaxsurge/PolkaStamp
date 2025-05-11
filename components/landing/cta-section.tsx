@@ -17,7 +17,7 @@ export default function CTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className='bg-gradient-to-r from-white via-neutral-200 to-white bg-clip-text text-balance text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl md:text-6xl'
+          className='bg-gradient-to-r from-white via-neutral-200 to-white bg-clip-text text-4xl font-extrabold tracking-tight text-balance text-transparent sm:text-5xl md:text-6xl'
         >
           Issue Your First Credential Today
         </motion.h2>
@@ -29,7 +29,8 @@ export default function CTASection() {
           transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
           className='mx-auto mt-6 max-w-xl text-base/relaxed text-white/90 sm:text-lg'
         >
-          Spin up a workspace, deploy an ink! contract and mint provable NFTs in under&nbsp;5&nbsp;minutes.
+          Spin up a workspace, deploy an ink! contract and mint provable NFTs in
+          under&nbsp;5&nbsp;minutes.
         </motion.p>
 
         <motion.div

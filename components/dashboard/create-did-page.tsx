@@ -9,11 +9,11 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import PageCard from '@/components/ui/page-card'
 import { UserAvatar } from '@/components/ui/user-avatar'
 import { requireAuth } from '@/lib/auth/guards'
+import { SERVER_CALLER } from '@/lib/constants/blockchain'
+import { normalizeH160 } from '@/lib/contract-utils'
 import { db } from '@/lib/db/drizzle'
 import { teamMembers, users as usersT, teams } from '@/lib/db/schema/core'
 import { hasDid } from '@/lib/did-registry'
-import { SERVER_CALLER } from '@/lib/constants/blockchain'
-import { normalizeH160 } from '@/lib/contract-utils'
 
 export const revalidate = 0
 

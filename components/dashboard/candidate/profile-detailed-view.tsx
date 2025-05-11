@@ -23,7 +23,6 @@ import CredentialsTable from '@/components/dashboard/recruiter/credentials-table
 import GenerateFitButton from '@/components/dashboard/recruiter/generate-fit-button'
 import PipelineEntriesTable from '@/components/dashboard/recruiter/pipeline-entries-table'
 import { Button } from '@/components/ui/button'
-import { gatewayUrl } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import StatusBadge from '@/components/ui/status-badge'
@@ -34,6 +33,7 @@ import type {
   CandidateDetailedProfileViewProps as Props,
   ProfileStat,
 } from '@/lib/types/components'
+import { gatewayUrl } from '@/lib/utils'
 
 import ProfileHeader from './profile-header'
 

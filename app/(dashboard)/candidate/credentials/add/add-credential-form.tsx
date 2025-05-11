@@ -196,7 +196,7 @@ export default function AddCredentialForm({ addCredentialAction }: AddCredential
             type='url'
             placeholder='https://example.com/credential.pdf'
           />
-          <p className='text-xs text-muted-foreground'>
+          <p className='text-muted-foreground text-xs'>
             Upload credential file or paste a link – the upload takes priority if both are provided.
           </p>
         </div>

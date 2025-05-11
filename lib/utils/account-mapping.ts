@@ -46,9 +46,7 @@ export function renderAccountMappingToast(): React.ReactElement {
     React.createElement(
       'ol',
       { className: 'list-decimal ml-5 space-y-1 text-sm leading-relaxed text-left' },
-      ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) =>
-        React.createElement('li', { key: i }, step),
-      ),
+      ACCOUNT_MAPPING_GUIDE_STEPS.map((step, i) => React.createElement('li', { key: i }, step)),
     ),
     React.createElement(
       'a',
@@ -68,7 +66,5 @@ export function renderAccountMappingToast(): React.ReactElement {
 /* -------------------------------------------------------------------------- */
 
 function getMappingLink(): string {
-  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(
-    WS_URL,
-  )}#/extrinsics`
+  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(WS_URL)}#/extrinsics`
 }

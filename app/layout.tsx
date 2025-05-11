@@ -7,9 +7,9 @@ import { Toaster } from 'sonner'
 
 import WalletOnboardMount from '@/components/auth/wallet-onboard-mount'
 import { ChainInfo } from '@/components/chain/chain-info'
+import Footer from '@/components/layout/footer'
 import PublicEnvScript from '@/components/public-env-script'
 import SiteHeader from '@/components/site-header'
-import Footer from '@/components/layout/footer'
 import { UserProvider } from '@/lib/auth'
 import { isDatabaseHealthy, isApillonHealthy } from '@/lib/db/health'
 import { getUser } from '@/lib/db/queries/queries'
@@ -40,8 +40,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const apillonOk = await isApillonHealthy()
 
   /* ---------------------------------------------------------------------- */
-/*                              D O W N T I M E                           */
-/* ---------------------------------------------------------------------- */
+  /*                              D O W N T I M E                           */
+  /* ---------------------------------------------------------------------- */
   if (!dbOk || !apillonOk) {
     if (!dbOk) {
       return (
@@ -65,8 +65,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             Decentralised storage is unavailable…
           </h1>
           <p className='text-muted-foreground mt-4 max-w-md'>
-            Apillon IPFS storage cannot be reached at the moment. File uploads and credential viewing
-            may be temporarily unavailable. Please check back shortly.
+            Apillon IPFS storage cannot be reached at the moment. File uploads and credential
+            viewing may be temporarily unavailable. Please check back shortly.
           </p>
         </body>
       </html>

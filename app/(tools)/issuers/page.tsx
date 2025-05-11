@@ -86,19 +86,20 @@ export default async function IssuerDirectoryPage({
   const hasNext = rowsRaw.length > pageSize
   if (hasNext) rowsRaw.pop()
 
-  const rows: IssuerDirectoryRow[] = rowsRaw.map((i) =>
-    ({
-      id: i.id,
-      name: i.name,
-      domain: i.domain,
-      category: i.category,
-      industry: i.industry,
-      status: i.status,
-      logoUrl: i.logoUrl,
-      did: i.did ?? null,
-      createdAt: i.createdAt?.toISOString() ?? '',
-      grantTxHash: i.grantTxHash ?? null,
-    } as unknown as IssuerDirectoryRow),
+  const rows: IssuerDirectoryRow[] = rowsRaw.map(
+    (i) =>
+      ({
+        id: i.id,
+        name: i.name,
+        domain: i.domain,
+        category: i.category,
+        industry: i.industry,
+        status: i.status,
+        logoUrl: i.logoUrl,
+        did: i.did ?? null,
+        createdAt: i.createdAt?.toISOString() ?? '',
+        grantTxHash: i.grantTxHash ?? null,
+      }) as unknown as IssuerDirectoryRow,
   )
 
   /* ------------------------------ View ---------------------------------- */

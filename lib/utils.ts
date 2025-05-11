@@ -1,13 +1,9 @@
-import React from 'react'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 import { WS_URL } from './config'
-import {
-  buildAccountMappingInstructions,
-  renderAccountMappingToast,
-} from './utils/account-mapping'
+import { buildAccountMappingInstructions, renderAccountMappingToast } from './utils/account-mapping'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,10 +18,7 @@ export function weiToDecimal(wei: bigint | string): string {
   const whole = value / TEN_POW_DECIMALS
   const fraction = value % TEN_POW_DECIMALS
   if (fraction === 0n) return whole.toString()
-  const fractionStr = fraction
-    .toString()
-    .padStart(Number(DECIMALS), '0')
-    .replace(/0+$/, '')
+  const fractionStr = fraction.toString().padStart(Number(DECIMALS), '0').replace(/0+$/, '')
   return `${whole}.${fractionStr}`
 }
 
@@ -47,9 +40,7 @@ export function decimalToWei(input: string): bigint {
  * Ensure the user has selected an account before proceeding.
  * Throws an error when the account is null/undefined.
  */
-export function ensureSigner(
-  account: { address: string } | null | undefined,
-): asserts account {
+export function ensureSigner(account: { address: string } | null | undefined): asserts account {
   if (!account) throw new Error('Connect a wallet account first.')
 }
 
@@ -59,15 +50,11 @@ export function ensureSigner(
 
 /** Build a Polkadot-JS Apps explorer link for a given transaction hash. */
 export function buildExplorerLink(hash: string): string {
-  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(
-    WS_URL,
-  )}#/explorer/query/${hash}`
+  return `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(WS_URL)}#/explorer/query/${hash}`
 }
 
 export function stringifyWithBigInt(obj: unknown) {
-  return JSON.stringify(obj, (key, value) =>
-    typeof value === 'bigint' ? value.toString() : value,
-  )
+  return JSON.stringify(obj, (key, value) => (typeof value === 'bigint' ? value.toString() : value))
 }
 
 /** Format update date/time */
@@ -216,10 +203,7 @@ export function isIpfs(url: string): boolean {
  * buildIpfsGatewayUrl('ipfs://bafy.../doc.pdf')
  * // → 'https://ipfs.io/ipfs/bafy.../doc.pdf'
  */
-export function buildIpfsGatewayUrl(
-  ipfsUrl: string,
-  gateway: string = 'ipfs.io',
-): string {
+export function buildIpfsGatewayUrl(ipfsUrl: string, gateway: string = 'ipfs.io'): string {
   if (!isIpfs(ipfsUrl)) return ipfsUrl
   const [, cidAndPath] = ipfsUrl.split('ipfs://')
   return `https://${gateway}/ipfs/${cidAndPath}`

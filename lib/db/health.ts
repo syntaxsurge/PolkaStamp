@@ -1,9 +1,9 @@
+import { Storage } from '@apillon/sdk'
 import { sql } from 'drizzle-orm'
 
-import { db } from './drizzle'
-
-import { Storage } from '@apillon/sdk'
 import { APILLON_API_KEY, APILLON_API_SECRET } from '@/lib/config'
+
+import { db } from './drizzle'
 
 /**
  * Lightweight "SELECT 1” probe.

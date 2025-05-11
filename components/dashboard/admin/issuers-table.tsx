@@ -14,11 +14,11 @@ import { VerifyIcon, UnverifyIcon, RejectIcon } from '@/components/ui/colored-ic
 import { StatusBadge } from '@/components/ui/status-badge'
 import { DataTable, type Column } from '@/components/ui/tables/data-table'
 import { TableRowActions, type TableRowAction } from '@/components/ui/tables/row-actions'
+import { grantIssuerRole } from '@/lib/credential-nft'
 import { IssuerStatus } from '@/lib/db/schema/issuer'
 import { useBulkActions } from '@/lib/hooks/use-bulk-actions'
 import { useTableNavigation } from '@/lib/hooks/use-table-navigation'
 import type { TableProps, AdminIssuerRow } from '@/lib/types/tables'
-import { grantIssuerRole } from '@/lib/credential-nft'
 import { ensureSigner, buildExplorerLink } from '@/lib/utils'
 import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 

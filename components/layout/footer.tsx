@@ -36,7 +36,7 @@ export default function Footer() {
           </div>
           {footerLinks.map((category) => (
             <div key={category.title} className='text-left sm:text-right'>
-              <h3 className='text-sm font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500'>
+              <h3 className='text-sm font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500'>
                 {category.title}
               </h3>
               <ul className='mt-4 space-y-2'>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth/guards'
@@ -10,10 +11,7 @@ import { uploadCredentialFile } from '@/lib/services/apillon-storage'
 
 const MAX_SIZE_BYTES = 25 * 1024 * 1024 // 25 MiB hard limit (adjust as needed)
 
-const AcceptedTypesSchema = z.union([
-  z.literal('application/pdf'),
-  z.string().startsWith('image/'),
-])
+const AcceptedTypesSchema = z.union([z.literal('application/pdf'), z.string().startsWith('image/')])
 
 /* -------------------------------------------------------------------------- */
 /*                                   POST                                    */

@@ -1,8 +1,6 @@
 'use client'
 
-import {
-  localnode,
-} from '@polkadot-api/descriptors'
+import { localnode } from '@polkadot-api/descriptors'
 import type { TypedApi } from 'polkadot-api'
 
 import localnodeChainSpec from '@/chains/localnode.json' assert { type: 'json' }
@@ -31,8 +29,7 @@ export interface ChainSpec {
 export interface ChainConfig {
   key: string
   name: string
-  descriptors:
-    | typeof localnode
+  descriptors: typeof localnode
   endpoints: string[]
   explorerUrl?: string
   icon?: React.ReactNode
@@ -40,8 +37,7 @@ export interface ChainConfig {
   relayChainSpec?: ChainSpec
 }
 
-export type AvailableApis =
-  | TypedApi<typeof localnode>
+export type AvailableApis = TypedApi<typeof localnode>
 
 export const chainConfig: ChainConfig[] = [
   {

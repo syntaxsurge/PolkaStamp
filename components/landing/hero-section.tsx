@@ -43,7 +43,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
-            className='text-balance text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl'
+            className='text-4xl leading-tight font-extrabold text-balance text-white sm:text-5xl md:text-6xl lg:text-7xl'
           >
             Verifiable Credentials on{' '}
             <span className='text-polkastamp-gradient animate-polkastamp-gradient'>Polkadot</span>
@@ -67,7 +67,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
-                className='inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white backdrop-blur-md sm:text-sm'
+                className='inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium tracking-wide text-white uppercase backdrop-blur-md sm:text-sm'
               >
                 <Icon className='h-5 w-5 text-amber-300' />
                 {label}
@@ -92,15 +92,15 @@ export default function HeroSection() {
           className='relative mx-auto size-72 sm:size-80 md:size-96 lg:mx-0'
         >
           {/* Central nucleus */}
-          <span className='bg-polkastamp-gradient absolute left-1/2 top-1/2 z-10 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-2xl' />
+          <span className='bg-polkastamp-gradient absolute top-1/2 left-1/2 z-10 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-2xl' />
 
           {/* Orbiting nodes */}
-          <div className='absolute inset-0 animate-spin-slow'>
+          <div className='animate-spin-slow absolute inset-0'>
             {nodes.map((deg) => (
               <span
                 key={deg}
                 style={{ transform: `rotate(${deg}deg) translateX(8rem)` }}
-                className='absolute left-1/2 top-1/2 -ml-1 -mt-1 size-2.5 rounded-full bg-white'
+                className='absolute top-1/2 left-1/2 -mt-1 -ml-1 size-2.5 rounded-full bg-white'
               />
             ))}
           </div>

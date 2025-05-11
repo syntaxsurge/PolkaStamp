@@ -1,10 +1,6 @@
 import { Storage, LogLevel } from '@apillon/sdk'
 
-import {
-  APILLON_API_KEY,
-  APILLON_API_SECRET,
-  APILLON_BUCKET_UUID,
-} from '@/lib/config'
+import { APILLON_API_KEY, APILLON_API_SECRET, APILLON_BUCKET_UUID } from '@/lib/config'
 
 /* -------------------------------------------------------------------------- */
 /*                           A P I L L O N   S D K                            */

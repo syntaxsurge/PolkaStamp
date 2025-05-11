@@ -61,12 +61,7 @@ function u256ToBigInt(raw: unknown): bigint {
  */
 function bigIntToU256(value: bigint): [bigint, bigint, bigint, bigint] {
   const mask = (1n << 64n) - 1n
-  return [
-    value & mask,
-    (value >> 64n) & mask,
-    (value >> 128n) & mask,
-    (value >> 192n) & mask,
-  ]
+  return [value & mask, (value >> 64n) & mask, (value >> 128n) & mask, (value >> 192n) & mask]
 }
 
 /* -------------------------------------------------------------------------- */
