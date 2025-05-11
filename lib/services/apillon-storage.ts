@@ -83,12 +83,29 @@ export async function uploadCredentialFile(
     opts.wrapDir ? { wrapWithDirectory: true, directoryPath: opts.wrapDir } : undefined,
   )
 
-  const cid: string =
-    res?.cid ??
-    res?.data?.cid ??
-    (() => {
-      throw new Error('Apillon upload failed – CID not returned')
-    })()
+  console.log(res)
+
+  /* Robustly extract the CID from the SDK response, supporting both
+     legacy object shapes and the newer array-of-file-objects format. */
+  const cid: string | null = (() => {
+    if (!res) return null
+
+    /* Newer SDK versions return an array where each item is a file result */
+    if (Array.isArray(res)) {
+      for (const item of res) {
+        const c = item?.CID ?? item?.cid ?? item?.data?.cid
+        if (c) return c
+      }
+      return null
+    }
+
+    /* Older SDK versions returned a plain object */
+    return res?.CID ?? res?.cid ?? res?.data?.cid ?? null
+  })()
+
+  if (!cid) {
+    throw new Error('Apillon upload failed - CID not returned')
+  }
 
   return `ipfs://${cid}/${fileName}`
 }
