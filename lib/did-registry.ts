@@ -1,5 +1,3 @@
-'use client'
-
 import { u8aToHex } from '@polkadot/util'
 import { contracts } from '@polkadot-api/descriptors'
 import { getInkClient } from 'polkadot-api/ink'

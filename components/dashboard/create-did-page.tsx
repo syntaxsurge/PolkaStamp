@@ -1,4 +1,3 @@
-'use client'
 import { redirect } from 'next/navigation'
 
 import { eq, sql } from 'drizzle-orm'
