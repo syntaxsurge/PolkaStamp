@@ -97,7 +97,7 @@
     --chart-1: 332 100% 45%; /* Pink */
     --chart-2: 206 100% 50%; /* Blue */
     --chart-3: 268 100% 60%; /* Purple */
-    --chart-4: 55 100% 50%;  /* Yellow */
+    --chart-4: 55 100% 50%; /* Yellow */
     --chart-5: 194 100% 45%; /* Cyan */
     --radius: 0.6rem;
     --sidebar-background: 0 0% 98%;
@@ -177,7 +177,7 @@
   --chart-4: hsl(55 100% 50%);
   --chart-5: hsl(194 100% 45%);
   --radius: 0.6rem;
-  --polkastamp-gradient: linear-gradient(90deg, #E6007A 0%, #0092FF 50%, #00B0E7 100%);
+  --polkastamp-gradient: linear-gradient(90deg, #e6007a 0%, #0092ff 50%, #00b0e7 100%);
 }
 
 /* Utility helpers */

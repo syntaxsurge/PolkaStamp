@@ -21,15 +21,15 @@ Create a `.env` file (or copy `.env.example`) and add the required keys:
 
 ### Sync Ink ABIs
 
-~~~bash
+```bash
 pnpm papi ink add ./blockchain/contracts/did_registry/target/ink/did_registry.json
 pnpm papi ink add ./blockchain/contracts/credential_nft/target/ink/credential_nft.json
 pnpm papi ink add ./blockchain/contracts/subscription_manager/target/ink/subscription_manager.json
-~~~
+```
 
 Run the usual Next.js commands to develop:
 
-~~~bash
+```bash
 pnpm install
 pnpm dev
-~~~
+```
