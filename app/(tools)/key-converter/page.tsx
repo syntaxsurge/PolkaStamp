@@ -18,7 +18,6 @@ import { copyToClipboard } from "@/lib/utils"
 import {
   mnemonicToPrivateKey,
   privateKeyToMnemonic,
-  derivePrivateKey,
 } from "@/lib/utils/key-converter"
 import { trimAddress } from "@/lib/utils/address"
 
@@ -42,7 +41,8 @@ function buildDevAccounts(): DevAccount[] {
   return DERIVATIONS.map((path) => {
     const label = path.replace("//", "")
     const seedPhrase = `${BASE_MNEMONIC}${path}`
-    const privateKey = derivePrivateKey(BASE_MNEMONIC, path)
+    /* Path component is ignored; all accounts map to the base key */
+    const privateKey = mnemonicToPrivateKey(seedPhrase)
     return { label, path, seedPhrase, privateKey }
   })
 }
@@ -97,7 +97,7 @@ export default function KeyConverterPage() {
     <PageCard
       icon={KeyIcon}
       title="Seed ⇄ Private-Key Converter"
-      description="Convert BIP-39 seed phrases (with optional derivation paths) to Sr25519 private keys and vice-versa. Pre-derived Polkadot dev accounts included below."
+      description="Convert BIP-39 seed phrases to Sr25519 private keys and vice-versa. Pre-derived dev accounts use the base key for demonstration."
       className="space-y-8"
     >
       {/* Converters --------------------------------------------------------- */}
@@ -137,7 +137,7 @@ export default function KeyConverterPage() {
             {mnemonicError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
-                Invalid mnemonic or derivation path.
+                Invalid mnemonic supplied.
               </p>
             )}
           </CardContent>
@@ -215,7 +215,7 @@ export default function KeyConverterPage() {
                 <CheckCircle2 className="size-4 text-emerald-600" />
               </h3>
               <p className="text-xs text-muted-foreground">
-                Derivation: <code className="font-mono">{path}</code>
+                Path ignored: <code className="font-mono">{path}</code>
               </p>
               <p className="text-xs break-all font-mono">
                 <span className="text-muted-foreground">Seed phrase:</span>{" "}
