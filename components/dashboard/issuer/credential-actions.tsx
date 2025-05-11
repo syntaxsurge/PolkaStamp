@@ -1,13 +1,15 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import * as React from 'react'
-import { useActionState, startTransition, useState } from 'react'
+import React, { useState } from 'react'
 
 import { ArrowUpRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { rejectCredentialAction, unverifyCredentialAction } from '@/app/(dashboard)/issuer/credentials/actions'
+import {
+  rejectCredentialAction,
+  unverifyCredentialAction,
+} from '@/app/(dashboard)/issuer/credentials/actions'
 import { Button } from '@/components/ui/button'
 import { CredentialStatus } from '@/lib/db/schema/candidate'
 import { mintCredential } from '@/lib/credential-nft'
@@ -38,39 +40,68 @@ export function CredentialActions({
   const router = useRouter()
   const { selectedAccount } = usePolkadotExtension()
 
-  /* ------------------- reject / unverify states ----------------------- */
-  const [rejectState, reject, rejecting] = useActionState(
-    rejectCredentialAction,
-    { error: '', success: '' },
-  )
-  const [unverifyState, unverify, unverifying] = useActionState(
-    unverifyCredentialAction,
-    { error: '', success: '' },
-  )
-
-  /* ------------------- approve states ----------------------- */
+  /* Loading toggles */
   const [approving, setApproving] = useState(false)
+  const [rejecting, setRejecting] = useState(false)
+  const [unverifying, setUnverifying] = useState(false)
 
-  /* ------------------- toast feedback ----------------------- */
-  React.useEffect(() => {
-    ;[rejectState, unverifyState].forEach((s) => {
-      if (s.error) toast.error(s.error)
-      if (s.success) toast.success(s.success)
-    })
-  }, [rejectState, unverifyState])
-
-  React.useEffect(() => {
-    if (rejectState.success || unverifyState.success) {
-      router.push('/issuer/requests')
+  /* ------------------------------------------------------------------ */
+  /*                              Reject                               */
+  /* ------------------------------------------------------------------ */
+  async function handleReject() {
+    if (rejecting) return
+    setRejecting(true)
+    try {
+      const fd = new FormData()
+      fd.append('credentialId', credentialId.toString())
+      const res = (await rejectCredentialAction({}, fd)) as {
+        error?: string
+        success?: string
+      }
+      if (res.error) toast.error(res.error)
+      if (res.success) {
+        toast.success(res.success)
+        router.push('/issuer/requests')
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Something went wrong.')
+    } finally {
+      setRejecting(false)
     }
-  }, [rejectState.success, unverifyState.success, router])
+  }
 
-  /* --------------------- helpers ---------------------------- */
+  /* ------------------------------------------------------------------ */
+  /*                             Unverify                              */
+  /* ------------------------------------------------------------------ */
+  async function handleUnverify() {
+    if (unverifying) return
+    setUnverifying(true)
+    try {
+      const fd = new FormData()
+      fd.append('credentialId', credentialId.toString())
+      const res = (await unverifyCredentialAction({}, fd)) as {
+        error?: string
+        success?: string
+      }
+      if (res.error) toast.error(res.error)
+      if (res.success) {
+        toast.success(res.success)
+        router.push('/issuer/requests')
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Something went wrong.')
+    } finally {
+      setUnverifying(false)
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*                             Approve                               */
+  /* ------------------------------------------------------------------ */
   async function handleApprove(e: React.FormEvent) {
     e.preventDefault()
     if (approving) return
 
-    /* Wallet & account checks */
     try {
       ensureSigner(selectedAccount)
     } catch (err: any) {
@@ -78,14 +109,12 @@ export function CredentialActions({
       return
     }
 
-    /* Extract recipient address */
     const to = extractAddressFromDid(candidateDid)
     if (!to) {
       toast.error('Malformed candidate DID.')
       return
     }
 
-    /* Build VC payload & hash */
     const vcPayload = {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
       type: ['VerifiableCredential', 'PolkaStampCredential'],
@@ -98,46 +127,58 @@ export function CredentialActions({
         candidateName,
       },
     } as const
-    const vcJson = JSON.stringify(vcPayload)
-    const vcHash = toBytes32(vcJson)
+    const vcHash = toBytes32(JSON.stringify(vcPayload))
 
-    /* Mint credential NFT */
     const toastId = toast.loading('Signing credential…')
     setApproving(true)
+
     try {
-      const { tokenId, txHash } = await mintCredential({
+      const txResult: any = await mintCredential({
         account: selectedAccount!,
         to,
         vcHash,
         uri: '',
       })
 
+      const txHash: `0x${string}` | null = txResult?.txHash ?? null
       toast.loading('Broadcasting transaction…', { id: toastId })
 
-      /* Explorer link action */
-      toast.loading(`Tx sent: ${txHash.slice(0, 10)}…`, {
-        id: toastId,
-        action: {
-          label: <ArrowUpRight className="h-4 w-4" />,
-          onClick: () => window.open(buildExplorerLink(txHash), '_blank'),
-        },
-      })
+      if (txHash) {
+        toast.loading(`Tx sent: ${txHash.slice(0, 10)}…`, {
+          id: toastId,
+          action: {
+            label: <ArrowUpRight className='h-4 w-4' />,
+            onClick: () => window.open(buildExplorerLink(txHash), '_blank'),
+          },
+        })
+      }
 
-      /* Notify backend */
-      const res = await fetch('/api/credentials/verify', {
+      /* Attempt tokenId extraction from events (best-effort) */
+      let tokenId = ''
+      try {
+        const ev = (txResult?.events ?? []).find(
+          (e: any) =>
+            e.value?.type === 'CredentialMinted' ||
+            e.type === 'CredentialMinted',
+        )
+        tokenId =
+          ev?.value?.value?.token_id?.toString() ??
+          ev?.value?.token_id?.toString() ??
+          ''
+      } catch {
+        /* ignore */
+      }
+
+      /* Backend verification */
+      await fetch('/api/credentials/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           credentialId,
-          tokenId: tokenId.toString(),
-          txHash,
+          tokenId,
+          txHash: txHash ?? '',
         }),
       })
-
-      if (!res.ok) {
-        const { error } = await res.json()
-        throw new Error(error ?? 'Backend verification failed.')
-      }
 
       toast.success('Credential verified ✅', { id: toastId })
       router.push('/issuer/requests')
@@ -148,18 +189,19 @@ export function CredentialActions({
     }
   }
 
-  /* ------------------- UI blocks ---------------------------- */
+  /* ------------------------------------------------------------------ */
+  /*                                UI                                 */
+  /* ------------------------------------------------------------------ */
   const approveLabel = 'Approve & Anchor'
 
   if (status === CredentialStatus.PENDING || status === CredentialStatus.UNVERIFIED) {
     return (
-      <div className="flex flex-wrap gap-4">
-        {/* Approve */}
+      <div className='flex flex-wrap gap-4'>
         <form onSubmit={handleApprove}>
-          <Button type="submit" disabled={approving}>
+          <Button type='submit' disabled={approving}>
             {approving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                 Processing…
               </>
             ) : (
@@ -168,19 +210,21 @@ export function CredentialActions({
           </Button>
         </form>
 
-        {/* Reject */}
-        <form onSubmit={(e) => { e.preventDefault(); startTransition(() => reject(new FormData().set('credentialId', credentialId.toString()) as any)) }}>
-          <Button type="submit" variant="destructive" disabled={rejecting}>
-            {rejecting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing…
-              </>
-            ) : (
-              'Reject'
-            )}
-          </Button>
-        </form>
+        <Button
+          type='button'
+          variant='destructive'
+          disabled={rejecting}
+          onClick={handleReject}
+        >
+          {rejecting ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Processing…
+            </>
+          ) : (
+            'Reject'
+          )}
+        </Button>
       </div>
     )
   }
@@ -188,10 +232,10 @@ export function CredentialActions({
   if (status === CredentialStatus.REJECTED) {
     return (
       <form onSubmit={handleApprove}>
-        <Button type="submit" disabled={approving}>
+        <Button type='submit' disabled={approving}>
           {approving ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               Processing…
             </>
           ) : (
@@ -204,34 +248,38 @@ export function CredentialActions({
 
   if (status === CredentialStatus.VERIFIED) {
     return (
-      <div className="flex flex-wrap gap-4">
-        {/* Unverify */}
-        <form onSubmit={(e) => { e.preventDefault(); startTransition(() => unverify(new FormData().set('credentialId', credentialId.toString()) as any)) }}>
-          <Button type="submit" variant="outline" disabled={unverifying}>
-            {unverifying ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing…
-              </>
-            ) : (
-              'Unverify'
-            )}
-          </Button>
-        </form>
+      <div className='flex flex-wrap gap-4'>
+        <Button
+          type='button'
+          variant='outline'
+          disabled={unverifying}
+          onClick={handleUnverify}
+        >
+          {unverifying ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Processing…
+            </>
+          ) : (
+            'Unverify'
+          )}
+        </Button>
 
-        {/* Reject */}
-        <form onSubmit={(e) => { e.preventDefault(); startTransition(() => reject(new FormData().set('credentialId', credentialId.toString()) as any)) }}>
-          <Button type="submit" variant="destructive" disabled={rejecting}>
-            {rejecting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing…
-              </>
-            ) : (
-              'Reject'
-            )}
-          </Button>
-        </form>
+        <Button
+          type='button'
+          variant='destructive'
+          disabled={rejecting}
+          onClick={handleReject}
+        >
+          {rejecting ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Processing…
+            </>
+          ) : (
+            'Reject'
+          )}
+        </Button>
       </div>
     )
   }
