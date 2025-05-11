@@ -26,12 +26,12 @@ const LEARN_SECTIONS = [
 ] as const
 
 const TOOLS_MENU = [
-  { href: '/balance', label: 'Balance' },
   { href: '/jobs', label: 'Job Openings' },
   { href: '/candidates', label: 'Candidates' },
   { href: '/issuers', label: 'Issuers' },
-  { href: '/key-converter', label: 'Key Converter' },
   { href: '/verify', label: 'Verify' },
+  { href: '/balance', label: 'Balance' },
+  { href: '/key-converter', label: 'Key Converter' },
 ] as const
 
 /* -------------------------------------------------------------------------- */
