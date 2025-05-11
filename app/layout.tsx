@@ -11,7 +11,7 @@ import PublicEnvScript from '@/components/public-env-script'
 import SiteHeader from '@/components/site-header'
 import Footer from '@/components/layout/footer'
 import { UserProvider } from '@/lib/auth'
-import { isDatabaseHealthy } from '@/lib/db/health'
+import { isDatabaseHealthy, isApillonHealthy } from '@/lib/db/health'
 import { getUser } from '@/lib/db/queries/queries'
 import { Providers } from '@/providers/providers'
 
@@ -37,20 +37,36 @@ const inter = Inter({ subsets: ['latin'] })
  */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const dbOk = await isDatabaseHealthy()
+  const apillonOk = await isApillonHealthy()
 
   /* ---------------------------------------------------------------------- */
-  /*                              D O W N T I M E                           */
-  /* ---------------------------------------------------------------------- */
-  if (!dbOk) {
+/*                              D O W N T I M E                           */
+/* ---------------------------------------------------------------------- */
+  if (!dbOk || !apillonOk) {
+    if (!dbOk) {
+      return (
+        <html lang='en' className={`bg-background text-foreground ${inter.className}`}>
+          <body className='flex min-h-screen flex-col items-center justify-center px-4 text-center'>
+            <h1 className='text-4xl font-extrabold tracking-tight'>
+              Our database is having a nap 😴
+            </h1>
+            <p className='text-muted-foreground mt-4 max-w-md'>
+              We’re unable to reach the PolkaStamp database right now. Please try again in a few
+              minutes while we reconnect everything behind the scenes.
+            </p>
+          </body>
+        </html>
+      )
+    }
     return (
       <html lang='en' className={`bg-background text-foreground ${inter.className}`}>
         <body className='flex min-h-screen flex-col items-center justify-center px-4 text-center'>
           <h1 className='text-4xl font-extrabold tracking-tight'>
-            Our database is having a nap 😴
+            Decentralised storage is unavailable…
           </h1>
           <p className='text-muted-foreground mt-4 max-w-md'>
-            We’re unable to reach the PolkaStamp database right now. Please try again in a few
-            minutes while we reconnect everything behind the scenes.
+            Apillon IPFS storage cannot be reached at the moment. File uploads and credential viewing
+            may be temporarily unavailable. Please check back shortly.
           </p>
         </body>
       </html>
