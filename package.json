@@ -21,6 +21,7 @@
     "contracts:deploy": "tsx scripts/deploy-contracts.ts"
   },
   "dependencies": {
+    "@apillon/sdk": "^3.10.0",
     "@esbuild-kit/core-utils": "^3.3.2",
     "@esbuild-kit/esm-loader": "^2.6.5",
     "@helia/strings": "^4.0.3",
