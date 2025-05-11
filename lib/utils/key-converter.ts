@@ -1,6 +1,5 @@
 import {
   mnemonicToEntropy,
-  entropyToMnemonic,
   entropyToMiniSecret,
 } from "@polkadot-labs/hdkd-helpers";
 import { Keyring } from "@polkadot/keyring";
@@ -125,6 +124,7 @@ export function h160ToSs58(h160: string, prefix = 42): string {
 
 /**
  * Extract a 32-byte secret from a Polkadot keystore JSON.
+ * Handles sr25519, ed25519 and ecdsa key types.
  */
 export async function keystoreJsonToPrivateKey(
   jsonStr: string | Record<string, unknown>,
@@ -156,14 +156,19 @@ export async function keystoreJsonToPrivateKey(
     throw new Error("Incorrect password");
   }
 
-  /* Different keyring versions expose the secret in various fields */
-  const secret: Uint8Array | undefined =
-    (pair as any).secretKey ??
-    (pair as any)._pair?.secretKey ??
-    (pair as any).keypair?.secretKey ??
-    (pair as any).privateKey ??
-    (pair as any).secret ??
-    (pair as any).seed ??
+  console.log(pair)
+  console.log(pair.derive)
+  console.log(pair.decodePkcs8)
+  
+  /* Robust extraction across keyring versions */
+  let secret: Uint8Array | undefined =
+    (pair as any).secretKey ||
+    (pair as any)._secretKey ||
+    (pair as any)._pair?.secretKey ||
+    (pair as any).keypair?.secretKey ||
+    (pair as any).privateKey ||
+    (pair as any).secret ||
+    (pair as any).seed ||
     undefined;
 
   if (!secret || secret.length < 32) {

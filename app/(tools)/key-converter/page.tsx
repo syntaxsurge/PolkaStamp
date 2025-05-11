@@ -194,7 +194,6 @@ export default function KeyConverterPage() {
   const [jsonPwd, setJsonPwd] = useState("");
   const [pwdVisible, setPwdVisible] = useState(false);
   const [jsonPrivate, setJsonPrivate] = useState("");
-  const [jsonMnemonic, setJsonMnemonic] = useState("");
   const [jsonPub, setJsonPub] = useState({ h160: "", ss58: "" });
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [jsonSuccess, setJsonSuccess] = useState(false);
@@ -207,19 +206,12 @@ export default function KeyConverterPage() {
     try {
       const priv = await keystoreJsonToPrivateKey(jsonText, jsonPwd);
       setJsonPrivate(priv);
-      /* mnemonic may not be derivable – ignore failures silently */
-      try {
-        setJsonMnemonic(await mnemonicToPrivateKey(priv));
-      } catch {
-        setJsonMnemonic("");
-      }
       setJsonPub(await derivePublicKeysFromKeystore(jsonText, jsonPwd));
       setJsonError(null);
       setJsonSuccess(true);
       toast.success("Keystore decoded.");
     } catch (err: any) {
       setJsonPrivate("");
-      setJsonMnemonic("");
       setJsonPub({ h160: "", ss58: "" });
       setJsonSuccess(false);
       setJsonError(err?.message ?? "Failed to decode keystore.");
@@ -366,12 +358,6 @@ export default function KeyConverterPage() {
             value={jsonPrivate}
             placeholder="0x…private key"
             copyLabel="Copy key"
-          />
-          <CopyInput
-            label="Mnemonic (if derivable)"
-            value={jsonMnemonic}
-            placeholder="—"
-            copyLabel="Copy mnemonic"
           />
           <CopyInput
             label="H160 Address"
