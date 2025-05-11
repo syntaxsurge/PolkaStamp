@@ -23,6 +23,7 @@ import CredentialsTable from '@/components/dashboard/recruiter/credentials-table
 import GenerateFitButton from '@/components/dashboard/recruiter/generate-fit-button'
 import PipelineEntriesTable from '@/components/dashboard/recruiter/pipeline-entries-table'
 import { Button } from '@/components/ui/button'
+import { gatewayUrl } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import StatusBadge from '@/components/ui/status-badge'
@@ -335,7 +336,7 @@ export default function CandidateDetailedProfileView({
                               {exp.title}
                               {exp.link && (
                                 <Link
-                                  href={exp.link}
+                                  href={gatewayUrl(exp.link)}
                                   target='_blank'
                                   rel='noopener noreferrer'
                                   className='text-muted-foreground hover:text-primary'
@@ -382,7 +383,7 @@ export default function CandidateDetailedProfileView({
                               {proj.title}
                               {proj.link && (
                                 <Link
-                                  href={proj.link}
+                                  href={gatewayUrl(proj.link)}
                                   target='_blank'
                                   rel='noopener noreferrer'
                                   className='text-muted-foreground hover:text-primary'
