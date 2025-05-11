@@ -20,3 +20,13 @@ export interface Pagination {
   /** Query-string params to persist across navigation */
   initialParams: Record<string, string>
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               IPFS Helpers                                 */
+/* -------------------------------------------------------------------------- */
+
+/** Function signature for {@link isIpfs}. */
+export type IsIpfsFn = (url: string) => boolean
+
+/** Function signature for {@link gatewayUrl}. */
+export type GatewayUrlFn = (ipfsOrHttp: string) => string

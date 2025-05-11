@@ -2,6 +2,7 @@ import React from 'react'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
+import { buildGatewayUrl as buildIpfsGatewayUrl } from '@/lib/services/apillon-storage'
 
 import { WS_URL } from './config'
 import {
@@ -198,4 +199,21 @@ export function decodeDispatchError(error: unknown): string {
   }
 
   return msg
+}
+
+/* ------------------------------------------------------------------ */
+/*                         I P F S   H E L P E R S                    */
+/* ------------------------------------------------------------------ */
+
+/** Lightweight check if a URL uses the ipfs:// protocol */
+export function isIpfs(url: string): boolean {
+  return url.startsWith('ipfs://')
+}
+
+/**
+ * Convert an IPFS URI to a public gateway URL using Apillon’s helper,
+ * or return the input unchanged when already HTTP(S).
+ */
+export function gatewayUrl(ipfsOrHttp: string): string {
+  return isIpfs(ipfsOrHttp) ? buildIpfsGatewayUrl(ipfsOrHttp) : ipfsOrHttp
 }
