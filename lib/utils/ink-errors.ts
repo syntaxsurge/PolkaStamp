@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { decodeDispatchError } from '@/lib/utils'
 import { WS_URL } from '@/lib/config'
 
@@ -12,11 +14,11 @@ import { WS_URL } from '@/lib/config'
  * - Detects `"Invalid → Payment"` objects returned by `reviveCall` (simulation)
  *   when the caller’s balance is insufficient.
  * - Recognises specific Revive-pallet mapping errors and shows actionable
- *   instructions even when they arrive as plain strings (post-throw).
+ *   instructions with a handy "Open mapping ↗” link rendered inside the toast.
  * - Falls back to the improved `decodeDispatchError` helper and finally to a
  *   prettified string representation for unknown cases.
  */
-export function parseInkError(err: unknown): string {
+export function parseInkError(err: unknown): string | React.ReactElement {
   /* ---------------------------------------------------------------------- */
   /*                      S T R U C T U R E D   O B J E C T S                */
   /* ---------------------------------------------------------------------- */
@@ -48,12 +50,7 @@ export function parseInkError(err: unknown): string {
   /*               R A W   R E V I V E :   A C C O U N T U N M A P P E D      */
   /* ---------------------------------------------------------------------- */
   if (raw.toLowerCase().includes('revive') && raw.toLowerCase().includes('accountunmapped')) {
-    const mappingLink = `https://polkadot.js.org/apps/?rpc=${WS_URL}#/extrinsics`
-    return [
-      raw,
-      'Your account is not yet mapped on the local chain.',
-      `Open Polkadot.js Apps at ${mappingLink} → revive → mapAccount() → Submit the transaction, then retry.`,
-    ].join('\n')
+    return renderUnmappedToast(raw)
   }
 
   /* ---------------------------------------------------------------------- */
@@ -66,15 +63,44 @@ export function parseInkError(err: unknown): string {
     decoded.toLowerCase().includes('revive') &&
     decoded.toLowerCase().includes('accountunmapped')
   ) {
-    const mappingLink = `https://polkadot.js.org/apps/?rpc=${WS_URL}#/extrinsics`
-    return [
-      decoded,
-      'Your account is not yet mapped on the local chain.',
-      `Open Polkadot.js Apps at ${mappingLink} → revive → mapAccount() → Submit the transaction, then retry.`,
-    ].join('\n')
+    return renderUnmappedToast(decoded)
   }
 
   if (decoded && decoded !== 'Module error') return decoded
 
   return raw
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              H E L P E R S                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Build a React element summarising the unmapped-account error and include
+ * a link that launches Polkadot.js Apps in a new tab so users can map quickly.
+ */
+function renderUnmappedToast(prefix: string): React.ReactElement {
+  const mappingLink = `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(
+    WS_URL,
+  )}#/extrinsics`
+  return React.createElement(
+    'span',
+    { className: 'flex flex-col gap-1' },
+    React.createElement('span', null, prefix),
+    React.createElement(
+      'span',
+      null,
+      'Your account is not yet mapped on the local chain.',
+    ),
+    React.createElement(
+      'a',
+      {
+        href: mappingLink,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        className: 'text-primary underline font-medium',
+      },
+      'Open mapping ↗',
+    ),
+  )
 }
