@@ -71,10 +71,13 @@ export async function mnemonicToPrivateKey(phrase: string): Promise<`0x${string}
   return entropyToHex(entropy);
 }
 
+/**
+ * Convert a 32-byte secret key to its 24-word BIP-39 mnemonic.
+ * 64-char hex is supported; 128-char secrets are not reversible.
+ */
 export async function privateKeyToMnemonic(privateKeyHex: string): Promise<string> {
   const clean = sanitiseEntropyHex(privateKeyHex);
-  if (clean.length !== 64) {
-    /* 64-char (32-byte) seeds map to 24-word mnemonics */
+  if (clean.length === 64) {
     const entropy = Uint8Array.from(Buffer.from(clean, "hex"));
     return entropyToMnemonic(entropy);
   }
@@ -126,12 +129,6 @@ export function h160ToSs58(h160: string, prefix = 42): string {
 /*                  K E Y S T O R E   J S O N   H E L P E R S                 */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Decode a polkadot-js keystore JSON and return the 32-byte mini secret key.
- *
- * @param jsonStr  The raw JSON string (or parsed object) from the keystore.
- * @param password Optional password; default empty string for dev keystores.
- */
 export async function keystoreJsonToPrivateKey(
   jsonStr: string | Record<string, unknown>,
   password = "",
@@ -161,9 +158,6 @@ export async function keystoreJsonToPrivateKey(
   return u8aToHex(mini) as `0x${string}`;
 }
 
-/**
- * Convenience helper: derive public keys directly from keystore JSON.
- */
 export async function derivePublicKeysFromKeystore(
   jsonStr: string | Record<string, unknown>,
   password = "",

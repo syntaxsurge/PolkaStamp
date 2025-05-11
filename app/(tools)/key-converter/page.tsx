@@ -29,12 +29,14 @@ import {
 /* ----------------------------- Helper component -------------------------- */
 
 function CopyInput({
+  label,
   value,
   onChange,
   placeholder,
   error,
   copyLabel,
 }: {
+  label: string;
   value: string;
   onChange?: (v: string) => void;
   placeholder: string;
@@ -42,26 +44,29 @@ function CopyInput({
   copyLabel: string;
 }) {
   return (
-    <div className="relative">
-      <Input
-        value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        className={`font-mono text-xs pr-12 ${error ? "border-destructive" : ""}`}
-        spellCheck={false}
-      />
-      {value && (
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          className="absolute right-1 top-1/2 -translate-y-1/2"
-          onClick={() => copyToClipboard(value)}
-        >
-          <Clipboard className="size-4" />
-          <span className="sr-only">{copyLabel}</span>
-        </Button>
-      )}
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-foreground/70">{label}</label>
+      <div className="relative">
+        <Input
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          placeholder={placeholder}
+          className={`font-mono text-xs pr-12 ${error ? "border-destructive" : ""}`}
+          spellCheck={false}
+        />
+        {value && (
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            className="absolute right-1 top-1/2 -translate-y-1/2"
+            onClick={() => copyToClipboard(value)}
+          >
+            <Clipboard className="size-4" />
+            <span className="sr-only">{copyLabel}</span>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
@@ -120,11 +125,10 @@ export default function KeyConverterPage() {
         setPrivatePub(await derivePublicKeysFromPrivateKey(privateIn));
       } catch {
         setPrivatePub({ h160: "", ss58: "" });
-        if (hadMnemonicError) setPrivateError(true);
-        else setPrivateError(false);
+        setPrivateError(true);
         return;
       }
-      setPrivateError(false);
+      if (hadMnemonicError) setPrivateError(false);
     })();
   }, [privateIn]);
 
@@ -228,22 +232,26 @@ export default function KeyConverterPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <CopyInput
+              label="Mnemonic"
               value={mnemonicIn}
               onChange={setMnemonicIn}
               placeholder='e.g. "bottom drive … //Alice"'
               copyLabel="Copy mnemonic"
             />
             <CopyInput
+              label="Private Key"
               value={privateOut}
               placeholder="0x…private key"
               copyLabel="Copy key"
             />
             <CopyInput
+              label="H160 Address"
               value={mnemonicPub.h160}
-              placeholder="H160 address…"
+              placeholder="0x…20-byte address"
               copyLabel="Copy H160"
             />
             <CopyInput
+              label="SS58 Address"
               value={mnemonicPub.ss58}
               placeholder="SS58 address…"
               copyLabel="Copy SS58"
@@ -264,6 +272,7 @@ export default function KeyConverterPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <CopyInput
+              label="Private Key"
               value={privateIn}
               onChange={setPrivateIn}
               placeholder="0x…32- or 64-byte hex"
@@ -271,16 +280,19 @@ export default function KeyConverterPage() {
               error={privateError}
             />
             <CopyInput
+              label="Mnemonic"
               value={mnemonicOut}
               placeholder="Mnemonic (if derivable)…"
               copyLabel="Copy mnemonic"
             />
             <CopyInput
+              label="H160 Address"
               value={privatePub.h160}
-              placeholder="H160 address…"
+              placeholder="0x…20-byte address"
               copyLabel="Copy H160"
             />
             <CopyInput
+              label="SS58 Address"
               value={privatePub.ss58}
               placeholder="SS58 address…"
               copyLabel="Copy SS58"
@@ -301,22 +313,27 @@ export default function KeyConverterPage() {
           <CardTitle className="text-lg">Keystore JSON → Private / Public</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <textarea
-            value={jsonText}
-            onChange={(e) => setJsonText(e.target.value)}
-            rows={6}
-            placeholder='Paste keystore JSON here…'
-            className="border-border w-full rounded-md p-2 font-mono text-xs"
-            spellCheck={false}
-          />
-          <div className="flex items-center gap-2">
-            <Input
-              type="password"
-              value={jsonPwd}
-              onChange={(e) => setJsonPwd(e.target.value)}
-              placeholder="Password (leave blank if none)"
-              className="flex-1"
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground/70">Keystore JSON</label>
+            <textarea
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              rows={6}
+              placeholder="Paste keystore JSON here…"
+              className="border-border w-full rounded-md p-2 font-mono text-xs"
+              spellCheck={false}
             />
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex flex-col gap-1 flex-1">
+              <label className="text-xs font-medium text-foreground/70">Password</label>
+              <Input
+                type="password"
+                value={jsonPwd}
+                onChange={(e) => setJsonPwd(e.target.value)}
+                placeholder="Password (leave blank if none)"
+              />
+            </div>
             <input
               type="file"
               accept=".json,application/json"
@@ -342,21 +359,25 @@ export default function KeyConverterPage() {
           )}
 
           <CopyInput
+            label="Private Key"
             value={jsonPrivate}
             placeholder="0x…private key"
             copyLabel="Copy key"
           />
           <CopyInput
+            label="Mnemonic"
             value={jsonMnemonic}
             placeholder="Mnemonic (if derivable)…"
             copyLabel="Copy mnemonic"
           />
           <CopyInput
+            label="H160 Address"
             value={jsonPub.h160}
-            placeholder="H160 address…"
+            placeholder="0x…20-byte address"
             copyLabel="Copy H160"
           />
           <CopyInput
+            label="SS58 Address"
             value={jsonPub.ss58}
             placeholder="SS58 address…"
             copyLabel="Copy SS58"
@@ -371,6 +392,7 @@ export default function KeyConverterPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <CopyInput
+            label="H160 Address"
             value={h160Addr}
             onChange={handleH160Change}
             placeholder="0x…20-byte H160"
@@ -378,6 +400,7 @@ export default function KeyConverterPage() {
             error={addrError}
           />
           <CopyInput
+            label="SS58 Address"
             value={ss58Addr}
             onChange={handleSs58Change}
             placeholder="SS58 address"
