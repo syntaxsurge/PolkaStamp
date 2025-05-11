@@ -9,7 +9,7 @@ import { DataTable, type Column } from '@/components/ui/tables/data-table'
 import { TableRowActions, type TableRowAction } from '@/components/ui/tables/row-actions'
 import { useTableNavigation } from '@/lib/hooks/use-table-navigation'
 import type { TableProps, RecruiterCredentialRow } from '@/lib/types/tables'
-import { buildExplorerLink, copyToClipboard } from '@/lib/utils'
+import { buildExplorerLink, copyToClipboard, gatewayUrl } from '@/lib/utils'
 
 /* -------------------------------------------------------------------------- */
 /*                     Recruiter → Candidate Credentials                      */
@@ -39,7 +39,7 @@ export default function CredentialsTable({
 
       /* View original file ------------------------------------------------- */
       if (row.fileUrl) {
-        acts.push({ label: 'View file', icon: FileText, href: row.fileUrl })
+        acts.push({ label: 'View file', icon: FileText, href: gatewayUrl(row.fileUrl) })
       }
 
       /* Copy raw VC JSON --------------------------------------------------- */

@@ -13,7 +13,7 @@ import { deleteCredentialAction } from '@/lib/actions/delete'
 import { useBulkActions } from '@/lib/hooks/use-bulk-actions'
 import { useTableNavigation } from '@/lib/hooks/use-table-navigation'
 import type { TableProps, CandidateCredentialRow } from '@/lib/types/tables'
-import { buildExplorerLink, copyToClipboard } from '@/lib/utils'
+import { buildExplorerLink, copyToClipboard, gatewayUrl } from '@/lib/utils'
 
 /* -------------------------------------------------------------------------- */
 /*                        Candidate Credentials Table                         */
@@ -69,7 +69,7 @@ export default function CandidateCredentialsTable({
         actions.push({
           label: 'View file',
           icon: FileText,
-          href: row.fileUrl,
+          href: gatewayUrl(row.fileUrl),
         })
       }
 
