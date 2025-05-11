@@ -1,4 +1,4 @@
-import { decodeDispatchError, prettify } from '@/lib/utils'
+import { decodeDispatchError } from '@/lib/utils'
 import { WS_URL } from '@/lib/config'
 
 /* -------------------------------------------------------------------------- */
@@ -12,7 +12,7 @@ import { WS_URL } from '@/lib/config'
  * - Detects `"Invalid → Payment"` objects returned by `reviveCall` (simulation)
  *   when the caller’s balance is insufficient.
  * - Recognises specific Revive-pallet mapping errors and shows actionable
- *   instructions only when they are actually returned by the chain.
+ *   instructions even when they arrive as plain strings (post-throw).
  * - Falls back to the improved `decodeDispatchError` helper and finally to a
  *   prettified string representation for unknown cases.
  */
@@ -45,6 +45,18 @@ export function parseInkError(err: unknown): string {
   }
 
   /* ---------------------------------------------------------------------- */
+  /*               R A W   R E V I V E :   A C C O U N T U N M A P P E D      */
+  /* ---------------------------------------------------------------------- */
+  if (raw.toLowerCase().includes('revive') && raw.toLowerCase().includes('accountunmapped')) {
+    const mappingLink = `https://polkadot.js.org/apps/?rpc=${WS_URL}#/extrinsics`
+    return [
+      raw,
+      'Your account is not yet mapped on the local chain.',
+      `Open Polkadot.js Apps at ${mappingLink} → revive → mapAccount() → Submit the transaction, then retry.`,
+    ].join('\n')
+  }
+
+  /* ---------------------------------------------------------------------- */
   /*                    D I S P A T C H   E R R O R   C O D E                */
   /* ---------------------------------------------------------------------- */
   const decoded = decodeDispatchError(err)
@@ -62,10 +74,7 @@ export function parseInkError(err: unknown): string {
     ].join('\n')
   }
 
-  if (decoded && decoded !== 'Module error') return prettify(decoded)
+  if (decoded && decoded !== 'Module error') return decoded
 
-  /* ---------------------------------------------------------------------- */
-  /*                                F A L L B A C K                          */
-  /* ---------------------------------------------------------------------- */
-  return prettify(raw)
+  return raw
 }
