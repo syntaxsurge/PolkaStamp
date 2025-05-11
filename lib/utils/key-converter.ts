@@ -1,14 +1,15 @@
 import {
   mnemonicToEntropy,
-  entropyToMiniSecret,
+  entropyToMiniSecret
 } from "@polkadot-labs/hdkd-helpers";
 import { Keyring } from "@polkadot/keyring";
 import {
   encodeAddress,
   cryptoWaitReady,
-  decodeAddress,
+  decodeAddress
 } from "@polkadot/util-crypto";
 import { hexToU8a, u8aToHex } from "@polkadot/util";
+import { decodePair } from "@polkadot/keyring/pair/decode";
 
 import { toH160Hex } from "@/lib/contract-utils";
 
@@ -31,10 +32,7 @@ function entropyToHex(entropy: Uint8Array): `0x${string}` {
 }
 
 function normaliseMnemonic(phrase: string): string {
-  return phrase
-    .trim()
-    .split(/\s+/)
-    .join(" ");
+  return phrase.trim().split(/\s+/).join(" ");
 }
 
 /**
@@ -44,8 +42,7 @@ function normaliseMnemonic(phrase: string): string {
 function sanitiseEntropyHex(input: string): string {
   const raw = input.trim().toLowerCase().replace(/^0x/, "");
   if (!/^[0-9a-f]+$/u.test(raw)) throw new Error("Invalid hex");
-  if (raw.length === 64) return raw;
-  if (raw.length === 128) return raw.slice(0, 64); // use first 32 bytes
+  if (raw.length === 64 || raw.length === 128) return raw.slice(0, 64);
   throw new Error("Expected 32- or 64-byte hex");
 }
 
@@ -60,7 +57,9 @@ export type PublicKeys = {
 
 /* ---------- Mnemonic helpers ---------- */
 
-export async function mnemonicToPrivateKey(phrase: string): Promise<`0x${string}`> {
+export async function mnemonicToPrivateKey(
+  phrase: string
+): Promise<`0x${string}`> {
   const trimmed = phrase.trim();
   if (!trimmed) throw new Error("Mnemonic cannot be empty");
   const [mnemonic] = trimmed.split("//"); // strip derivation path
@@ -70,7 +69,7 @@ export async function mnemonicToPrivateKey(phrase: string): Promise<`0x${string}
 }
 
 export async function derivePublicKeysFromMnemonic(
-  phrase: string,
+  phrase: string
 ): Promise<PublicKeys> {
   await ensureReady();
   const keyring = new Keyring({ type: "sr25519" });
@@ -78,30 +77,43 @@ export async function derivePublicKeysFromMnemonic(
   return { ss58: pair.address, h160: toH160Hex(pair.address) };
 }
 
-/* ---------- Private-key helpers ---------- */
+/* ---------- Private‑key helpers ---------- */
 
 /**
- * Derive SS58 & H160 addresses from a raw sr25519/ed25519/ecdsa secret.
- * Attempts all three crypto kinds until one succeeds.
+ * Derive SS58 & H160 addresses from a raw secret (32‑byte seed or 64‑byte secret key).
+ * Handles sr25519/ed25519/ecdsa by progressively attempting the available crypto kinds.
  */
 export async function derivePublicKeysFromPrivateKey(
-  privateKeyHex: string,
+  privateKeyHex: string
 ): Promise<PublicKeys> {
   await ensureReady();
-  const seedHex = sanitiseEntropyHex(privateKeyHex);
-  const seed = hexToU8a(seedHex);
-  const kinds: ("sr25519" | "ed25519" | "ecdsa")[] = ["sr25519", "ed25519", "ecdsa"];
+  const cleanHex = sanitiseEntropyHex(privateKeyHex);
+  const bytes = hexToU8a(cleanHex);
 
-  for (const type of kinds) {
+  /* 64‑byte secret key — reconstruct public key directly (works for sr25519 & ed25519) */
+  if (bytes.length === 64) {
+    const publicKey = bytes.slice(32, 64);
+    const ss58 = encodeAddress(publicKey, 42);
+    return { ss58, h160: toH160Hex(ss58) };
+  }
+
+  /* 32‑byte seed — brute‑force crypto kinds until one yields a valid SS58 */
+  const types: ("sr25519" | "ed25519" | "ecdsa")[] = [
+    "sr25519",
+    "ed25519",
+    "ecdsa"
+  ];
+  for (const type of types) {
     try {
       const kr = new Keyring({ type });
-      const pair = kr.addFromSeed(seed);
-      decodeAddress(pair.address); // validates address
+      const pair = kr.addFromSeed(bytes);
+      decodeAddress(pair.address); // sanity‑check SS58
       return { ss58: pair.address, h160: toH160Hex(pair.address) };
     } catch {
-      /* try next kind */
+      /* try next */
     }
   }
+
   throw new Error("Unable to derive public keys from the supplied secret");
 }
 
@@ -122,16 +134,15 @@ export function h160ToSs58(h160: string, prefix = 42): string {
 /* ---------- Keystore helpers ---------- */
 
 /**
- * Extract a 32-byte secret from a Polkadot keystore JSON.
+ * Extract a 32‑byte secret from a Polkadot keystore JSON.
  */
 export async function keystoreJsonToPrivateKey(
   jsonStr: string | Record<string, unknown>,
-  password = "",
+  password = ""
 ): Promise<`0x${string}`> {
   await ensureReady();
 
-  const json =
-    typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
+  const json = typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
   if (typeof json !== "object" || !("encoded" in json)) {
     throw new Error("Invalid keystore JSON");
   }
@@ -148,39 +159,56 @@ export async function keystoreJsonToPrivateKey(
 
   const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
-
   try {
-    let res = pair.unlock(password); // ensures secretKey is populated
-    console.log(res)
-    console.log(pair)
+    pair.unlock(password); // ensure secret in memory
   } catch {
     throw new Error("Incorrect password");
   }
 
-  const secret: Uint8Array | undefined = (pair as any).secretKey;
+  /* First attempt: legacy private fields */
+  let secret: Uint8Array | undefined =
+    (pair as any).secretKey ||
+    (pair as any)._secretKey ||
+    (pair as any)._pair?.secretKey ||
+    (pair as any).keypair?.secretKey ||
+    undefined;
+
+  /* Fallback: modern encode→decode trick */
+  if (!secret) {
+    try {
+      const pkcs8 = (pair as any).encodePkcs8(password);
+      secret = decodePair(password, pkcs8).secretKey;
+      // eslint‑disable‑next‑line no‑console
+      console.debug("[keystore] extracted via PKCS8 fallback");
+    } catch (e) {
+      // eslint‑disable‑next‑line no‑console
+      console.error("[keystore] PKCS8 fallback failed", e);
+    }
+  }
 
   if (!secret || secret.length < 32) {
     throw new Error("Unable to extract private key");
   }
-  return u8aToHex(secret.slice(0, 32)) as `0x${string}`;
+
+  return u8aToHex(secret.length === 64 ? secret.slice(0, 32) : secret) as `0x${string}`;
 }
 
 /**
  * Derive public keys directly from a keystore JSON without
- * exposing the private key.
+ * requiring the caller to handle the private key.
  */
 export async function derivePublicKeysFromKeystore(
   jsonStr: string | Record<string, unknown>,
-  password = "",
+  password = ""
 ): Promise<PublicKeys> {
   await ensureReady();
 
-  const json =
-    typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
+  const json = typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
   if (typeof json !== "object" || !("encoded" in json)) {
     throw new Error("Invalid keystore JSON");
   }
 
+  /* Detect key type to initialise keyring */
   let keyType: "sr25519" | "ed25519" | "ecdsa" = "sr25519";
   try {
     const content = ((json as any).encoding?.content ?? [])[1];
@@ -197,5 +225,6 @@ export async function derivePublicKeysFromKeystore(
   } catch {
     throw new Error("Incorrect password");
   }
+
   return { ss58: pair.address, h160: toH160Hex(pair.address) };
 }
