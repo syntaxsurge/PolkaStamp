@@ -1,15 +1,11 @@
 'use client'
 
 import React, { useEffect, useState, useTransition } from 'react'
-
-import { Button } from '@/components/ui/button'
 import { Copy, ExternalLink, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { mintCredential } from '@/lib/credential-nft'
-import { buildExplorerLink, copyToClipboard, ensureSigner } from '@/lib/utils'
+import { buildExplorerLink, copyToClipboard } from '@/lib/utils'
 import type { QuizMeta } from '@/lib/types/components'
-import { usePolkadotExtension } from '@/providers/polkadot-extension-provider'
 
 import { startQuizAction } from './actions'
 
@@ -61,8 +57,6 @@ interface StartQuizFormProps {
 }
 
 export default function StartQuizForm({ quiz }: StartQuizFormProps) {
-  const { selectedAccount } = usePolkadotExtension()
-
   const [open, setOpen] = useState(false)
   const [seed, setSeed] = useState('')
   const [question, setQuestion] = useState<QuizMeta['questions'][number] | null>(null)
@@ -98,43 +92,31 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
 
     startTransition(async () => {
       try {
-        const res:
-          | {
-              score: number
-              message: string
-              passed?: boolean
-              vcHash?: string
-              vcJson?: string
-            }
-          | void = await startQuizAction(fd)
+        type ServerRes = {
+          score: number
+          message: string
+          passed?: boolean
+          txHash?: string
+          vcJson?: string
+        }
 
+        const res = (await startQuizAction(fd)) as ServerRes
         if (!res) throw new Error('No response from server')
 
         setScore(res.score)
         setMessage(res.message)
         toast.success(res.message, { id: toastId })
 
-        /* Mint on-chain Skill Pass if the user passed */
-        if (res.passed && res.vcHash) {
-          ensureSigner(selectedAccount)
+        if (res.passed && res.txHash) {
+          setTxHash(res.txHash)
 
-          const mintRes = await mintCredential({
-            account: selectedAccount!,
-            to: selectedAccount!.address,
-            vcHash: res.vcHash,
-            uri: '',
+          toast.loading(`Tx sent: ${res.txHash.slice(0, 10)}…`, {
+            id: toastId,
+            action: {
+              label: 'View',
+              onClick: () => window.open(buildExplorerLink(res.txHash!), '_blank'),
+            },
           })
-
-          if (mintRes.txHash) {
-            setTxHash(mintRes.txHash)
-            toast.loading(`Tx sent: ${mintRes.txHash.slice(0, 10)}…`, {
-              id: toastId,
-              action: {
-                label: 'View',
-                onClick: () => window.open(buildExplorerLink(mintRes.txHash!), '_blank'),
-              },
-            })
-          }
 
           /* Persist attempt ---------------------------------------------- */
           await fetch('/api/skill-pass', {
@@ -144,7 +126,7 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
               quizId: quiz.id,
               score: res.score,
               seed,
-              txHash: mintRes.txHash ?? '',
+              txHash: res.txHash,
               vcJson: res.vcJson ?? '',
             }),
           })
@@ -160,22 +142,21 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
   /* ------------------------------ UI ------------------------------------ */
   return (
     <>
-      <Button className='w-full' onClick={() => setOpen(true)}>
+      <button className='w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary/90' onClick={() => setOpen(true)}>
         Take Quiz
-      </Button>
+      </button>
 
       {open && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
           <div className='relative w-full max-w-lg rounded-lg bg-background p-6 shadow-lg'>
             {/* Close button */}
-            <Button
-              variant='ghost'
-              size='sm'
-              className='absolute right-4 top-4'
+            <button
+              type='button'
+              className='absolute right-4 top-4 text-xl font-bold'
               onClick={() => setOpen(false)}
             >
               ✕
-            </Button>
+            </button>
 
             {/* Header */}
             <h2 className='text-xl font-bold'>{quiz.title}</h2>
@@ -213,19 +194,19 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
                   />
                 </div>
 
-                <Button
+                <button
                   type='submit'
                   disabled={isPending || !seed || !question}
-                  className='w-max'
+                  className='rounded-md bg-primary px-4 py-2 text-sm font-medium text-background transition-colors disabled:opacity-50'
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' /> Submitting…
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin inline' /> Submitting…
                     </>
                   ) : (
                     'Submit Answer'
                   )}
-                </Button>
+                </button>
               </form>
             ) : (
               /* --------------------- Result panel ------------------------- */
@@ -245,19 +226,22 @@ export default function StartQuizForm({ quiz }: StartQuizFormProps) {
                 )}
 
                 {vcJson && (
-                  <Button
-                    variant='ghost'
-                    size='sm'
+                  <button
+                    type='button'
+                    className='inline-flex items-center gap-2 text-sm underline'
                     onClick={() => copyToClipboard(vcJson)}
-                    className='inline-flex items-center gap-2'
                   >
                     <Copy className='h-4 w-4' /> Copy VC JSON
-                  </Button>
+                  </button>
                 )}
 
-                <Button variant='outline' onClick={() => setScore(null)}>
+                <button
+                  type='button'
+                  className='rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted'
+                  onClick={() => setScore(null)}
+                >
                   Try Again
-                </Button>
+                </button>
               </div>
             )}
           </div>

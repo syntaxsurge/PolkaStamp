@@ -5,11 +5,12 @@ import { eq } from 'drizzle-orm'
 import { openAIAssess } from '@/lib/ai/openai'
 import { requireAuth } from '@/lib/auth/guards'
 import { PLATFORM_ISSUER_DID } from '@/lib/config'
+import { mintCredential } from '@/lib/credential-nft'
+import { getPlatformSigner } from '@/lib/platform-signer'
 import { db } from '@/lib/db/drizzle'
 import { candidates, skillQuizzes } from '@/lib/db/schema/candidate'
 import { teams, teamMembers } from '@/lib/db/schema/core'
 import { extractAddressFromDid, toBytes32 } from '@/lib/utils/address'
-import { signCredentialMint } from '@/lib/utils/signature'
 
 /* -------------------------------------------------------------------------- */
 /*                              A C T I O N                                   */
@@ -17,12 +18,7 @@ import { signCredentialMint } from '@/lib/utils/signature'
 
 export async function startQuizAction(formData: FormData) {
   const user = await requireAuth(['candidate'])
-
-  /* Type-safety: requireAuth(['candidate']) should always return a user,
-     but we guard at runtime for completeness and to silence TS 18048. */
-  if (!user) {
-    return { score: 0, message: 'Unauthorized.' }
-  }
+  if (!user) return { score: 0, message: 'Unauthorized.' }
 
   /* ---------------------------------------------------------------------- */
   /*                              P A R S I N G                             */
@@ -39,8 +35,6 @@ export async function startQuizAction(formData: FormData) {
   if (!seedIn || !/^0x[0-9a-fA-F]{1,64}$/.test(seedIn)) {
     return { score: 0, message: 'Invalid seed.' }
   }
-
-  /* seedHex is now guaranteed to be a valid 0x-prefixed value */
   const seedHex = seedIn as `0x${string}`
 
   /* ---------------------------------------------------------------------- */
@@ -114,16 +108,12 @@ export async function startQuizAction(formData: FormData) {
   } as const
 
   const vcJson = JSON.stringify(vcPayload)
-  /* toBytes32 returns a 32-byte 0x-prefixed hash but is typed as string,
-     hence we cast to the literal-type expected by signCredentialMint. */
   const vcHashHex = toBytes32(vcJson) as `0x${string}`
 
   /* ---------------------------------------------------------------------- */
-  /*                           R E S P O N S E                              */
+  /*                     P L A T F O R M   M I N T   C A L L                */
   /* ---------------------------------------------------------------------- */
-  let message = `You scored ${aiScore}. ${passed ? 'You passed!' : 'You failed.'}`
-  let signature: `0x${string}` | '' = ''
-
+  let txHash: string | undefined
   if (passed) {
     const toAddr = extractAddressFromDid(subjectDid)
     if (!toAddr) {
@@ -132,18 +122,29 @@ export async function startQuizAction(formData: FormData) {
         message: 'Failed to derive wallet address from your team DID.',
       }
     }
-    signature = await signCredentialMint(toAddr, vcHashHex, seedHex)
-    message +=
-      ' Sign the next transaction to anchor your Skill Pass credential on-chain.'
+
+    const signer = await getPlatformSigner()
+    const res = await mintCredential({
+      account: signer,
+      to: toAddr,
+      vcHash: vcHashHex,
+      uri: '',
+    })
+
+    txHash = res.txHash
   }
+
+  /* ---------------------------------------------------------------------- */
+  /*                           R E S P O N S E                              */
+  /* ---------------------------------------------------------------------- */
+  const message = `You scored ${aiScore}. ${passed ? 'You passed!' : 'You failed.'}`
 
   return {
     score: aiScore,
     message,
     passed,
-    vcHash: vcHashHex,
-    signature,
-    vcJson,
+    txHash,
+    vcJson: passed ? vcJson : undefined,
     quizId: quiz.id,
     seed: seedHex,
   }

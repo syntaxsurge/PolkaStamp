@@ -1,5 +1,3 @@
-"use client";
-
 import { contracts } from "@polkadot-api/descriptors";
 import { getInkClient } from "polkadot-api/ink";
 import { InjectedPolkadotAccount } from "polkadot-api/pjs-signer";

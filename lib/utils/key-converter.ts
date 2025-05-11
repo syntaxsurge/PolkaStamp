@@ -42,7 +42,7 @@ function normaliseMnemonic(phrase: string): string {
 function sanitiseEntropyHex(input: string): string {
   const raw = input.trim().toLowerCase().replace(/^0x/, "");
   if (!/^[0-9a-f]+$/u.test(raw)) throw new Error("Invalid hex");
-  if (raw.length === 64 || raw.length === 128) return raw.slice(0, 64);
+  if (raw.length === 64 || raw.length === 128) return raw;
   throw new Error("Expected 32- or 64-byte hex");
 }
 
@@ -74,13 +74,14 @@ export async function derivePublicKeysFromMnemonic(
   await ensureReady();
   const keyring = new Keyring({ type: "sr25519" });
   const pair = keyring.addFromUri(phrase.trim());
+  console.log("[key-converter] derive from mnemonic →", pair.address);
   return { ss58: pair.address, h160: toH160Hex(pair.address) };
 }
 
-/* ---------- Private‑key helpers ---------- */
+/* ---------- Private-key helpers ---------- */
 
 /**
- * Derive SS58 & H160 addresses from a raw secret (32‑byte seed or 64‑byte secret key).
+ * Derive SS58 & H160 addresses from a raw secret (32-byte seed or 64-byte secret key).
  * Handles sr25519/ed25519/ecdsa by progressively attempting the available crypto kinds.
  */
 export async function derivePublicKeysFromPrivateKey(
@@ -90,27 +91,42 @@ export async function derivePublicKeysFromPrivateKey(
   const cleanHex = sanitiseEntropyHex(privateKeyHex);
   const bytes = hexToU8a(cleanHex);
 
-  /* 64‑byte secret key — reconstruct public key directly (works for sr25519 & ed25519) */
-  if (bytes.length === 64) {
-    const publicKey = bytes.slice(32, 64);
-    const ss58 = encodeAddress(publicKey, 42);
-    return { ss58, h160: toH160Hex(ss58) };
+  console.log("[key-converter] raw secret hex:", u8aToHex(bytes));
+
+  /* Determine seed component ------------------------------------------- */
+  let seed: Uint8Array;
+  if (bytes.length === 32) {
+    seed = bytes;
+  } else if (bytes.length === 64) {
+    // Use first 32 bytes (mini-secret) for all crypto kinds
+    seed = bytes.slice(0, 32);
+  } else {
+    throw new Error("Expected 32- or 64-byte secret");
   }
 
-  /* 32‑byte seed — brute‑force crypto kinds until one yields a valid SS58 */
   const types: ("sr25519" | "ed25519" | "ecdsa")[] = [
     "sr25519",
     "ed25519",
     "ecdsa"
   ];
+
   for (const type of types) {
     try {
       const kr = new Keyring({ type });
-      const pair = kr.addFromSeed(bytes);
-      decodeAddress(pair.address); // sanity‑check SS58
+      const pair = kr.addFromSeed(seed);
+      decodeAddress(pair.address); // sanity-check SS58
+      console.log(
+        `[key-converter] ${type} publicKey:`,
+        u8aToHex(pair.publicKey),
+        "→ SS58:",
+        pair.address
+      );
       return { ss58: pair.address, h160: toH160Hex(pair.address) };
-    } catch {
-      /* try next */
+    } catch (e) {
+      console.log(
+        `[key-converter] ${type} candidate rejected →`,
+        (e as Error).message
+      );
     }
   }
 
@@ -134,7 +150,7 @@ export function h160ToSs58(h160: string, prefix = 42): string {
 /* ---------- Keystore helpers ---------- */
 
 /**
- * Extract a 32‑byte secret from a Polkadot keystore JSON.
+ * Extract a secret from a Polkadot keystore JSON.
  */
 export async function keystoreJsonToPrivateKey(
   jsonStr: string | Record<string, unknown>,
@@ -142,7 +158,8 @@ export async function keystoreJsonToPrivateKey(
 ): Promise<`0x${string}`> {
   await ensureReady();
 
-  const json = typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
+  const json =
+    typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
   if (typeof json !== "object" || !("encoded" in json)) {
     throw new Error("Invalid keystore JSON");
   }
@@ -159,43 +176,38 @@ export async function keystoreJsonToPrivateKey(
 
   const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
+
   try {
-    pair.unlock(password); // ensure secret in memory
+    pair.unlock(password);
   } catch {
     throw new Error("Incorrect password");
   }
 
-  /* First attempt: legacy private fields */
-  let secret: Uint8Array | undefined =
-    (pair as any).secretKey ||
-    (pair as any)._secretKey ||
-    (pair as any)._pair?.secretKey ||
-    (pair as any).keypair?.secretKey ||
-    undefined;
+  /* Extract secret via PKCS8 re-encode round-trip */
+  try {
+    const pkcs8 = (pair as any).encodePkcs8(password);
+    let { publicKey, secretKey } = decodePair(password, pkcs8)
+    let publicKeyStr = u8aToHex(publicKey) as `0x${string}`
+    let secretKeyStr = u8aToHex(secretKey) as `0x${string}`
 
-  /* Fallback: modern encode→decode trick */
-  if (!secret) {
-    try {
-      const pkcs8 = (pair as any).encodePkcs8(password);
-      secret = decodePair(password, pkcs8).secretKey;
-      // eslint‑disable‑next‑line no‑console
-      console.debug("[keystore] extracted via PKCS8 fallback");
-    } catch (e) {
-      // eslint‑disable‑next‑line no‑console
-      console.error("[keystore] PKCS8 fallback failed", e);
-    }
+    console.log(
+      "[key-converter] keystore decoded – type:",
+      keyType,
+      "Public Key:",
+      publicKeyStr,
+      "Secret Key:",
+      secretKeyStr
+    );
+
+    return secretKeyStr
+  } catch (e) {
+    console.error("[key-converter] PKCS8 decode failed", e);
+    throw new Error("Unable to extract private key from keystore");
   }
-
-  if (!secret || secret.length < 32) {
-    throw new Error("Unable to extract private key");
-  }
-
-  return u8aToHex(secret.length === 64 ? secret.slice(0, 32) : secret) as `0x${string}`;
 }
 
 /**
- * Derive public keys directly from a keystore JSON without
- * requiring the caller to handle the private key.
+ * Derive public keys directly from a keystore JSON.
  */
 export async function derivePublicKeysFromKeystore(
   jsonStr: string | Record<string, unknown>,
@@ -203,7 +215,8 @@ export async function derivePublicKeysFromKeystore(
 ): Promise<PublicKeys> {
   await ensureReady();
 
-  const json = typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
+  const json =
+    typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr ?? {};
   if (typeof json !== "object" || !("encoded" in json)) {
     throw new Error("Invalid keystore JSON");
   }
@@ -226,5 +239,11 @@ export async function derivePublicKeysFromKeystore(
     throw new Error("Incorrect password");
   }
 
+  console.log(
+    "[key-converter] derive from keystore – type:",
+    keyType,
+    "address:",
+    pair.address
+  );
   return { ss58: pair.address, h160: toH160Hex(pair.address) };
 }
