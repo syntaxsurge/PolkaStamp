@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   KeyRound as KeyIcon,
   Clipboard,
@@ -20,7 +20,8 @@ import {
   privateKeyToMnemonic,
   derivePublicKeysFromMnemonic,
   derivePublicKeysFromPrivateKey,
-  PublicKeys,
+  h160ToSs58,
+  ss58ToH160,
 } from "@/lib/utils/key-converter";
 import { trimAddress } from "@/lib/utils/address";
 
@@ -51,9 +52,12 @@ function buildDevAccounts(): DevAccount[] {
   return DERIVATIONS.map((path) => {
     const label = path.replace("//", "");
     const seedPhrase = `${BASE_MNEMONIC}${path}`;
-    /* Path component is ignored; all accounts map to the base entropy */
-    const privateKey = mnemonicToPrivateKey(seedPhrase);
-    return { label, path, seedPhrase, privateKey };
+    return {
+      label,
+      path,
+      seedPhrase,
+      privateKey: "0x" + "0".repeat(64), // placeholder, filled async below
+    };
   });
 }
 
@@ -61,22 +65,26 @@ const DEV_ACCOUNTS = buildDevAccounts();
 
 /* ----------------------------- UI Helpers --------------------------------- */
 
-function ReadonlyField({
+function CopyInput({
   value,
+  onChange,
   placeholder,
+  error,
   copyLabel,
 }: {
   value: string;
+  onChange?: (v: string) => void;
   placeholder: string;
+  error?: boolean;
   copyLabel: string;
 }) {
   return (
     <div className="relative">
       <Input
-        readOnly
         value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="font-mono text-xs pr-12"
+        className={`font-mono text-xs pr-12 ${error ? "border-destructive" : ""}`}
         spellCheck={false}
       />
       {value && (
@@ -100,91 +108,150 @@ function ReadonlyField({
 /* -------------------------------------------------------------------------- */
 
 export default function KeyConverterPage() {
-  /* --------------------------- convert → private ------------------------ */
+  /* ------------------------- Mnemonic ⇄ Private key --------------------- */
   const [mnemonicIn, setMnemonicIn] = useState("");
+  const [privateOut, setPrivateOut] = useState("");
+  const [mnemonicPubH160, setMnemonicPubH160] = useState("");
+  const [mnemonicPubSs58, setMnemonicPubSs58] = useState("");
   const [mnemonicError, setMnemonicError] = useState(false);
 
-  const { privateOut, mnemonicPub }: { privateOut: string; mnemonicPub: PublicKeys | null } =
-    useMemo(() => {
-      if (!mnemonicIn.trim()) {
-        setMnemonicError(false);
-        return { privateOut: "", mnemonicPub: null };
-      }
+  useEffect(() => {
+    if (!mnemonicIn.trim()) {
+      setPrivateOut("");
+      setMnemonicPubH160("");
+      setMnemonicPubSs58("");
+      setMnemonicError(false);
+      return;
+    }
+    (async () => {
       try {
-        const key = mnemonicToPrivateKey(mnemonicIn);
-        const pub = derivePublicKeysFromMnemonic(mnemonicIn);
+        const pk = await mnemonicToPrivateKey(mnemonicIn);
+        const pub = await derivePublicKeysFromMnemonic(mnemonicIn);
+        setPrivateOut(pk);
+        setMnemonicPubH160(pub.h160);
+        setMnemonicPubSs58(pub.ss58);
         setMnemonicError(false);
-        return { privateOut: key, mnemonicPub: pub };
       } catch {
+        setPrivateOut("");
+        setMnemonicPubH160("");
+        setMnemonicPubSs58("");
         setMnemonicError(true);
-        return { privateOut: "", mnemonicPub: null };
       }
-    }, [mnemonicIn]);
+    })();
+  }, [mnemonicIn]);
 
-  /* --------------------------- convert → mnemonic ----------------------- */
+  /* ------------------------- Private key ⇄ Mnemonic --------------------- */
   const [privateIn, setPrivateIn] = useState("");
+  const [mnemonicOut, setMnemonicOut] = useState("");
+  const [privatePubH160, setPrivatePubH160] = useState("");
+  const [privatePubSs58, setPrivatePubSs58] = useState("");
   const [privateError, setPrivateError] = useState(false);
 
-  const { mnemonicOut, privatePub }: { mnemonicOut: string; privatePub: PublicKeys | null } =
-    useMemo(() => {
-      if (!privateIn.trim()) {
-        setPrivateError(false);
-        return { mnemonicOut: "", privatePub: null };
-      }
+  useEffect(() => {
+    if (!privateIn.trim()) {
+      setMnemonicOut("");
+      setPrivatePubH160("");
+      setPrivatePubSs58("");
+      setPrivateError(false);
+      return;
+    }
+    (async () => {
       try {
-        const mn = privateKeyToMnemonic(privateIn);
-        const pub = derivePublicKeysFromPrivateKey(privateIn);
+        const mn = await privateKeyToMnemonic(privateIn);
+        const pub = await derivePublicKeysFromPrivateKey(privateIn);
+        setMnemonicOut(mn);
+        setPrivatePubH160(pub.h160);
+        setPrivatePubSs58(pub.ss58);
         setPrivateError(false);
-        return { mnemonicOut: mn, privatePub: pub };
       } catch {
+        setMnemonicOut("");
+        setPrivatePubH160("");
+        setPrivatePubSs58("");
         setPrivateError(true);
-        return { mnemonicOut: "", privatePub: null };
       }
-    }, [privateIn]);
+    })();
+  }, [privateIn]);
 
-  /* --------------------------------- UI ---------------------------------- */
+  /* --------------------------- H160 ⇄ SS58 ------------------------------ */
+  const [h160Addr, setH160Addr] = useState("");
+  const [ss58Addr, setSs58Addr] = useState("");
+  const [addrError, setAddrError] = useState(false);
+
+  /* H160 input */
+  function handleH160Change(v: string) {
+    setH160Addr(v);
+    if (!v.trim()) {
+      setSs58Addr("");
+      setAddrError(false);
+      return;
+    }
+    try {
+      const ss = h160ToSs58(v.trim());
+      setSs58Addr(ss);
+      setAddrError(false);
+    } catch {
+      setSs58Addr("");
+      setAddrError(true);
+    }
+  }
+
+  /* SS58 input */
+  function handleSs58Change(v: string) {
+    setSs58Addr(v);
+    if (!v.trim()) {
+      setH160Addr("");
+      setAddrError(false);
+      return;
+    }
+    try {
+      const h = ss58ToH160(v.trim());
+      setH160Addr(h);
+      setAddrError(false);
+    } catch {
+      setH160Addr("");
+      setAddrError(true);
+    }
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /*                                UI                                      */
+  /* ---------------------------------------------------------------------- */
   return (
     <PageCard
       icon={KeyIcon}
-      title="Seed ⇄ Private-Key Converter"
-      description="Convert BIP-39 seed phrases to raw entropy hex and back — now with instant public-key derivation."
+      title="Key & Address Converter"
+      description="Convert between mnemonic, private key, H160 and SS58 with automatic public-key derivation."
       className="space-y-8"
     >
-      {/* Converters --------------------------------------------------------- */}
+      {/* Key converters ---------------------------------------------------- */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Mnemonic → Private key */}
+        {/* Mnemonic → Private */}
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="text-lg">Mnemonic → Private key</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 flex-1">
-            <Input
-              placeholder='e.g. "bottom drive… //Alice"'
+            <CopyInput
               value={mnemonicIn}
-              onChange={(e) => setMnemonicIn(e.target.value)}
-              spellCheck={false}
-              className="font-mono text-xs"
+              onChange={setMnemonicIn}
+              placeholder='e.g. "bottom drive… //Alice"'
+              copyLabel="Copy mnemonic"
             />
-
-            {/* Private key output */}
-            <ReadonlyField
+            <CopyInput
               value={privateOut}
               placeholder="0x…"
               copyLabel="Copy private key"
             />
-
-            {/* Public key outputs */}
-            <ReadonlyField
-              value={mnemonicPub?.h160 ?? ""}
-              placeholder="H160 address will appear here…"
+            <CopyInput
+              value={mnemonicPubH160}
+              placeholder="H160 address…"
               copyLabel="Copy H160"
             />
-            <ReadonlyField
-              value={mnemonicPub?.ss58 ?? ""}
-              placeholder="SS58 address will appear here…"
+            <CopyInput
+              value={mnemonicPubSs58}
+              placeholder="SS58 address…"
               copyLabel="Copy SS58"
             />
-
             {mnemonicError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
@@ -194,50 +261,74 @@ export default function KeyConverterPage() {
           </CardContent>
         </Card>
 
-        {/* Private key → Mnemonic */}
+        {/* Private → Mnemonic */}
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="text-lg">Private key → Mnemonic</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 flex-1">
-            <Input
-              placeholder="0x…16- or 32-byte hex"
+            <CopyInput
               value={privateIn}
-              onChange={(e) => setPrivateIn(e.target.value)}
-              spellCheck={false}
-              className="font-mono text-xs"
+              onChange={setPrivateIn}
+              placeholder="0x…16- or 32-byte hex"
+              copyLabel="Copy private key"
+              error={privateError}
             />
-
-            {/* Mnemonic output */}
-            <ReadonlyField
+            <CopyInput
               value={mnemonicOut}
-              placeholder="Mnemonic will appear here…"
+              placeholder="Mnemonic will appear…"
               copyLabel="Copy mnemonic"
             />
-
-            {/* Public key outputs */}
-            <ReadonlyField
-              value={privatePub?.h160 ?? ""}
-              placeholder="H160 address will appear here…"
+            <CopyInput
+              value={privatePubH160}
+              placeholder="H160 address…"
               copyLabel="Copy H160"
             />
-            <ReadonlyField
-              value={privatePub?.ss58 ?? ""}
-              placeholder="SS58 address will appear here…"
+            <CopyInput
+              value={privatePubSs58}
+              placeholder="SS58 address…"
               copyLabel="Copy SS58"
             />
-
             {privateError && (
               <p className="flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-4" />
-                Invalid entropy hex supplied (expect 16 or 32 bytes).
+                Invalid entropy hex supplied.
               </p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Pre-derived dev accounts ------------------------------------------- */}
+      {/* Address converter -------------------------------------------------- */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Address Converter</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <CopyInput
+            value={h160Addr}
+            onChange={handleH160Change}
+            placeholder="0x…20-byte H160"
+            copyLabel="Copy H160"
+            error={addrError}
+          />
+          <CopyInput
+            value={ss58Addr}
+            onChange={handleSs58Change}
+            placeholder="SS58 address"
+            copyLabel="Copy SS58"
+            error={addrError}
+          />
+          {addrError && (
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="size-4" />
+              Invalid address supplied.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dev accounts ------------------------------------------------------- */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
@@ -257,7 +348,7 @@ export default function KeyConverterPage() {
           </div>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {DEV_ACCOUNTS.map(({ label, path, seedPhrase, privateKey }) => (
+          {DEV_ACCOUNTS.map(({ label, path, seedPhrase }) => (
             <div
               key={label}
               className="rounded-md border p-4 bg-muted/50 space-y-2"
@@ -273,10 +364,6 @@ export default function KeyConverterPage() {
                 <span className="text-muted-foreground">Seed phrase:</span>{" "}
                 {seedPhrase}
               </p>
-              <p className="text-xs break-all font-mono">
-                <span className="text-muted-foreground">Private key:</span>{" "}
-                {trimAddress(privateKey, 8)}
-              </p>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -286,15 +373,6 @@ export default function KeyConverterPage() {
                 >
                   <Clipboard className="mr-1 size-4" />
                   Copy seed
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(privateKey)}
-                >
-                  <Clipboard className="mr-1 size-4" />
-                  Copy key
                 </Button>
               </div>
             </div>
