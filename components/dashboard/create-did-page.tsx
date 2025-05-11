@@ -96,7 +96,7 @@ export default async function CreateDidPage() {
   return (
     <PageCard
       icon={KeyRound}
-      title='Register your Team DID'
+      title='Create your Team DID'
       description='Unlock verifiable credentials and sign them as a team.'
     >
       <div className='space-y-6'>
@@ -135,7 +135,7 @@ export default async function CreateDidPage() {
 
         <p className='text-sm leading-relaxed'>
           A Decentralised Identifier (DID) acts like a verified username for your company. Once
-          registered, your team can issue <span className='font-semibold'>signed</span> credentials
+          created, your team can issue <span className='font-semibold'>signed</span> credentials
           that employers, clients, and platforms can trust instantly.
         </p>
 
