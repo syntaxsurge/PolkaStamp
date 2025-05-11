@@ -10,18 +10,27 @@ import { db } from '@/lib/db/drizzle'
 import { candidateCredentials, CredentialStatus } from '@/lib/db/schema/candidate'
 import { issuers, IssuerStatus } from '@/lib/db/schema/issuer'
 import { users } from '@/lib/db/schema/core'
-import { grantIssuerRole } from '@/lib/credential-nft'
-import { getPlatformSigner } from '@/lib/platform-signer'
 
 /* -------------------------------------------------------------------------- */
 /*                               U P D A T E                                  */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * When activating an issuer for the first time, the admin
+ * must sign the on-chain <grantIssuerRole> transaction in the
+ * browser; the resulting tx hash is posted back in `txHash`.
+ */
 const updateIssuerStatusSchema = z
   .object({
     issuerId: z.coerce.number(),
     status: z.enum([IssuerStatus.PENDING, IssuerStatus.ACTIVE, IssuerStatus.REJECTED]),
     rejectionReason: z.string().max(2000).optional(),
+    /** On-chain tx hash emitted by grantIssuerRole (0x…66) */
+    txHash: z
+      .string()
+      .trim()
+      .regex(/^0x[0-9a-f]{64}$/i, 'Invalid tx hash')
+      .optional(),
   })
   .superRefine((val, ctx) => {
     if (val.status === IssuerStatus.REJECTED && !val.rejectionReason) {
@@ -35,7 +44,7 @@ const updateIssuerStatusSchema = z
 
 const _updateIssuerStatus = validatedActionWithUser(
   updateIssuerStatusSchema,
-  async ({ issuerId, status, rejectionReason }, _formData, user) => {
+  async ({ issuerId, status, rejectionReason, txHash }, _formData, user) => {
     if (user.role !== 'admin') return { error: 'Unauthorized.' }
 
     /* ------------------------------------------------------------------ */
@@ -62,19 +71,19 @@ const _updateIssuerStatus = validatedActionWithUser(
       }
     }
 
-    let txHash: string | undefined = issuer.grantTxHash ?? undefined
+    /* ------------------------------------------------------------------ */
+    /* First-time activation must include txHash from frontend            */
+    /* ------------------------------------------------------------------ */
+    let newTxHash: string | undefined = issuer.grantTxHash ?? undefined
 
-    /* ------------------------------------------------------------------ */
-    /* First-time activation → grant on-chain issuer role                 */
-    /* ------------------------------------------------------------------ */
     if (status === IssuerStatus.ACTIVE && issuer.status !== IssuerStatus.ACTIVE) {
-      try {
-        const signer = await getPlatformSigner()
-        const res = await grantIssuerRole({ account: signer, issuer: owner.walletAddress })
-        txHash = res.txHash ?? undefined
-      } catch (err) {
-        return { error: `Blockchain transaction failed: ${(err as Error).message}` }
+      if (!txHash) {
+        return {
+          error:
+            'Transaction hash missing. Please sign the grantIssuerRole transaction in your wallet and retry.',
+        }
       }
+      newTxHash = txHash
     }
 
     /* ------------------------------------------------------------------ */
@@ -85,7 +94,7 @@ const _updateIssuerStatus = validatedActionWithUser(
       .set({
         status,
         rejectionReason: status === IssuerStatus.REJECTED ? rejectionReason ?? null : null,
-        grantTxHash: txHash ?? null,
+        grantTxHash: newTxHash ?? null,
       })
       .where(eq(issuers.id, issuerId))
 
