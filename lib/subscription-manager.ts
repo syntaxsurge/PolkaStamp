@@ -3,7 +3,7 @@ import { getInkClient } from 'polkadot-api/ink'
 import { InjectedPolkadotAccount } from 'polkadot-api/pjs-signer'
 
 import { SUBSCRIPTION_MANAGER_ADDRESS } from './config'
-import { h160Binary, isEmpty, safeDecode, hash32Binary } from './contract-utils'
+import { h160Binary, isEmpty, safeDecode } from './contract-utils'
 import { makeInkHelpers } from './ink-helpers'
 
 /* -------------------------------------------------------------------------- */
@@ -89,6 +89,7 @@ export const priceOf = async ({
 
 /**
  * Admin-only: set price for a plan.
+ * Passes `newPrice` as a raw bigint (U256) expected by the contract.
  */
 export const setPlanPrice = async ({
   account,
@@ -103,7 +104,7 @@ export const setPlanPrice = async ({
     account,
     msg('set_plan_price').encode({
       plan_key: planKey,
-      new_price: hash32Binary(newPrice.toString(16).padStart(64, '0')),
+      new_price: newPrice,
     }),
   )
 
