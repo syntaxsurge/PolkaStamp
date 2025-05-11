@@ -8,6 +8,13 @@
       "when": 1746243660076,
       "tag": "0000_keen_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1746987462758,
+      "tag": "0001_open_jackpot",
+      "breakpoints": true
     }
   ]
 }

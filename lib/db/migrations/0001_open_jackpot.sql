@@ -1,0 +1,1 @@
+ALTER TABLE "issuers" ADD COLUMN "grant_tx_hash" varchar(66);
