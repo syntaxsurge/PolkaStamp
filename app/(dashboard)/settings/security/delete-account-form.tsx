@@ -1,3 +1,4 @@
+// NOTE: full file rewritten to include the type-cast fix
 'use client'
 
 import { useRouter } from 'next/navigation'
@@ -36,7 +37,8 @@ export default function DeleteAccountForm() {
     const address = selectedAccount.address
     const message = `I confirm deletion of my PolkaStamp account (${address}) at ${new Date().toISOString()}`
 
-    const signer = selectedAccount.extension?.signer
+    // Cast to any so the missing `signer` field does not raise a TS error
+    const signer = (selectedAccount.extension as any)?.signer
     if (!signer?.signRaw) {
       toast.error('Wallet does not support raw signing.')
       return
