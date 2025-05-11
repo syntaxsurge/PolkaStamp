@@ -1,6 +1,7 @@
 import {
   mnemonicToEntropy,
   entropyToMnemonic,
+  entropyToMiniSecret,
 } from "@polkadot-labs/hdkd-helpers";
 import { Keyring } from "@polkadot/keyring";
 import {
@@ -42,9 +43,8 @@ function normaliseMnemonic(phrase: string): string {
  * hex **without** 0x if length is 64 or 128 chars.
  *
  * Accepts:
- *  - 64 chars (32 bytes) → BIP-39 24-word entropy
- *  - 128 chars (64 bytes) → Sr25519 full secret key
- *    (first 32 bytes are used as mini secret)
+ *  - 64 chars (32 bytes)  → sr25519 mini-secret or BIP-39 entropy
+ *  - 128 chars (64 bytes) → full secret key (first 32 bytes used)
  */
 function sanitiseEntropyHex(input: string): string {
   const raw = input.trim().toLowerCase().replace(/^0x/, "");
@@ -63,17 +63,22 @@ export type PublicKeys = {
   h160: `0x${string}`;
 };
 
+/**
+ * Convert a mnemonic (optionally with derivation path) into
+ * the sr25519 mini-secret expected by Keyring.addFromSeed().
+ */
 export async function mnemonicToPrivateKey(phrase: string): Promise<`0x${string}`> {
   const trimmed = phrase.trim();
   if (!trimmed) throw new Error("Mnemonic cannot be empty");
-  const [mnemonic] = trimmed.split("//");
+  const [mnemonic] = trimmed.split("//"); // strip soft/hd path for raw seed
   const entropy = mnemonicToEntropy(normaliseMnemonic(mnemonic));
-  return entropyToHex(entropy);
+  const miniSecret = entropyToMiniSecret(entropy); // ★ change: use mini-secret
+  return entropyToHex(miniSecret);
 }
 
 /**
- * Convert a 32-byte secret key to its 24-word BIP-39 mnemonic.
- * 64-char hex is supported; 128-char secrets are not reversible.
+ * Attempt to reverse a 32-byte secret back to a BIP-39 mnemonic.
+ * This only succeeds when the secret is valid original entropy.
  */
 export async function privateKeyToMnemonic(privateKeyHex: string): Promise<string> {
   const clean = sanitiseEntropyHex(privateKeyHex);
@@ -81,7 +86,6 @@ export async function privateKeyToMnemonic(privateKeyHex: string): Promise<strin
     const entropy = Uint8Array.from(Buffer.from(clean, "hex"));
     return entropyToMnemonic(entropy);
   }
-  /* 128-char secrets cannot reliably map back to BIP-39 */
   throw new Error("Cannot derive mnemonic from this key length");
 }
 
@@ -141,7 +145,17 @@ export async function keystoreJsonToPrivateKey(
     throw new Error("Invalid keystore JSON");
   }
 
-  const keyring = new Keyring({ type: "sr25519" });
+  /* Detect key type from encoding.content – default sr25519 */
+  let keyType: "sr25519" | "ed25519" | "ecdsa" = "sr25519";
+  try {
+    const content = ((json as any).encoding?.content ?? [])[1];
+    const cand = typeof content === "string" ? content.toLowerCase() : "";
+    if (cand === "ed25519" || cand === "ecdsa") keyType = cand as any;
+  } catch {
+    /* ignore – keep default */
+  }
+
+  const keyring = new Keyring({ type: keyType });
   const pair = keyring.addFromJson(json as any);
   try {
     pair.decodePkcs8(password);
@@ -149,12 +163,17 @@ export async function keystoreJsonToPrivateKey(
     throw new Error("Incorrect password");
   }
 
-  const secret = pair.secretKey as Uint8Array | undefined;
+  /* Secret retrieval – covers different keyring versions */
+  let secret: Uint8Array | undefined =
+    (pair as any).secretKey ??
+    (pair as any)._pair?.secretKey ??
+    undefined;
+
   if (!secret || secret.length < 32) {
     throw new Error("Unable to extract private key");
   }
 
-  const mini = secret.slice(0, 32); // first 32 bytes = mini secret
+  const mini = secret.slice(0, 32); // mini-secret
   return u8aToHex(mini) as `0x${string}`;
 }
 
@@ -164,4 +183,12 @@ export async function derivePublicKeysFromKeystore(
 ): Promise<PublicKeys> {
   const priv = await keystoreJsonToPrivateKey(jsonStr, password);
   return derivePublicKeysFromPrivateKey(priv);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                     A D D R E S S   C O N V E R S I O N                    */
+/* -------------------------------------------------------------------------- */
+
+export function ss58ToH160Unsafe(input: string) {
+  return toH160Hex(input);
 }

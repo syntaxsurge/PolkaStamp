@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import {
   KeyRound as KeyIcon,
   Clipboard,
-  RefreshCcw,
+  Eye,
+  EyeOff,
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
@@ -26,7 +27,7 @@ import {
   derivePublicKeysFromKeystore,
 } from "@/lib/utils/key-converter";
 
-/* ----------------------------- Helper component -------------------------- */
+/* ----------------------------- Helper components ------------------------- */
 
 function CopyInput({
   label,
@@ -67,6 +68,43 @@ function CopyInput({
           </Button>
         )}
       </div>
+    </div>
+  );
+}
+
+function PasswordInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-1 flex-1 relative">
+      <label className="text-xs font-medium text-foreground/70">{label}</label>
+      <Input
+        type={visible ? "text" : "password"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="pr-12"
+      />
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
+        className="absolute right-1 top-7 -translate-y-1/2"
+        onClick={() => setVisible((v) => !v)}
+      >
+        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        <span className="sr-only">{visible ? "Hide password" : "Show password"}</span>
+      </Button>
     </div>
   );
 }
@@ -114,21 +152,21 @@ export default function KeyConverterPage() {
       return;
     }
     (async () => {
-      let hadMnemonicError = false;
+      let mnemonicErr = false;
       try {
         setMnemonicOut(await privateKeyToMnemonic(privateIn));
       } catch {
         setMnemonicOut("");
-        hadMnemonicError = true;
+        mnemonicErr = true;
       }
       try {
         setPrivatePub(await derivePublicKeysFromPrivateKey(privateIn));
+        setPrivateError(false);
       } catch {
         setPrivatePub({ h160: "", ss58: "" });
         setPrivateError(true);
-        return;
       }
-      if (hadMnemonicError) setPrivateError(false);
+      if (mnemonicErr && !privateError) setPrivateError(false);
     })();
   }, [privateIn]);
 
@@ -178,18 +216,9 @@ export default function KeyConverterPage() {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [jsonSuccess, setJsonSuccess] = useState(false);
 
-  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    file
-      .text()
-      .then((txt) => setJsonText(txt))
-      .catch(() => toast.error("Failed to read file"));
-  }
-
   async function decodeKeystore() {
     if (!jsonText.trim()) {
-      setJsonError("Paste or upload a keystore JSON first.");
+      setJsonError("Paste a keystore JSON first.");
       return;
     }
     try {
@@ -324,26 +353,14 @@ export default function KeyConverterPage() {
               spellCheck={false}
             />
           </div>
+
           <div className="flex items-end gap-2">
-            <div className="flex flex-col gap-1 flex-1">
-              <label className="text-xs font-medium text-foreground/70">Password</label>
-              <Input
-                type="password"
-                value={jsonPwd}
-                onChange={(e) => setJsonPwd(e.target.value)}
-                placeholder="Password (leave blank if none)"
-              />
-            </div>
-            <input
-              type="file"
-              accept=".json,application/json"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="jsonFileInput"
+            <PasswordInput
+              label="Password"
+              value={jsonPwd}
+              onChange={setJsonPwd}
+              placeholder="Password (leave blank if none)"
             />
-            <label htmlFor="jsonFileInput">
-              <Button variant="outline">Upload</Button>
-            </label>
             <Button onClick={decodeKeystore}>Decode</Button>
           </div>
 
