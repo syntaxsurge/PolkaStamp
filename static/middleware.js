@@ -13,7 +13,7 @@ export default function middleware(req) {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: 'https://www.youtube.com/embed/B-0lPOdbbsw',
+        Location: 'https://www.youtube.com/watch?v=B-0lPOdbbsw',
       },
     });
   }
