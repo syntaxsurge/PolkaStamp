@@ -1,23 +1,13 @@
 {
-  "version": 2,
-  "name": "polkastamp-outage",
-  "builds": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "static",
+  "redirects": [
     {
-      "src": "static/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/static/index.html"
+      "source": "/demo-video",
+      "destination": "https://youtu.be/HRx9k8ipuvQ",
+      "statusCode": 302
     }
   ]
 }
