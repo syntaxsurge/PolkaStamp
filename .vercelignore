@@ -1,4 +1,8 @@
-/blockchain
-/test
-/.husky
-/coverage
+# Keep only the outage page
+*
+!index.html
+!outage.html
+!styles.css
+!logo.svg
+!vercel.json
+!.vercelignore
