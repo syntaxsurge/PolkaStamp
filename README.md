@@ -50,7 +50,7 @@ pnpm papi ink add ./blockchain/contracts/credential_nft/target/ink/credential_nf
 pnpm papi ink add ./blockchain/contracts/subscription_manager/target/ink/subscription_manager.json
 ```
 
-Then follow `blockchain/README.md` to **compile → test → upload** the three contracts to your chosen parachain or local node.
+Follow `blockchain/README.md` to **compile → test → upload** the three contracts to your chosen parachain or local node.
 
 ### 4 ▪ Database (optional helper)
 
@@ -95,6 +95,8 @@ Open **http://localhost:3000** and connect any Polkadot wallet (extension, mobil
 | **Subscription Manager** | ink! 6 | `subscribe`, `update_price`, `cancel`                       | DOT-denominated recurring plans with on-chain receipts          |
 
 All contracts live in `/blockchain/contracts/**` with Cargo workspace tests and automatically exported descriptors for PAPI.
+
+**PolkaStamp contracts Documentation:** <https://github.com/syntaxsurge/PolkaStamp/tree/main/blockchain/>
 
 ---
 
@@ -149,9 +151,11 @@ services:
 
 ## 📚 Further Reading
 
+- **PolkaStamp contracts Documentation** — <https://github.com/syntaxsurge/PolkaStamp/tree/main/blockchain/>
+- **Local ink! node tutorial** — <https://github.com/inkonchain/node>
 - **PAPI** — <https://docs.polkadot.com/develop/toolkit/api-libraries/papi/>
-- **Apillon Storage** — <https://apillon.io/docs>
-- **ink! & PolkaVM** — <https://paritytech.github.io/ink/>
+- **Apillon Storage** — <https://wiki.apillon.io/build/1-apillon-api.html>
+- **ink! & PolkaVM** — <https://use.ink/docs/v6/>
 - **GPT-4o** — <https://platform.openai.com/docs/models/gpt-4o>
 
 ---
