@@ -50,7 +50,7 @@ pnpm papi ink add ./blockchain/contracts/credential_nft/target/ink/credential_nf
 pnpm papi ink add ./blockchain/contracts/subscription_manager/target/ink/subscription_manager.json
 ```
 
-Follow `blockchain/README.md` to **compile → test → upload** the three contracts to your chosen parachain or local node.
+Follow [**`blockchain/README.md`**](https://github.com/syntaxsurge/PolkaStamp/tree/main/blockchain) to **compile → test → upload** the three contracts to your chosen parachain or local node.
 
 ### 4 ▪ Database (optional helper)
 
