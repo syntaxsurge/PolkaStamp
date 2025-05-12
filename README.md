@@ -75,7 +75,7 @@ Open **http://localhost:3000** and connect any Polkadot wallet (extension, mobil
 
 ## 🧩 Architectural Overview
 
-[PolkaStamp Architectural Overview](public/images/architecture.png)
+![PolkaStamp Architectural Overview](public/images/architecture.png)
 
 ---
 
