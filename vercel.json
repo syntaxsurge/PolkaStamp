@@ -1,14 +1,11 @@
 {
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/static/index.html"
-    }
-  ],
+  "version": 3,
+  "buildCommand": "",
+  "outputDirectory": "static",
   "redirects": [
     {
       "source": "/demo-video",
-      "destination": "https://youtu.be/B-0lPOdbbsw",
+      "destination": "https://youtu.be/HRx9k8ipuvQ",
       "statusCode": 302
     }
   ]
