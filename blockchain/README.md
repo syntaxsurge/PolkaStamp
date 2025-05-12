@@ -68,6 +68,17 @@ The script:
 
 ---
 
+## 🧪 Testing Contracts
+
+Run unit tests individually in each contract directory:
+
+```bash
+cd contracts/did_registry && cargo test
+cd contracts/credential_nft && cargo test
+```
+
+---
+
 ## 🔍 Extract a Contract Address from Logs
 
 ```bash
@@ -107,9 +118,3 @@ Outputs the first `0x…`/SS58 address found in the file/stdin.
 - **Grant new issuer role?** – `credential_nft.grant_issuer_role(ss58Address)` by the admin.
 
 Happy hacking on **Polkadot + ink!** 🚀
-
-Test:
-
-cd contracts/did_registry && cargo test
-
-cd contracts/credential_nft && cargo test
