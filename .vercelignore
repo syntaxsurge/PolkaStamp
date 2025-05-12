@@ -1,4 +1,6 @@
-/blockchain
-/test
-/.husky
-/coverage
+# Deploy only the static outage page on Vercel
+*
+!static/
+!static/**
+!vercel.json
+!.vercelignore

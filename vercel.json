@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/static/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/demo-video",
+      "destination": "https://youtu.be/HRx9k8ipuvQ",
+      "statusCode": 302
+    }
+  ]
+}
