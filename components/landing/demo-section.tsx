@@ -20,7 +20,7 @@ const EMBEDS: Embed[] = [
   {
     key: 'video',
     title: '2-Minute Product Tour',
-    src: 'https://www.youtube.com/embed/HRx9k8ipuvQ',
+    src: 'https://www.youtube.com/embed/B-0lPOdbbsw',
     link: '/demo-video',
   },
   {

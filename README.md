@@ -2,7 +2,7 @@
 
 Powered by ink! **v6** smart contracts running on **PolkaVM**, Verifiable Credentials, deterministic DIDs, and on-chain subscription billing are secured by the Polkadot relay chain.
 
-[![PolkaStamp Demo](public/images/polkastamp-demo.png)](https://youtu.be/HRx9k8ipuvQ)
+[![PolkaStamp Demo](public/images/polkastamp-demo.png)](https://youtu.be/B-0lPOdbbsw)
 
 ---
 
