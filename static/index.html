@@ -2,18 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
     <title>PolkaStamp — ink! v6 / Westend Asset Hub Notice</title>
 
     <!-- Fonts -->
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-      crossorigin="anonymous"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
       rel="stylesheet"
@@ -37,8 +30,16 @@
       body {
         margin: 0;
         padding: 0;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-          Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          'Noto Sans',
+          sans-serif;
         background-color: #0f0f10;
         color: #f3f4f6;
         min-height: 100vh;
@@ -54,13 +55,13 @@
         content: '';
         position: fixed;
         inset: 0;
-        background-image: radial-gradient(
-            #38bdf8 1.2px,
-            transparent 1.2px
-          ),
+        background-image:
+          radial-gradient(#38bdf8 1.2px, transparent 1.2px),
           radial-gradient(#38bdf8 1.2px, transparent 1.2px);
         background-size: 60px 60px;
-        background-position: 0 0, 30px 30px;
+        background-position:
+          0 0,
+          30px 30px;
         animation: drift 45s linear infinite;
         opacity: 0.12;
         pointer-events: none;
@@ -79,7 +80,9 @@
       a {
         color: #38bdf8;
         text-decoration: none;
-        transition: color 0.2s ease, opacity 0.2s ease;
+        transition:
+          color 0.2s ease,
+          opacity 0.2s ease;
       }
 
       a:hover,
@@ -162,7 +165,9 @@
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 9999px;
-        transition: background 0.2s ease, transform 0.2s ease;
+        transition:
+          background 0.2s ease,
+          transform 0.2s ease;
         white-space: nowrap;
       }
 
@@ -204,21 +209,20 @@
           target="_blank"
           rel="noopener"
           title="View upstream issue in new tab"
-          >has a known issue <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i
+          >has a known issue
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i
         ></a>
       </h1>
 
       <p>
-        <strong>PolkaStamp deployments</strong> to <strong>Westend Asset Hub</strong> may
-        currently fail <em>solely</em> because of this
-        <a
-          href="https://github.com/use-ink/ink/issues/2503"
-          target="_blank"
-          rel="noopener"
-          >upstream ink! compiler issue <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i
-        ></a>. Your smart contracts and the PolkaStamp codebase are <strong>not at fault</strong>.
-        Follow the GitHub thread for progress or, in the meantime, clone the repo and
-        experiment against a <strong>local node</strong>.
+        <strong>PolkaStamp deployments</strong> to <strong>Westend Asset Hub</strong> may currently
+        fail <em>solely</em> because of this
+        <a href="https://github.com/use-ink/ink/issues/2503" target="_blank" rel="noopener"
+          >upstream ink! compiler issue
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a
+        >. Your smart contracts and the PolkaStamp codebase are <strong>not at fault</strong>.
+        Follow the GitHub thread for progress or, in the meantime, clone the repo and experiment
+        against a <strong>local node</strong>.
       </p>
 
       <iframe
@@ -238,11 +242,7 @@
           <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i
         ></a>
 
-        <a
-          class="chip"
-          href="https://github.com/inkonchain/node"
-          target="_blank"
-          rel="noopener"
+        <a class="chip" href="https://github.com/inkonchain/node" target="_blank" rel="noopener"
           ><i class="fa-solid fa-book-open" aria-hidden="true"></i> Local ink! node tutorial
           <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i
         ></a>
