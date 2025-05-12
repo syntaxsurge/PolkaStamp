@@ -1,17 +1,7 @@
 {
   "version": 2,
-  "name": "polkastamp-outage",
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/static/index.html"
-    }
-  ]
+  "framework": null,
+  "buildCommand": "",
+  "outputDirectory": "static",
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
