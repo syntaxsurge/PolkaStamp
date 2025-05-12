@@ -2,82 +2,196 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5"
+    />
     <title>PolkaStamp — ink! v6 / Westend Asset Hub Notice</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* ---------- Global ---------- */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
-        font-family:
-          Inter,
-          -apple-system,
-          BlinkMacSystemFont,
-          Segoe UI,
-          Roboto,
-          Helvetica Neue,
-          Arial,
-          Noto Sans,
-          sans-serif;
-        background: #0f0f10;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+        background-color: #0f0f10;
         color: #f2f2f2;
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
-        text-align: center;
-        padding: 1rem;
+        padding: 2rem 1rem;
+        overflow-x: hidden;
       }
+
+      /* Polka-dot background */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: radial-gradient(
+            #38bdf8 1.2px,
+            transparent 1.2px
+          ),
+          radial-gradient(#38bdf8 1.2px, transparent 1.2px);
+        background-size: 60px 60px;
+        background-position: 0 0, 30px 30px;
+        opacity: 0.12;
+        pointer-events: none;
+        z-index: -1;
+      }
+
       a {
         color: #38bdf8;
         text-decoration: none;
+        transition: color 0.2s ease;
       }
+
       a:hover {
+        color: #7dd3fc;
         text-decoration: underline;
       }
-      .container {
-        max-width: 720px;
+
+      /* ---------- Card ---------- */
+      .card {
         width: 100%;
+        max-width: 760px;
+        padding: 2.5rem 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        backdrop-filter: blur(8px) saturate(1.5);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        text-align: center;
       }
+
+      h1 {
+        margin: 0 0 1rem;
+        font-size: clamp(1.5rem, 2.5vw + 1rem, 2.25rem);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      h1 a {
+        font-weight: 700;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0 auto 1.75rem;
+        max-width: 55ch;
+      }
+
       iframe {
-        max-width: 100%;
-        aspect-ratio: 16/9;
         width: 100%;
+        max-width: 100%;
+        aspect-ratio: 16 / 9;
         border: none;
-        border-radius: 8px;
-        margin-top: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.75rem;
       }
+
       .links {
-        margin-top: 1.5rem;
         display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
         font-size: 0.95rem;
+      }
+
+      .links a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: background 0.2s ease;
+      }
+
+      .links a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .card {
+          animation: fadeIn 0.8s ease 0.1s both;
+        }
+
+        @keyframes fadeIn {
+          from {
+            transform: translateY(12px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>⚠️ ink! v6 on Westend Asset Hub has a known issue</h1>
+    <main class="card">
+      <h1>
+        ⚠️ ink! v6 on Westend Asset Hub
+        <a
+          href="https://github.com/use-ink/ink/issues/2503"
+          target="_blank"
+          rel="noopener"
+          >has a known issue</a
+        >
+      </h1>
+
       <p>
-        PolkaStamp deployments to <strong>Westend Asset Hub</strong> may fail at the moment due to a
-        <em>known upstream issue</em> with ink! v6. Until it is fixed, please clone the repository
-        and experiment against a <strong>Local Node</strong>.
+        PolkaStamp deployments to <strong>Westend Asset Hub</strong> may fail at
+        the moment due to an <em>upstream issue</em> with ink! v6. Until it is
+        fixed, please clone the repository and experiment against a
+        <strong>local node</strong>.
       </p>
 
       <iframe
         src="https://www.youtube.com/embed/B-0lPOdbbsw"
         title="PolkaStamp demo video"
         allowfullscreen
+        loading="lazy"
       ></iframe>
 
       <div class="links">
-        <a href="https://github.com/use-ink/ink/issues/2503" target="_blank" rel="noopener"
-          >🔗 ink! v6 Westend Asset Hub issue #2503</a
+        <a
+          href="https://github.com/use-ink/ink/issues/2503"
+          target="_blank"
+          rel="noopener"
+          >🔗 GitHub issue #2503</a
         >
-        <a href="https://github.com/inkonchain/node" target="_blank" rel="noopener"
-          >📚 Tutorial: Running a local ink! node</a
+        <a
+          href="https://github.com/inkonchain/node"
+          target="_blank"
+          rel="noopener"
+          >📚 Local ink! node tutorial</a
         >
-        <a href="https://github.com/syntaxsurge/PolkaStamp" target="_blank" rel="noopener"
-          >💻 PolkaStamp GitHub repository</a
+        <a
+          href="https://github.com/syntaxsurge/PolkaStamp"
+          target="_blank"
+          rel="noopener"
+          >💻 PolkaStamp repository</a
         >
         <a
           href="https://github.com/syntaxsurge/PolkaStamp/tree/main/blockchain"
@@ -86,6 +200,6 @@
           >📝 ink! v6 smart contracts</a
         >
       </div>
-    </div>
+    </main>
   </body>
 </html>
