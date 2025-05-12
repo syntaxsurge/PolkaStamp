@@ -1,7 +1,6 @@
 {
   "version": 2,
   "name": "polkastamp-outage",
-  "cleanUrls": true,
   "routes": [
     {
       "handle": "filesystem"
