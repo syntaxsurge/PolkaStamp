@@ -2,13 +2,6 @@
   "version": 2,
   "name": "polkastamp-outage",
   "cleanUrls": true,
-  "redirects": [
-    {
-      "source": "/demo-video",
-      "destination": "https://youtu.be/HRx9k8ipuvQ",
-      "statusCode": 302
-    }
-  ],
   "routes": [
     {
       "handle": "filesystem"
